@@ -48,6 +48,9 @@ public static class SeedData
             {
                 Id = Guid.NewGuid(),
                 Name = clubSeed.Name,
+                TimeZoneId = clubSeed.TimeZoneId,
+                SlotCellDurationMinutes = clubSeed.SlotCellDurationMinutes,
+                MinimumBookingDurationMinutes = clubSeed.MinimumBookingDurationMinutes,
                 CreatedAt = now
             };
 
@@ -86,6 +89,12 @@ public static class SeedData
     private sealed class ClubSeed
     {
         public string Name { get; set; } = string.Empty;
+
+        public string TimeZoneId { get; set; } = string.Empty;
+
+        public int SlotCellDurationMinutes { get; set; }
+
+        public int MinimumBookingDurationMinutes { get; set; }
 
         public List<CourtSeed> Courts { get; set; } = [];
 

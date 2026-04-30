@@ -16,7 +16,7 @@ build:
 	dotnet build $(SOLUTION)
 
 run:
-	dotnet run --project $(API_PROJECT)
+	dotnet run --project $(API_PROJECT) --launch-profile https
 
 test:
 	dotnet test $(SOLUTION)

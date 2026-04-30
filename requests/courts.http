@@ -1,0 +1,10 @@
+@clubId = 00000000-0000-0000-0000-000000000000
+
+### Create Court (ClubStaffOrAdmin)
+POST {{baseUrl}}/api/clubs/{{clubId}}/courts
+Authorization: Bearer {{$dotenv TOKEN}}
+Content-Type: {{contentType}}
+
+{
+  "name": "Court 1"
+}

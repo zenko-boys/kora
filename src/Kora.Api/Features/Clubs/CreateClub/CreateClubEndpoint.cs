@@ -1,4 +1,5 @@
 using Kora.Common.Endpoints;
+using Kora.Infrastructure.Auth;
 
 namespace Kora.Features.Clubs.CreateClub;
 
@@ -14,6 +15,7 @@ public class CreateClubEndpoint : IEndpoint
             var result = await handler.Handle(request, ct);
             return Results.Created($"/api/clubs/{result.Id}", result);
         })
+        .RequireAuthorization(AuthorizationPolicies.AdminOnly)
         .WithTags("Clubs")
         .WithName("CreateClub");
     }

@@ -1,4 +1,5 @@
 using Kora.Domain.Clubs;
+using Kora.Domain.Reservations;
 
 namespace Kora.Domain.Courts;
 
@@ -13,4 +14,6 @@ public class Court
     public DateTime CreatedAt { get; set; }
 
     public Club? Club { get; set; }
+
+    public List<Reservation> Reservations { get; set; } = [];
 }

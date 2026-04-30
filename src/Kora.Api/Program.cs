@@ -4,7 +4,6 @@ using Kora.Common.Endpoints;
 using Kora.Configuration;
 using Kora.Features;
 using Kora.Infrastructure;
-using Kora.Infrastructure.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,8 +17,6 @@ builder.Services.AddOptionsConfiguration(builder.Configuration);
 builder.Services.AddCommon();
 builder.Services.AddInfrastructure();
 builder.Services.AddFeatures(assembly);
-
-builder.Services.AddOpenApiDocumentation();
 
 var app = builder.Build();
 

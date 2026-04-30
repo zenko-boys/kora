@@ -14,6 +14,10 @@ public class ClubConfiguration : IEntityTypeConfiguration<Club>
             .HasMaxLength(120)
             .IsRequired();
 
+        builder.Property(x => x.TimeZoneId)
+            .HasMaxLength(60)
+            .IsRequired();
+
         builder.Property(x => x.SlotCellDurationMinutes)
             .IsRequired();
 

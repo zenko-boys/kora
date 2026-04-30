@@ -1,0 +1,54 @@
+@clubId = 00000000-0000-0000-0000-000000000000
+@bookingId = 00000000-0000-0000-0000-000000000000
+
+### List bookings — next 7 days, all clubs, all types
+GET {{baseUrl}}/api/bookings
+Authorization: Bearer {{$dotenv TOKEN}}
+
+### List bookings — only open games (matchmaking front door)
+GET {{baseUrl}}/api/bookings?type=Game&open=true
+Authorization: Bearer {{$dotenv TOKEN}}
+
+### List bookings — only full games
+GET {{baseUrl}}/api/bookings?type=Game&open=false
+Authorization: Bearer {{$dotenv TOKEN}}
+
+### List bookings — filtered by club
+GET {{baseUrl}}/api/bookings?clubId={{clubId}}
+Authorization: Bearer {{$dotenv TOKEN}}
+
+### List bookings — explicit time window
+GET {{baseUrl}}/api/bookings?clubId={{clubId}}&fromUtc=2026-05-01T00:00:00Z&toUtc=2026-05-08T00:00:00Z
+Authorization: Bearer {{$dotenv TOKEN}}
+
+### Book Game (any authenticated user)
+# @name bookGame
+POST {{baseUrl}}/api/bookings/game
+Authorization: Bearer {{$dotenv TOKEN}}
+Content-Type: {{contentType}}
+
+{
+  "clubId": "{{clubId}}",
+  "startsAt": "2026-05-01T18:00:00-04:00",
+  "durationMinutes": 60
+}
+
+### Book Day-Use (ClubStaffOrAdmin)
+POST {{baseUrl}}/api/clubs/{{clubId}}/bookings/dayuse
+Authorization: Bearer {{$dotenv TOKEN}}
+Content-Type: {{contentType}}
+
+{
+  "startsAt": "2026-05-01T10:00:00-03:00",
+  "durationMinutes": 240,
+  "courtsToOccupy": 1,
+  "capacity": 16
+}
+
+### Join Booking (any authenticated user) — uses id from Book Game
+POST {{baseUrl}}/api/bookings/{{bookGame.response.body.bookingId}}/join
+Authorization: Bearer {{$dotenv TOKEN}}
+
+### Join Booking (manual id)
+POST {{baseUrl}}/api/bookings/{{bookingId}}/join
+Authorization: Bearer {{$dotenv TOKEN}}

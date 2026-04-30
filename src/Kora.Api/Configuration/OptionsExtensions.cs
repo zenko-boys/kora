@@ -13,6 +13,13 @@ public static class OptionsExtensions
                 "ConnectionStrings:Default is required")
             .ValidateOnStart();
 
+        services
+            .AddOptions<AuthOptions>()
+            .Bind(configuration.GetSection(AuthOptions.SectionName))
+            .Validate(options => !string.IsNullOrWhiteSpace(options.Authority),
+                "Auth:Authority is required")
+            .ValidateOnStart();
+
         return services;
     }
 }

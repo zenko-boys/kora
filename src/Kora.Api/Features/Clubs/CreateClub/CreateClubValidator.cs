@@ -12,6 +12,12 @@ public class CreateClubValidator : AbstractValidator<CreateClubRequest>
             .NotEmpty()
             .MaximumLength(120);
 
+        RuleFor(x => x.TimeZoneId)
+            .NotEmpty()
+            .MaximumLength(60)
+            .Must(BeAValidTimeZone)
+            .WithMessage("TimeZoneId must be a valid IANA timezone (e.g., 'America/Sao_Paulo', 'Europe/Lisbon').");
+
         RuleFor(x => x.SlotCellDurationMinutes)
             .Must(AllowedCellDurations.Contains)
             .WithMessage("Slot cell duration must be 15, 30, or 60 minutes.");
@@ -29,5 +35,27 @@ public class CreateClubValidator : AbstractValidator<CreateClubRequest>
             h.RuleFor(x => x.DayOfWeek).IsInEnum();
             h.RuleFor(x => x.OpenTime).LessThan(x => x.CloseTime);
         });
+    }
+
+    private static bool BeAValidTimeZone(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            return false;
+        }
+
+        try
+        {
+            TimeZoneInfo.FindSystemTimeZoneById(id);
+            return true;
+        }
+        catch (TimeZoneNotFoundException)
+        {
+            return false;
+        }
+        catch (InvalidTimeZoneException)
+        {
+            return false;
+        }
     }
 }

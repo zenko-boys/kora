@@ -1,5 +1,5 @@
 using Kora.Domain.Clubs;
-using Kora.Domain.Slots;
+using Kora.Domain.Reservations;
 
 namespace Kora.Domain.Bookings;
 
@@ -21,7 +21,7 @@ public class Booking
 
     public Club? Club { get; set; }
 
-    public List<Slot> Slots { get; set; } = [];
+    public List<Reservation> Reservations { get; set; } = [];
 
     public List<BookingParticipant> Participants { get; set; } = [];
 }

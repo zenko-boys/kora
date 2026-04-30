@@ -1,0 +1,59 @@
+# How to get a Clerk JWT for testing this API
+#
+# ---------------------------------------------------------------------------
+# Option A — browser (fastest)
+# ---------------------------------------------------------------------------
+# 1. Visit https://YOUR-APP.clerk.accounts.dev (your Clerk frontend URL)
+# 2. Sign up / sign in.
+# 3. Open DevTools console:
+#       await Clerk.session.getToken()                          // 60s lifetime
+#       await Clerk.session.getToken({ template: 'dev' })       // long-lived
+#    (Create the 'dev' template once in Clerk Dashboard → JWT Templates,
+#     set lifetime to e.g. 86400 seconds.)
+# 4. Copy the JWT into .env as TOKEN=...
+#
+# ---------------------------------------------------------------------------
+# Option B — fully headless via Clerk Backend API
+# ---------------------------------------------------------------------------
+# Requires:
+#   - CLERK_SECRET_KEY in .env (sk_test_...) — Clerk Dashboard → API Keys
+#   - A user_id (Clerk Dashboard → Users → click user → copy ID, e.g. user_2abc...)
+#
+# Replace USER_ID below with the actual id, then send each request in order.
+
+@clerkApi = https://api.clerk.com/v1
+@userId = user_REPLACE_ME
+
+### 1. Create a session for that user
+# @name createSession
+POST {{clerkApi}}/sessions
+Authorization: Bearer {{$dotenv CLERK_SECRET_KEY}}
+Content-Type: application/json
+
+{
+  "user_id": "{{userId}}"
+}
+
+### 2. Mint a JWT for that session, then paste the `jwt` field into .env as TOKEN
+POST {{clerkApi}}/sessions/{{createSession.response.body.id}}/tokens
+Authorization: Bearer {{$dotenv CLERK_SECRET_KEY}}
+Content-Type: application/json
+
+{}
+
+### 2b. Mint a JWT using the long-lived 'dev' template
+POST {{clerkApi}}/sessions/{{createSession.response.body.id}}/tokens/dev
+Authorization: Bearer {{$dotenv CLERK_SECRET_KEY}}
+Content-Type: application/json
+
+{}
+
+# ---------------------------------------------------------------------------
+# Verify your token works against the Kora API
+# ---------------------------------------------------------------------------
+# Pick any authenticated endpoint. If the token is invalid you get 401.
+# The first authenticated request also creates your User row (JIT provisioning).
+
+### whoami — verify token + see your User row (JIT-provisioned on first hit)
+GET {{baseUrl}}/api/whoami
+Authorization: Bearer {{$dotenv TOKEN}}

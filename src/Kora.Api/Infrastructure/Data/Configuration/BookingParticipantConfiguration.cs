@@ -13,6 +13,11 @@ public class BookingParticipantConfiguration : IEntityTypeConfiguration<BookingP
         builder.Property(x => x.JoinedAt)
             .IsRequired();
 
+        builder.HasOne(x => x.User)
+            .WithMany()
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasIndex(x => x.UserId);
     }
 }

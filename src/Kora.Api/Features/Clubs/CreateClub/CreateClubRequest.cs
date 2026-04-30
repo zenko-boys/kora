@@ -2,6 +2,7 @@ namespace Kora.Features.Clubs.CreateClub;
 
 public record CreateClubRequest(
     string Name,
+    string TimeZoneId,
     int SlotCellDurationMinutes,
     int MinimumBookingDurationMinutes,
     List<CreateClubOperatingHoursRequest> OperatingHours

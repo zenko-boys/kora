@@ -1,0 +1,16 @@
+{
+  "rest-client.environmentVariables": {
+    "$shared": {
+      "contentType": "application/json"
+    },
+    "local": {
+      "baseUrl": "https://localhost:7111"
+    },
+    "dev": {
+      "baseUrl": "https://dev.kora.example.com"
+    },
+    "prod": {
+      "baseUrl": "https://kora.example.com"
+    }
+  }
+}

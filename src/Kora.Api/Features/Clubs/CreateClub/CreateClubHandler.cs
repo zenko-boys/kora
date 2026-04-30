@@ -28,6 +28,7 @@ public class CreateClubHandler : IHandler
         {
             Id = Guid.NewGuid(),
             Name = request.Name,
+            TimeZoneId = request.TimeZoneId,
             SlotCellDurationMinutes = request.SlotCellDurationMinutes,
             MinimumBookingDurationMinutes = request.MinimumBookingDurationMinutes,
             CreatedAt = DateTime.UtcNow,
