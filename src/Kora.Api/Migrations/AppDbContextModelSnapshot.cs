@@ -22,7 +22,7 @@ namespace Kora.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Kora.Domain.Slots.Slot", b =>
+            modelBuilder.Entity("Kora.Domain.Bookings.Booking", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -34,8 +34,8 @@ namespace Kora.Api.Migrations
                     b.Property<Guid>("ClubId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("CourtId")
-                        .HasColumnType("uuid");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("EndsAt")
                         .HasColumnType("timestamp with time zone");
@@ -45,22 +45,21 @@ namespace Kora.Api.Migrations
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClubId");
 
-                    b.HasIndex("CourtId");
-
                     b.HasIndex("ClubId", "StartsAt", "EndsAt");
 
-                    b.ToTable("Slots");
+                    b.ToTable("Bookings");
                 });
 
-            modelBuilder.Entity("Kora.Domain.Slots.SlotParticipant", b =>
+            modelBuilder.Entity("Kora.Domain.Bookings.BookingParticipant", b =>
                 {
-                    b.Property<Guid>("SlotId")
+                    b.Property<Guid>("BookingId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("UserId")
@@ -69,25 +68,200 @@ namespace Kora.Api.Migrations
                     b.Property<DateTime>("JoinedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("SlotId", "UserId");
+                    b.HasKey("BookingId", "UserId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("SlotParticipants");
+                    b.ToTable("BookingParticipants");
                 });
 
-            modelBuilder.Entity("Kora.Domain.Slots.SlotParticipant", b =>
+            modelBuilder.Entity("Kora.Domain.Clubs.Club", b =>
                 {
-                    b.HasOne("Kora.Domain.Slots.Slot", null)
-                        .WithMany("Participants")
-                        .HasForeignKey("SlotId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("MinimumBookingDurationMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<int>("SlotCellDurationMinutes")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name");
+
+                    b.ToTable("Clubs");
+                });
+
+            modelBuilder.Entity("Kora.Domain.Clubs.ClubOperatingHours", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<TimeOnly>("CloseTime")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<Guid>("ClubId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("integer");
+
+                    b.Property<TimeOnly>("OpenTime")
+                        .HasColumnType("time without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClubId");
+
+                    b.ToTable("ClubOperatingHours");
+                });
+
+            modelBuilder.Entity("Kora.Domain.Courts.Court", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClubId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClubId");
+
+                    b.HasIndex("ClubId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("Courts");
                 });
 
             modelBuilder.Entity("Kora.Domain.Slots.Slot", b =>
                 {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("BookingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClubId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("EndsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("StartsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
+
+                    b.HasIndex("ClubId");
+
+                    b.HasIndex("ClubId", "StartsAt");
+
+                    b.ToTable("Slots");
+                });
+
+            modelBuilder.Entity("Kora.Domain.Bookings.Booking", b =>
+                {
+                    b.HasOne("Kora.Domain.Clubs.Club", "Club")
+                        .WithMany("Bookings")
+                        .HasForeignKey("ClubId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Club");
+                });
+
+            modelBuilder.Entity("Kora.Domain.Bookings.BookingParticipant", b =>
+                {
+                    b.HasOne("Kora.Domain.Bookings.Booking", null)
+                        .WithMany("Participants")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Kora.Domain.Clubs.ClubOperatingHours", b =>
+                {
+                    b.HasOne("Kora.Domain.Clubs.Club", "Club")
+                        .WithMany("OperatingHours")
+                        .HasForeignKey("ClubId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Club");
+                });
+
+            modelBuilder.Entity("Kora.Domain.Courts.Court", b =>
+                {
+                    b.HasOne("Kora.Domain.Clubs.Club", "Club")
+                        .WithMany("Courts")
+                        .HasForeignKey("ClubId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Club");
+                });
+
+            modelBuilder.Entity("Kora.Domain.Slots.Slot", b =>
+                {
+                    b.HasOne("Kora.Domain.Bookings.Booking", "Booking")
+                        .WithMany("Slots")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Kora.Domain.Clubs.Club", "Club")
+                        .WithMany("Slots")
+                        .HasForeignKey("ClubId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("Club");
+                });
+
+            modelBuilder.Entity("Kora.Domain.Bookings.Booking", b =>
+                {
                     b.Navigation("Participants");
+
+                    b.Navigation("Slots");
+                });
+
+            modelBuilder.Entity("Kora.Domain.Clubs.Club", b =>
+                {
+                    b.Navigation("Bookings");
+
+                    b.Navigation("Courts");
+
+                    b.Navigation("OperatingHours");
+
+                    b.Navigation("Slots");
                 });
 #pragma warning restore 612, 618
         }

@@ -23,7 +23,7 @@ builder.Services.AddOpenApiDocumentation();
 
 var app = builder.Build();
 
-app.UseInfrastructure();
+await app.UseInfrastructure();
 
 app.MapEndpoints();
 

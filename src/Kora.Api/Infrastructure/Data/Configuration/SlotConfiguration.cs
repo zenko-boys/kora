@@ -8,17 +8,9 @@ public class SlotConfiguration : IEntityTypeConfiguration<Slot>
 {
     public void Configure(EntityTypeBuilder<Slot> builder)
     {
-        // Primary Key
         builder.HasKey(x => x.Id);
 
-        // Properties
         builder.Property(x => x.ClubId)
-            .IsRequired();
-
-        builder.Property(x => x.CourtId);
-
-        builder.Property(x => x.Type)
-            .HasConversion<string>() 
             .IsRequired();
 
         builder.Property(x => x.StartsAt)
@@ -27,20 +19,27 @@ public class SlotConfiguration : IEntityTypeConfiguration<Slot>
         builder.Property(x => x.EndsAt)
             .IsRequired();
 
-        builder.Property(x => x.Capacity)
+        builder.Property(x => x.IsPublished)
             .IsRequired();
 
-        // Relationships
-        builder.HasMany(x => x.Participants)
-            .WithOne()
-            .HasForeignKey(x => x.SlotId)
+        builder.HasOne(x => x.Club)
+            .WithMany(x => x.Slots)
+            .HasForeignKey(x => x.ClubId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Indexes
+        builder.HasOne(x => x.Booking)
+            .WithMany(x => x.Slots)
+            .HasForeignKey(x => x.BookingId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         builder.HasIndex(x => x.ClubId);
 
-        builder.HasIndex(x => new { x.ClubId, x.StartsAt, x.EndsAt });
+        builder.HasIndex(x => new
+        {
+            x.ClubId,
+            x.StartsAt
+        });
 
-        builder.HasIndex(x => x.CourtId);
+        builder.HasIndex(x => x.BookingId);
     }
 }

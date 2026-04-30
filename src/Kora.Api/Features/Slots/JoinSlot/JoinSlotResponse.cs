@@ -1,7 +1,7 @@
 namespace Kora.Features.Slots.JoinSlot;
 
 public record JoinSlotResponse(
-    Guid SlotId,
+    Guid BookingId,
     Guid UserId,
     int ParticipantsCount,
     int Capacity

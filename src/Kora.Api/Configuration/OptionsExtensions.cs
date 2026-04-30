@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Options;
-
 namespace Kora.Configuration;
 
 public static class OptionsExtensions

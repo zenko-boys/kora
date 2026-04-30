@@ -1,11 +1,12 @@
 using FluentValidation;
-using Kora.Domain.Slots;
+using Kora.Common.Handlers;
+using Kora.Domain.Bookings;
 using Kora.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Kora.Features.Slots.JoinSlot;
 
-public class JoinSlotHandler
+public class JoinSlotHandler : IHandler
 {
     private readonly AppDbContext _db;
     private readonly IValidator<JoinSlotRequest> _validator;
@@ -19,52 +20,54 @@ public class JoinSlotHandler
     }
 
     public async Task<JoinSlotResponse> Handle(
-        Guid slotId,
+        Guid bookingId,
         JoinSlotRequest request,
         CancellationToken ct)
     {
         await _validator.ValidateAndThrowAsync(request, ct);
 
-        await using var transaction = await _db.Database.BeginTransactionAsync(ct);
+        var booking = await _db.Bookings
+            .Include(b => b.Participants)
+            .Include(b => b.Slots)
+            .FirstOrDefaultAsync(b => b.Id == bookingId, ct);
 
-        var slot = await _db.Slots
-            .Include(x => x.Participants)
-            .FirstOrDefaultAsync(x => x.Id == slotId, ct);
-
-        if (slot is null)
+        if (booking is null)
         {
-            throw new InvalidOperationException("Slot não encontrado.");
+            throw new InvalidOperationException("Booking not found.");
         }
 
-        var alreadyJoined = slot.Participants
-            .Any(x => x.UserId == request.UserId);
-
-        if (alreadyJoined)
+        if (booking.Slots.Any(s => !s.IsPublished))
         {
-            throw new InvalidOperationException("Usuário já está nesse slot.");
+            throw new InvalidOperationException("Booking is not published.");
         }
 
-        if (slot.Participants.Count >= slot.Capacity)
+        if (booking.StartsAt <= DateTime.UtcNow)
         {
-            throw new InvalidOperationException("Slot cheio.");
+            throw new InvalidOperationException("Booking has already started.");
         }
 
-        var participant = new SlotParticipant
+        if (booking.Participants.Any(p => p.UserId == request.UserId))
         {
-            SlotId = slot.Id,
+            throw new InvalidOperationException("User has already joined this booking.");
+        }
+
+        if (booking.Participants.Count >= booking.Capacity)
+        {
+            throw new InvalidOperationException("Booking is full.");
+        }
+
+        booking.Participants.Add(new BookingParticipant
+        {
             UserId = request.UserId,
             JoinedAt = DateTime.UtcNow
-        };
-
-        slot.Participants.Add(participant);
+        });
 
         await _db.SaveChangesAsync(ct);
-        await transaction.CommitAsync(ct);
 
         return new JoinSlotResponse(
-            slot.Id,
+            booking.Id,
             request.UserId,
-            slot.Participants.Count,
-            slot.Capacity);
+            booking.Participants.Count,
+            booking.Capacity);
     }
 }

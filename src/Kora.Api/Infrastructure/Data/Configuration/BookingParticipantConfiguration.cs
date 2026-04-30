@@ -1,14 +1,14 @@
-using Kora.Domain.Slots;
+using Kora.Domain.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Kora.Infrastructure.Data.Configurations;
 
-public class SlotParticipantConfiguration : IEntityTypeConfiguration<SlotParticipant>
+public class BookingParticipantConfiguration : IEntityTypeConfiguration<BookingParticipant>
 {
-    public void Configure(EntityTypeBuilder<SlotParticipant> builder)
+    public void Configure(EntityTypeBuilder<BookingParticipant> builder)
     {
-        builder.HasKey(x => new { x.SlotId, x.UserId });
+        builder.HasKey(x => new { x.BookingId, x.UserId });
 
         builder.Property(x => x.JoinedAt)
             .IsRequired();
