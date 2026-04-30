@@ -1,0 +1,30 @@
+using System.Reflection;
+using Kora.Common;
+using Kora.Common.Endpoints;
+using Kora.Configuration;
+using Kora.Features;
+using Kora.Infrastructure;
+using Kora.Infrastructure.OpenApi;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration
+    .AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+
+var assembly = Assembly.GetExecutingAssembly();
+
+builder.Services.AddOptionsConfiguration(builder.Configuration);
+
+builder.Services.AddCommon();
+builder.Services.AddInfrastructure();
+builder.Services.AddFeatures(assembly);
+
+builder.Services.AddOpenApiDocumentation();
+
+var app = builder.Build();
+
+app.UseInfrastructure();
+
+app.MapEndpoints();
+
+app.Run();
