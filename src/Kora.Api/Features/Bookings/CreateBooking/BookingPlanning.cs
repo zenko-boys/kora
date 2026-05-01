@@ -1,34 +1,26 @@
-using FluentValidation;
-using Kora.Common.Handlers;
-using Kora.Domain.Bookings;
 using Kora.Domain.Clubs;
-using Kora.Domain.Reservations;
 using Kora.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Kora.Features.Bookings.BookDayUse;
+namespace Kora.Features.Bookings.CreateBooking;
 
-public class BookDayUseHandler : IHandler
+public record BookingPlan(
+    Club Club,
+    DateTime StartsAtUtc,
+    DateTime EndsAtUtc,
+    List<Guid> FreeCourtIds
+);
+
+public static class BookingPlanning
 {
-    private readonly AppDbContext _db;
-    private readonly IValidator<BookDayUseRequest> _validator;
-
-    public BookDayUseHandler(
+    public static async Task<BookingPlan> PrepareAsync(
         AppDbContext db,
-        IValidator<BookDayUseRequest> validator)
-    {
-        _db = db;
-        _validator = validator;
-    }
-
-    public async Task<BookDayUseResponse> Handle(
         Guid clubId,
-        BookDayUseRequest request,
+        CreateBookingRequest request,
+        int requiredCourts,
         CancellationToken ct)
     {
-        await _validator.ValidateAndThrowAsync(request, ct);
-
-        var club = await _db.Clubs
+        var club = await db.Clubs
             .Include(c => c.OperatingHours)
             .FirstOrDefaultAsync(c => c.Id == clubId, ct);
 
@@ -54,7 +46,7 @@ public class BookDayUseHandler : IHandler
 
         club.EnsureBookingWithinOperatingHours(startsAtUtc, endsAtUtc);
 
-        var courtIds = await _db.Courts
+        var courtIds = await db.Courts
             .Where(c => c.ClubId == clubId)
             .Select(c => c.Id)
             .ToListAsync(ct);
@@ -64,13 +56,13 @@ public class BookDayUseHandler : IHandler
             throw new InvalidOperationException("Club has no courts.");
         }
 
-        if (request.CourtsToOccupy > courtIds.Count)
+        if (requiredCourts > courtIds.Count)
         {
             throw new InvalidOperationException(
                 $"Club only has {courtIds.Count} courts.");
         }
 
-        var busyCourtIds = await _db.Reservations
+        var busyCourtIds = await db.Reservations
             .Where(r => courtIds.Contains(r.CourtId)
                      && r.StartsAt < endsAtUtc
                      && r.EndsAt > startsAtUtc)
@@ -80,38 +72,17 @@ public class BookDayUseHandler : IHandler
 
         var freeCourts = courtIds
             .Except(busyCourtIds)
-            .Take(request.CourtsToOccupy)
+            .Take(requiredCourts)
             .ToList();
 
-        if (freeCourts.Count < request.CourtsToOccupy)
+        if (freeCourts.Count < requiredCourts)
         {
             throw new InvalidOperationException(
-                "Not enough free courts at this time.");
+                requiredCourts == 1
+                    ? "No court is free at this time."
+                    : "Not enough free courts at this time.");
         }
 
-        var booking = new Booking
-        {
-            Id = Guid.NewGuid(),
-            ClubId = clubId,
-            Type = BookingType.DayUse,
-            StartsAt = startsAtUtc,
-            EndsAt = endsAtUtc,
-            Capacity = request.Capacity,
-            CreatedAt = DateTime.UtcNow,
-            Reservations = freeCourts
-                .Select(courtId => new Reservation
-                {
-                    Id = Guid.NewGuid(),
-                    CourtId = courtId,
-                    StartsAt = startsAtUtc,
-                    EndsAt = endsAtUtc
-                })
-                .ToList()
-        };
-
-        _db.Bookings.Add(booking);
-        await _db.SaveChangesAsync(ct);
-
-        return new BookDayUseResponse(booking.Id);
+        return new BookingPlan(club, startsAtUtc, endsAtUtc, freeCourts);
     }
 }

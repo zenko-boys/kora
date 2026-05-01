@@ -21,32 +21,33 @@ Authorization: Bearer {{$dotenv TOKEN}}
 GET {{baseUrl}}/api/bookings?clubId={{clubId}}&fromUtc=2026-05-01T00:00:00Z&toUtc=2026-05-08T00:00:00Z
 Authorization: Bearer {{$dotenv TOKEN}}
 
-### Book Game (any authenticated user)
-# @name bookGame
-POST {{baseUrl}}/api/bookings/game
+### Create booking — Game (any authenticated user)
+# @name createBooking
+POST {{baseUrl}}/api/clubs/{{clubId}}/bookings
 Authorization: Bearer {{$dotenv TOKEN}}
 Content-Type: {{contentType}}
 
 {
-  "clubId": "{{clubId}}",
+  "type": "Game",
   "startsAt": "2026-05-01T18:00:00-04:00",
   "durationMinutes": 60
 }
 
-### Book Day-Use (ClubStaffOrAdmin)
-POST {{baseUrl}}/api/clubs/{{clubId}}/bookings/dayuse
+### Create booking — DayUse (ClubStaffOrAdmin enforced inside the strategy)
+POST {{baseUrl}}/api/clubs/{{clubId}}/bookings
 Authorization: Bearer {{$dotenv TOKEN}}
 Content-Type: {{contentType}}
 
 {
+  "type": "DayUse",
   "startsAt": "2026-05-01T10:00:00-03:00",
   "durationMinutes": 240,
   "courtsToOccupy": 1,
   "capacity": 16
 }
 
-### Join Booking (any authenticated user) — uses id from Book Game
-POST {{baseUrl}}/api/bookings/{{bookGame.response.body.bookingId}}/join
+### Join Booking — uses id from Create Booking
+POST {{baseUrl}}/api/bookings/{{createBooking.response.body.bookingId}}/join
 Authorization: Bearer {{$dotenv TOKEN}}
 
 ### Join Booking (manual id)

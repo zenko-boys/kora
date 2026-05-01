@@ -2,6 +2,7 @@ using System.Reflection;
 using FluentValidation;
 using Kora.Common.Endpoints;
 using Kora.Common.Handlers;
+using Kora.Features.Bookings.CreateBooking;
 
 namespace Kora.Features;
 
@@ -14,6 +15,8 @@ public static class DependencyInjection
         services.AddEndpoints(assembly);
         services.AddHandlers(assembly);
         services.AddValidatorsFromAssembly(assembly);
+
+        services.AddCreateBookingStrategies();
 
         return services;
     }
