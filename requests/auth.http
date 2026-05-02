@@ -57,3 +57,7 @@ Content-Type: application/json
 ### whoami — verify token + see your User row (JIT-provisioned on first hit)
 GET {{baseUrl}}/api/whoami
 Authorization: Bearer {{$dotenv TOKEN}}
+
+### My clubs — clubs I'm Admin or staff of (empty for plain Players)
+GET {{baseUrl}}/api/me/clubs
+Authorization: Bearer {{$dotenv TOKEN}}

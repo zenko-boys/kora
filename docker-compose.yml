@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: kora-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: kora
+    ports:
+      - "5432:5432"
+    volumes:
+      - kora-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kora-api
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Default: "Host=postgres;Port=5432;Database=kora;Username=postgres;Password=postgres"
+      Auth__Authority: https://excited-zebra-60.clerk.accounts.dev
+      Auth__Audience: ${AUTH_AUDIENCE:-}
+      Auth__AdminEmail: ${AUTH_ADMIN_EMAIL:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  kora-postgres-data:

@@ -7,7 +7,7 @@ LOCAL_CONFIG_EXAMPLE=$(API_PROJECT)/appsettings.Local.example.json
 
 DB_CONTAINER_NAME=kora-postgres
 
-.PHONY: restore build run test migration db-update db-drop clean init-local-config docker-start setup
+.PHONY: restore build run test migration db-update db-drop clean init-local-config docker-start setup docker-up docker-down docker-logs docker-clean docker-rebuild
 
 restore:
 	dotnet restore $(SOLUTION)
@@ -67,3 +67,18 @@ setup: init-local-config docker-start restore build db-update
 
 clean:
 	dotnet clean $(SOLUTION)
+
+docker-up:
+	docker compose up -d --build
+
+docker-down:
+	docker compose down
+
+docker-logs:
+	docker compose logs -f api
+
+docker-rebuild:
+	docker compose up -d --build --force-recreate api
+
+docker-clean:
+	docker compose down -v

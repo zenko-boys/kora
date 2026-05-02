@@ -7,6 +7,7 @@ public class CreateBookingValidator : AbstractValidator<CreateBookingRequest>
 {
     public CreateBookingValidator()
     {
+        RuleFor(x => x.ClubId).NotEmpty();
         RuleFor(x => x.Type).IsInEnum();
         RuleFor(x => x.DurationMinutes).GreaterThan(0);
 

@@ -3,6 +3,7 @@ using Kora.Infrastructure.Data;
 using Kora.Infrastructure.Data.Seed;
 using Kora.Infrastructure.Health;
 using Kora.Infrastructure.OpenApi;
+using Microsoft.EntityFrameworkCore;
 
 namespace Kora.Infrastructure;
 
@@ -20,6 +21,7 @@ public static class DependencyInjection
 
     public static async Task<WebApplication> UseInfrastructure(this WebApplication app)
     {
+        app.UseExceptionHandler();
         app.UseOpenApiDocumentation();
         app.UseAuthentication();
         app.UseAuthorization();
@@ -27,7 +29,10 @@ public static class DependencyInjection
 
         if (app.Environment.IsDevelopment())
         {
-            //await app.SeedDataAsync();
+            using var scope = app.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await db.Database.MigrateAsync();
+            await app.SeedDataAsync();
         }
 
         return app;

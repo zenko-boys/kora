@@ -46,7 +46,7 @@ public static class SeedData
         {
             var club = new Club
             {
-                Id = Guid.NewGuid(),
+                Id = clubSeed.Id,
                 Name = clubSeed.Name,
                 TimeZoneId = clubSeed.TimeZoneId,
                 SlotCellDurationMinutes = clubSeed.SlotCellDurationMinutes,
@@ -58,7 +58,8 @@ public static class SeedData
             {
                 club.Courts.Add(new Court
                 {
-                    Id = Guid.NewGuid(),
+                    Id = courtSeed.Id,
+                    ClubId = clubSeed.Id,
                     Name = courtSeed.Name,
                     CreatedAt = now
                 });
@@ -88,6 +89,8 @@ public static class SeedData
 
     private sealed class ClubSeed
     {
+        public Guid Id { get; set; }
+
         public string Name { get; set; } = string.Empty;
 
         public string TimeZoneId { get; set; } = string.Empty;
@@ -103,6 +106,8 @@ public static class SeedData
 
     private sealed class CourtSeed
     {
+        public Guid Id { get; set; }
+
         public string Name { get; set; } = string.Empty;
     }
 

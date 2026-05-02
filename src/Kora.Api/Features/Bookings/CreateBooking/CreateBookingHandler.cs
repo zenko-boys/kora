@@ -17,13 +17,12 @@ public class CreateBookingHandler : IHandler
     }
 
     public async Task<CreateBookingResponse> Handle(
-        Guid clubId,
         CreateBookingRequest request,
         CancellationToken ct)
     {
         await _validator.ValidateAndThrowAsync(request, ct);
 
         var strategy = _sp.GetRequiredKeyedService<ICreateBookingStrategy>(request.Type);
-        return await strategy.HandleAsync(clubId, request, ct);
+        return await strategy.HandleAsync(request.ClubId, request, ct);
     }
 }
