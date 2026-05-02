@@ -1,0 +1,114 @@
+"use client";
+
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@clerk/nextjs";
+import { toast } from "sonner";
+import { CalendarOff } from "lucide-react";
+import { BookingCard } from "@/components/bookings/booking-card";
+import { BookingCardSkeleton } from "@/components/bookings/booking-card-skeleton";
+import { BookingsFilterBar } from "@/components/bookings/bookings-filter-bar";
+import { createApiClient } from "@/lib/api";
+import type { BookingsFilter } from "@/lib/types";
+
+export function BookingsClient() {
+    const { getToken } = useAuth();
+    const queryClient = useQueryClient();
+    const [joiningId, setJoiningId] = useState<string | null>(null);
+    const [leavingId, setLeavingId] = useState<string | null>(null);
+    const [filters, setFilters] = useState<BookingsFilter>({});
+
+    const api = createApiClient(async () => getToken());
+
+    const { data, isLoading, isError } = useQuery({
+        queryKey: ["bookings", filters],
+        queryFn: () => api.getBookings(filters),
+    });
+
+    const joinMutation = useMutation({
+        mutationFn: (bookingId: string) => {
+            setJoiningId(bookingId);
+            return api.joinBooking(bookingId);
+        },
+        onSuccess: (result) => {
+            toast.success("You joined the booking!", {
+                description: `${result.participantsCount} / ${result.capacity} players now.`,
+            });
+            queryClient.invalidateQueries({ queryKey: ["bookings"] });
+        },
+        onError: (err: Error) => {
+            toast.error("Could not join booking", { description: err.message });
+        },
+        onSettled: () => setJoiningId(null),
+    });
+
+    const leaveMutation = useMutation({
+        mutationFn: (bookingId: string) => {
+            setLeavingId(bookingId);
+            return api.leaveBooking(bookingId);
+        },
+        onSuccess: () => {
+            toast.success("Booking cancelled.");
+            queryClient.invalidateQueries({ queryKey: ["bookings"] });
+        },
+        onError: (err: Error) => {
+            toast.error("Could not cancel booking", { description: err.message });
+        },
+        onSettled: () => setLeavingId(null),
+    });
+
+    const bookings = data?.bookings ?? [];
+
+    return (
+        <div className="space-y-6">
+            {/* Filter bar */}
+            <div className="rounded-xl border border-border bg-card px-4 py-3">
+                <BookingsFilterBar filters={filters} onChange={setFilters} />
+            </div>
+
+            {/* Results header */}
+            {!isLoading && !isError && (
+                <p className="text-sm text-muted-foreground">
+                    {bookings.length === 0
+                        ? "No bookings found"
+                        : `${bookings.length} booking${bookings.length !== 1 ? "s" : ""} found`}
+                </p>
+            )}
+
+            {/* Grid */}
+            {isLoading ? (
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                        <BookingCardSkeleton key={i} />
+                    ))}
+                </div>
+            ) : isError ? (
+                <div className="flex flex-col items-center justify-center rounded-xl border border-destructive/20 bg-destructive/5 py-16 text-center">
+                    <p className="text-sm font-medium text-destructive">Failed to load bookings</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Check your connection and try again.</p>
+                </div>
+            ) : bookings.length === 0 ? (
+                <div className="flex flex-col items-center justify-center rounded-xl border border-border py-20 text-center">
+                    <CalendarOff className="mb-4 h-10 w-10 text-muted-foreground/40" />
+                    <p className="text-sm font-medium text-muted-foreground">No bookings available</p>
+                    <p className="mt-1 text-xs text-muted-foreground/60">
+                        Try adjusting your filters or check back later.
+                    </p>
+                </div>
+            ) : (
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    {bookings.map((booking) => (
+                        <BookingCard
+                            key={booking.bookingId}
+                            booking={booking}
+                            onJoin={(id) => joinMutation.mutate(id)}
+                            isJoining={joiningId === booking.bookingId && joinMutation.isPending}
+                            onLeave={(id) => leaveMutation.mutate(id)}
+                            isLeaving={leavingId === booking.bookingId && leaveMutation.isPending}
+                        />
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
