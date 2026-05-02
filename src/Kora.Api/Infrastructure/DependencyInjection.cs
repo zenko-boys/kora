@@ -27,11 +27,14 @@ public static class DependencyInjection
         app.UseAuthorization();
         app.UseHealthChecksConfiguration();
 
-        if (app.Environment.IsDevelopment())
+        using (var scope = app.Services.CreateScope())
         {
-            using var scope = app.Services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             await db.Database.MigrateAsync();
+        }
+
+        if (app.Environment.IsDevelopment())
+        {
             await app.SeedDataAsync();
         }
 
