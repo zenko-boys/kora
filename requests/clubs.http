@@ -2,7 +2,7 @@
 
 ### Create Club (AdminOnly)
 # @name createClub
-POST {{baseUrl}}/api/clubs
+POST {{baseUrl}}/api/v1/clubs
 Authorization: Bearer {{$dotenv TOKEN}}
 Content-Type: {{contentType}}
 
@@ -23,7 +23,7 @@ Content-Type: {{contentType}}
 }
 
 ### Update Club (ClubStaffOrAdmin) — name + timezone + operatingHours only
-PUT {{baseUrl}}/api/clubs/{{clubId}}
+PUT {{baseUrl}}/api/v1/clubs/{{clubId}}
 Authorization: Bearer {{$dotenv TOKEN}}
 Content-Type: {{contentType}}
 

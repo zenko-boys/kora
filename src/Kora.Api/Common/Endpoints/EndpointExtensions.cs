@@ -1,4 +1,5 @@
 using System.Reflection;
+using Kora.Infrastructure.Versioning;
 
 namespace Kora.Common.Endpoints;
 
@@ -6,14 +7,14 @@ public static class EndpointExtensions
 {
     public static IServiceCollection AddEndpoints(this IServiceCollection services, Assembly assembly)
     {
-        var endpointTypes = assembly
+        var groupTypes = assembly
             .GetTypes()
-            .Where(t => typeof(IEndpoint).IsAssignableFrom(t)
+            .Where(t => typeof(IEndpointGroup).IsAssignableFrom(t)
                 && t is { IsAbstract: false, IsInterface: false });
 
-        foreach (var type in endpointTypes)
+        foreach (var type in groupTypes)
         {
-            services.AddTransient(typeof(IEndpoint), type);
+            services.AddTransient(typeof(IEndpointGroup), type);
         }
 
         return services;
@@ -21,11 +22,13 @@ public static class EndpointExtensions
 
     public static WebApplication MapEndpoints(this WebApplication app)
     {
-        var endpoints = app.Services.GetRequiredService<IEnumerable<IEndpoint>>();
+        var v1 = app.MapApiVersion(1);
 
-        foreach (var endpoint in endpoints)
+        var groups = app.Services.GetRequiredService<IEnumerable<IEndpointGroup>>();
+
+        foreach (var group in groups)
         {
-            endpoint.MapEndpoint(app);
+            group.MapEndpoints(v1);
         }
 
         return app;

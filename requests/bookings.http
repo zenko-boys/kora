@@ -2,28 +2,28 @@
 @bookingId = 00000000-0000-0000-0000-000000000000
 
 ### List bookings — next 7 days, all clubs, all types
-GET {{baseUrl}}/api/bookings
+GET {{baseUrl}}/api/v1/bookings
 Authorization: Bearer {{$dotenv TOKEN}}
 
 ### List bookings — only open games (matchmaking front door)
-GET {{baseUrl}}/api/bookings?type=Game&open=true
+GET {{baseUrl}}/api/v1/bookings?type=Game&open=true
 Authorization: Bearer {{$dotenv TOKEN}}
 
 ### List bookings — only full games
-GET {{baseUrl}}/api/bookings?type=Game&open=false
+GET {{baseUrl}}/api/v1/bookings?type=Game&open=false
 Authorization: Bearer {{$dotenv TOKEN}}
 
 ### List bookings — filtered by club
-GET {{baseUrl}}/api/bookings?clubId={{clubId}}
+GET {{baseUrl}}/api/v1/bookings?clubId={{clubId}}
 Authorization: Bearer {{$dotenv TOKEN}}
 
 ### List bookings — explicit time window
-GET {{baseUrl}}/api/bookings?clubId={{clubId}}&fromUtc=2026-05-01T00:00:00Z&toUtc=2026-05-08T00:00:00Z
+GET {{baseUrl}}/api/v1/bookings?clubId={{clubId}}&fromUtc=2026-05-01T00:00:00Z&toUtc=2026-05-08T00:00:00Z
 Authorization: Bearer {{$dotenv TOKEN}}
 
 ### Create booking — Game (any authenticated user)
 # @name createBooking
-POST {{baseUrl}}/api/bookings
+POST {{baseUrl}}/api/v1/bookings
 Authorization: Bearer {{$dotenv TOKEN}}
 Content-Type: {{contentType}}
 
@@ -35,7 +35,7 @@ Content-Type: {{contentType}}
 }
 
 ### Create booking — DayUse (ClubStaffOrAdmin enforced inside the strategy)
-POST {{baseUrl}}/api/bookings
+POST {{baseUrl}}/api/v1/bookings
 Authorization: Bearer {{$dotenv TOKEN}}
 Content-Type: {{contentType}}
 
@@ -49,13 +49,13 @@ Content-Type: {{contentType}}
 }
 
 ### Join Booking — uses id from Create Booking
-POST {{baseUrl}}/api/bookings/{{createBooking.response.body.bookingId}}/join
+POST {{baseUrl}}/api/v1/bookings/{{createBooking.response.body.bookingId}}/join
 Authorization: Bearer {{$dotenv TOKEN}}
 
 ### Join Booking (manual id)
-POST {{baseUrl}}/api/bookings/{{bookingId}}/join
+POST {{baseUrl}}/api/v1/bookings/{{bookingId}}/join
 Authorization: Bearer {{$dotenv TOKEN}}
 
 ### Delete Booking (ClubStaffOrAdmin) — cascades to reservations + participants
-DELETE {{baseUrl}}/api/bookings/{{bookingId}}
+DELETE {{baseUrl}}/api/v1/bookings/{{bookingId}}
 Authorization: Bearer {{$dotenv TOKEN}}

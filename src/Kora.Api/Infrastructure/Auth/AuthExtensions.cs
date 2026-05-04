@@ -57,6 +57,10 @@ public static class AuthExtensions
 
         services.AddAuthorization(options =>
         {
+            options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
+
             options.AddPolicy(AuthorizationPolicies.AdminOnly, policy =>
                 policy.RequireAuthenticatedUser()
                       .AddRequirements(new AdminOnlyRequirement()));

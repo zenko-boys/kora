@@ -26,7 +26,7 @@ public static class HealthExtensions
         app.MapHealthChecks("/health/live", new HealthCheckOptions
         {
             Predicate = _ => false
-        });
+        }).AllowAnonymous();
 
         // 🔹 READINESS
         app.MapHealthChecks("/health/ready", new HealthCheckOptions
@@ -49,7 +49,7 @@ public static class HealthExtensions
 
                 await context.Response.WriteAsJsonAsync(result);
             }
-        });
+        }).AllowAnonymous();
 
         return app;
     }

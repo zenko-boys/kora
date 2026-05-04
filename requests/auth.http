@@ -55,9 +55,9 @@ Content-Type: application/json
 # The first authenticated request also creates your User row (JIT provisioning).
 
 ### whoami — verify token + see your User row (JIT-provisioned on first hit)
-GET {{baseUrl}}/api/whoami
+GET {{baseUrl}}/api/v1/whoami
 Authorization: Bearer {{$dotenv TOKEN}}
 
 ### My clubs — clubs I'm Admin or staff of (empty for plain Players)
-GET {{baseUrl}}/api/me/clubs
+GET {{baseUrl}}/api/v1/me/clubs
 Authorization: Bearer {{$dotenv TOKEN}}

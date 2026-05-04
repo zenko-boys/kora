@@ -3,6 +3,7 @@ using Kora.Infrastructure.Data;
 using Kora.Infrastructure.Data.Seed;
 using Kora.Infrastructure.Health;
 using Kora.Infrastructure.OpenApi;
+using Kora.Infrastructure.Versioning;
 using Microsoft.EntityFrameworkCore;
 
 namespace Kora.Infrastructure;
@@ -13,6 +14,7 @@ public static class DependencyInjection
     {
         services.AddDatabase();
         services.AddKoraAuth();
+        services.AddApiVersioningConfiguration();
         services.AddOpenApiDocumentation();
         services.AddHealthChecksConfiguration();
 

@@ -2,11 +2,11 @@
 @courtId = 22222222-2222-2222-2222-222222222222
 
 ### List Courts (any signed-in user)
-GET {{baseUrl}}/api/clubs/{{clubId}}/courts
+GET {{baseUrl}}/api/v1/clubs/{{clubId}}/courts
 Authorization: Bearer {{$dotenv TOKEN}}
 
 ### Create Court (ClubStaffOrAdmin)
-POST {{baseUrl}}/api/clubs/{{clubId}}/courts
+POST {{baseUrl}}/api/v1/clubs/{{clubId}}/courts
 Authorization: Bearer {{$dotenv TOKEN}}
 Content-Type: {{contentType}}
 
@@ -15,7 +15,7 @@ Content-Type: {{contentType}}
 }
 
 ### Update Court (ClubStaffOrAdmin)
-PUT {{baseUrl}}/api/clubs/{{clubId}}/courts/{{courtId}}
+PUT {{baseUrl}}/api/v1/clubs/{{clubId}}/courts/{{courtId}}
 Authorization: Bearer {{$dotenv TOKEN}}
 Content-Type: {{contentType}}
 
