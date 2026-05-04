@@ -8,5 +8,5 @@ public class AuthOptions
 
     public string Audience { get; set; } = string.Empty;
 
-    public string AdminEmail { get; set; } = string.Empty;
+    public string AdminEmails { get; set; } = string.Empty;
 }

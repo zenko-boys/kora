@@ -45,10 +45,13 @@ public class UserContext : IUserContext
 
         var email = principal.FindFirstValue(ClaimTypes.Email)
             ?? principal.FindFirstValue("email")
-            ?? string.Empty;
+            ?? throw new InvalidOperationException("JWT is missing 'email' claim.");
 
-        var shouldBeAdmin = !string.IsNullOrWhiteSpace(_authOptions.AdminEmail)
-            && email.Equals(_authOptions.AdminEmail, StringComparison.OrdinalIgnoreCase);
+        var expectedRole = _authOptions.AdminEmails
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Any(a => a.Equals(email, StringComparison.OrdinalIgnoreCase))
+                ? UserRole.Admin
+                : UserRole.Player;
 
         var user = await _db.Users
             .FirstOrDefaultAsync(u => u.IdpUserId == idpUserId, ct);
@@ -60,16 +63,16 @@ public class UserContext : IUserContext
                 Id = Guid.NewGuid(),
                 IdpUserId = idpUserId,
                 Email = email,
-                Role = shouldBeAdmin ? UserRole.Admin : UserRole.Player,
+                Role = expectedRole,
                 CreatedAt = DateTime.UtcNow
             };
 
             _db.Users.Add(user);
             await _db.SaveChangesAsync(ct);
         }
-        else if (shouldBeAdmin && user.Role != UserRole.Admin)
+        else if (user.Role != expectedRole)
         {
-            user.Role = UserRole.Admin;
+            user.Role = expectedRole;
             await _db.SaveChangesAsync(ct);
         }
 

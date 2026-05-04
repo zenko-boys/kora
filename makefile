@@ -7,7 +7,12 @@ LOCAL_CONFIG_EXAMPLE=$(API_PROJECT)/appsettings.Local.example.json
 
 DB_CONTAINER_NAME=kora-postgres
 
-.PHONY: restore build run test migration db-update db-drop clean init-local-config docker-start setup docker-up docker-down docker-logs docker-clean docker-rebuild
+FLY_APP_PROD=koraplay-api
+FLY_APP_DEV=koraplay-api-dev
+FLY_CONFIG_PROD=fly.toml
+FLY_CONFIG_DEV=fly.dev.toml
+
+.PHONY: restore build run test migration db-update db-drop clean init-local-config docker-start setup docker-up docker-down docker-logs docker-clean docker-rebuild deploy
 
 restore:
 	dotnet restore $(SOLUTION)
@@ -82,3 +87,23 @@ docker-rebuild:
 
 docker-clean:
 	docker compose down -v
+
+deploy:
+	@if [ "$(env)" = "dev" ]; then \
+		echo "Deploying to DEV ($(FLY_APP_DEV))..."; \
+		fly deploy --config $(FLY_CONFIG_DEV) --app $(FLY_APP_DEV); \
+	elif [ "$(env)" = "prod" ]; then \
+		printf "About to deploy to PROD ($(FLY_APP_PROD)). Continue? [y/N] "; \
+		read ans; \
+		case "$$ans" in \
+			y|Y|yes|YES) \
+				echo "Deploying to PROD ($(FLY_APP_PROD))..."; \
+				fly deploy --config $(FLY_CONFIG_PROD) --app $(FLY_APP_PROD) ;; \
+			*) \
+				echo "Aborted."; \
+				exit 1 ;; \
+		esac; \
+	else \
+		echo "Usage: make deploy env=dev|prod"; \
+		exit 1; \
+	fi

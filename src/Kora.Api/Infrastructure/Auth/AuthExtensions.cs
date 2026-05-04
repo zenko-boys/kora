@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Kora.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -34,6 +35,23 @@ public static class AuthExtensions
                     ValidateIssuerSigningKey = true,
                     ValidateAudience = !string.IsNullOrWhiteSpace(options.Audience),
                     ValidAudience = string.IsNullOrWhiteSpace(options.Audience) ? null : options.Audience
+                };
+
+                jwt.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = context =>
+                    {
+                        var principal = context.Principal;
+                        var email = principal?.FindFirstValue(ClaimTypes.Email)
+                            ?? principal?.FindFirstValue("email");
+
+                        if (string.IsNullOrWhiteSpace(email))
+                        {
+                            context.Fail("Token is missing required 'email' claim.");
+                        }
+
+                        return Task.CompletedTask;
+                    }
                 };
             });
 
