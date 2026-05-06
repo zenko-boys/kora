@@ -112,20 +112,9 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
                 {/* CTA */}
                 <div className="flex justify-center pt-1">
                     {amIIn ? (
-                        <div className="flex w-full flex-col gap-2">
-                            <div className="flex items-center justify-center gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm font-medium text-emerald-500">
-                                <CheckCircle2 className="h-4 w-4" />
-                                You&apos;re In
-                            </div>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => onLeave(bookingId)}
-                                disabled={isLeaving}
-                                className="w-full text-xs text-muted-foreground hover:text-destructive"
-                            >
-                                {isLeaving ? "Cancelling…" : "Cancel participation"}
-                            </Button>
+                        <div className="flex items-center justify-center gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm font-medium text-emerald-500">
+                            <CheckCircle2 className="h-4 w-4" />
+                            You&apos;re In
                         </div>
                     ) : isFull ? (
                         <Button disabled variant="outline" className="w-full">
