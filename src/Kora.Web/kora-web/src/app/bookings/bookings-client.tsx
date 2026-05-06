@@ -4,11 +4,13 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
-import { CalendarOff } from "lucide-react";
+import { CalendarOff, Plus } from "lucide-react";
 import { BookingCard } from "@/components/bookings/booking-card";
 import { BookingCardSkeleton } from "@/components/bookings/booking-card-skeleton";
 import { BookingsFilterBar } from "@/components/bookings/bookings-filter-bar";
+import { CreateBookingForm } from "@/components/bookings/create-booking-form";
 import { createApiClient } from "@/lib/api";
+import { Button } from "@/components/ui/button";
 import type { BookingsFilter } from "@/lib/types";
 
 export function BookingsClient() {
@@ -17,6 +19,7 @@ export function BookingsClient() {
     const [joiningId, setJoiningId] = useState<string | null>(null);
     const [leavingId, setLeavingId] = useState<string | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [showCreate, setShowCreate] = useState(false);
     const [filters, setFilters] = useState<BookingsFilter>({});
 
     const api = createApiClient(async () => getToken({ template: "dev" }));
@@ -77,6 +80,23 @@ export function BookingsClient() {
 
     return (
         <div className="space-y-6">
+            {/* Action bar */}
+            <div className="flex justify-end">
+                {!showCreate && (
+                    <Button
+                        size="sm"
+                        onClick={() => setShowCreate(true)}
+                        className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
+                    >
+                        <Plus className="h-3.5 w-3.5" />
+                        New Booking
+                    </Button>
+                )}
+            </div>
+
+            {/* Create form */}
+            {showCreate && <CreateBookingForm onClose={() => setShowCreate(false)} />}
+
             {/* Filter bar */}
             <div className="rounded-xl border border-border bg-card px-4 py-3">
                 <BookingsFilterBar filters={filters} onChange={setFilters} />
