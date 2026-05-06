@@ -16,9 +16,10 @@ export function BookingsClient() {
     const queryClient = useQueryClient();
     const [joiningId, setJoiningId] = useState<string | null>(null);
     const [leavingId, setLeavingId] = useState<string | null>(null);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
     const [filters, setFilters] = useState<BookingsFilter>({});
 
-    const api = createApiClient(async () => getToken());
+    const api = createApiClient(async () => getToken({ template: "dev" }));
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ["bookings", filters],
@@ -55,6 +56,21 @@ export function BookingsClient() {
             toast.error("Could not cancel booking", { description: err.message });
         },
         onSettled: () => setLeavingId(null),
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: (bookingId: string) => {
+            setDeletingId(bookingId);
+            return api.deleteBooking(bookingId);
+        },
+        onSuccess: () => {
+            toast.success("Booking deleted.");
+            queryClient.invalidateQueries({ queryKey: ["bookings"] });
+        },
+        onError: (err: Error) => {
+            toast.error("Could not delete booking", { description: err.message });
+        },
+        onSettled: () => setDeletingId(null),
     });
 
     const bookings = data?.bookings ?? [];
@@ -105,6 +121,8 @@ export function BookingsClient() {
                             isJoining={joiningId === booking.bookingId && joinMutation.isPending}
                             onLeave={(id) => leaveMutation.mutate(id)}
                             isLeaving={leavingId === booking.bookingId && leaveMutation.isPending}
+                            onDelete={(id) => deleteMutation.mutate(id)}
+                            isDeleting={deletingId === booking.bookingId && deleteMutation.isPending}
                         />
                     ))}
                 </div>

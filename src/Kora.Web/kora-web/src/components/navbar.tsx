@@ -31,6 +31,12 @@ export function Navbar() {
                     >
                         Bookings
                     </Link>
+                    <Link
+                        href="/clubs"
+                        className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                        Clubs
+                    </Link>
                 </nav>
 
                 {/* Auth + theme toggle */}

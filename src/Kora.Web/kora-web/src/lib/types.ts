@@ -50,3 +50,72 @@ export interface LeaveBookingResponse {
     participantsCount: number;
     capacity: number;
 }
+
+// ---- Clubs ----
+
+export interface MyClubSummary {
+    clubId: string;
+    name: string;
+    timeZoneId: string;
+    role: string;
+}
+
+export interface ListMyClubsResponse {
+    clubs: MyClubSummary[];
+}
+
+export interface OperatingHoursRequest {
+    dayOfWeek: number; // 0=Sunday … 6=Saturday
+    openTime: string;  // "HH:mm:ss"
+    closeTime: string; // "HH:mm:ss"
+}
+
+export interface CreateClubRequest {
+    name: string;
+    timeZoneId: string;
+    slotCellDurationMinutes: number;
+    minimumBookingDurationMinutes: number;
+    operatingHours: OperatingHoursRequest[];
+}
+
+export interface CreateClubResponse {
+    id: string;
+}
+
+export interface UpdateClubRequest {
+    name: string;
+    operatingHours: OperatingHoursRequest[];
+}
+
+export interface UpdateClubResponse {
+    id: string;
+}
+
+// ---- Courts ----
+
+export interface CourtSummary {
+    id: string;
+    name: string;
+    createdAt: string;
+}
+
+export interface ListCourtsResponse {
+    courts: CourtSummary[];
+}
+
+export interface CreateCourtRequest {
+    name: string;
+}
+
+export interface CreateCourtResponse {
+    id: string;
+}
+
+export interface UpdateCourtRequest {
+    name: string;
+}
+
+export interface UpdateCourtResponse {
+    id: string;
+    name: string;
+}

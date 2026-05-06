@@ -1,7 +1,7 @@
 "use client";
 
 import { format, parseISO } from "date-fns";
-import { Users, Clock, MapPin, CheckCircle2 } from "lucide-react";
+import { Users, Clock, MapPin, CheckCircle2, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,8 @@ interface BookingCardProps {
     isJoining: boolean;
     onLeave: (bookingId: string) => void;
     isLeaving: boolean;
+    onDelete?: (bookingId: string) => void;
+    isDeleting?: boolean;
 }
 
 function formatTime(utcString: string) {
@@ -29,7 +31,7 @@ const TYPE_COLORS = {
     DayUse: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
 } as const;
 
-export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving }: BookingCardProps) {
+export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, onDelete, isDeleting }: BookingCardProps) {
     const {
         bookingId,
         clubName,
@@ -59,12 +61,24 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving }: 
                         </div>
                     </div>
                     {/* Type badge */}
-                    <Badge
-                        variant="outline"
-                        className={`shrink-0 border text-[10px] font-semibold uppercase tracking-wider ${TYPE_COLORS[type]}`}
-                    >
-                        {type === "DayUse" ? "Day Use" : "Game"}
-                    </Badge>
+                    <div className="flex shrink-0 items-center gap-2">
+                        <Badge
+                            variant="outline"
+                            className={`border text-[10px] font-semibold uppercase tracking-wider ${TYPE_COLORS[type]}`}
+                        >
+                            {type === "DayUse" ? "Day Use" : "Game"}
+                        </Badge>
+                        {onDelete && (
+                            <button
+                                onClick={() => onDelete(bookingId)}
+                                disabled={isDeleting}
+                                aria-label="Delete booking"
+                                className="rounded p-1 text-muted-foreground/50 transition-colors hover:text-destructive disabled:opacity-40"
+                            >
+                                <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                        )}
+                    </div>
                 </div>
             </CardHeader>
 
