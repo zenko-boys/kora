@@ -3,6 +3,7 @@ using Kora.Domain.Bookings;
 using Kora.Features.Bookings.CreateBooking;
 using Kora.Features.Bookings.DeleteBooking;
 using Kora.Features.Bookings.JoinBooking;
+using Kora.Features.Bookings.LeaveBooking;
 using Kora.Features.Bookings.ListBookings;
 
 namespace Kora.Features.Bookings;
@@ -56,5 +57,15 @@ public class BookingsRoutes : IEndpointGroup
             return Results.Ok(result);
         })
         .WithName("JoinBooking");
+
+        group.MapPost("/{bookingId:guid}/leave", async (
+            Guid bookingId,
+            LeaveBookingHandler handler,
+            CancellationToken ct) =>
+        {
+            var result = await handler.Handle(bookingId, ct);
+            return Results.Ok(result);
+        })
+        .WithName("LeaveBooking");
     }
 }
