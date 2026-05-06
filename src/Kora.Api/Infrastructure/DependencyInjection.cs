@@ -1,4 +1,5 @@
 using Kora.Infrastructure.Auth;
+using Kora.Infrastructure.Cors;
 using Kora.Infrastructure.Data;
 using Kora.Infrastructure.Data.Seed;
 using Kora.Infrastructure.Health;
@@ -14,6 +15,7 @@ public static class DependencyInjection
     {
         services.AddDatabase();
         services.AddKoraAuth();
+        services.AddKoraCors();
         services.AddApiVersioningConfiguration();
         services.AddOpenApiDocumentation();
         services.AddHealthChecksConfiguration();
@@ -25,6 +27,7 @@ public static class DependencyInjection
     {
         app.UseExceptionHandler();
         app.UseOpenApiDocumentation();
+        app.UseCors(CorsExtensions.PolicyName);
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseHealthChecksConfiguration();
