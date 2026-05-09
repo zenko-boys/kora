@@ -15,6 +15,7 @@ import type {
     CreateCourtResponse,
     UpdateCourtRequest,
     UpdateCourtResponse,
+    GetClubSlotsResponse,
 } from "./types";
 import { MOCK_BOOKINGS } from "./mock-data";
 
@@ -22,9 +23,11 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000"
 const API_V1 = `${API_BASE}/api/v1`;
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
 
+type GetToken = (options?: { template?: string }) => Promise<string | null>;
+
 async function apiFetch<T>(
     path: string,
-    getToken: () => Promise<string | null>,
+    getToken: GetToken,
     options: RequestInit = {}
 ): Promise<T> {
     const token = await getToken({ template: "dev" });
@@ -49,7 +52,7 @@ async function apiFetch<T>(
     return res.json() as Promise<T>;
 }
 
-export function createApiClient(getToken: () => Promise<string | null>) {
+export function createApiClient(getToken: GetToken) {
     return {
         getBookings: async (filters?: BookingsFilter): Promise<BookingsResponse> => {
             if (USE_MOCK) {
@@ -183,6 +186,23 @@ export function createApiClient(getToken: () => Promise<string | null>) {
                 `/clubs/${clubId}/courts/${courtId}`,
                 getToken,
                 { method: "PUT", body: JSON.stringify(body) }
+            );
+        },
+
+        getClubSlots: (clubId: string, date: string): Promise<GetClubSlotsResponse> => {
+            if (USE_MOCK) {
+                return Promise.resolve({
+                    clubId,
+                    date,
+                    timeZoneId: "UTC",
+                    slotCellDurationMinutes: 60,
+                    minimumBookingDurationMinutes: 60,
+                    slots: [],
+                });
+            }
+            return apiFetch<GetClubSlotsResponse>(
+                `/clubs/${clubId}/slots?date=${date}`,
+                getToken
             );
         },
     };
