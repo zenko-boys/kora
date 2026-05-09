@@ -63,10 +63,30 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     const slots = slotsData?.slots ?? [];
     const durationOptions = buildDurationOptions(cellMin, minMin);
 
+    // How many consecutive cells the selected duration spans
+    const numCells = duration && cellMin > 0 ? Math.ceil(duration / cellMin) : 1;
+
+    // A start slot is selectable only if every cell in the span is available
+    function isStartSlotSelectable(index: number): boolean {
+        for (let j = 0; j < numCells; j++) {
+            const cell = slots[index + j];
+            if (!cell || !cell.available) return false;
+        }
+        return true;
+    }
+
     // Set default duration when options change
     useEffect(() => {
         if (durationOptions.length > 0) setDuration(durationOptions[0].value);
     }, [cellMin, minMin]);
+
+    // Reset selection if it becomes invalid when duration or slots change
+    useEffect(() => {
+        if (!selectedSlotStart || slots.length === 0) return;
+        const idx = slots.findIndex((s) => s.startTime === selectedSlotStart);
+        if (idx === -1 || !isStartSlotSelectable(idx)) setSelectedSlotStart("");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [duration, slots]);
 
     // Timezone display badge: e.g. "America/Sao_Paulo  → BRT (UTC-03:00)"
     const tzBadge = timeZoneId !== "UTC"
@@ -224,17 +244,18 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                         </p>
                     ) : (
                         <div className="flex flex-wrap gap-2">
-                            {slots.map((slot) => {
+                            {slots.map((slot, index) => {
                                 const isSelected = selectedSlotStart === slot.startTime;
+                                const selectable = isStartSlotSelectable(index);
                                 return (
                                     <button
                                         key={slot.startTime}
                                         type="button"
-                                        disabled={!slot.available}
+                                        disabled={!selectable}
                                         onClick={() => setSelectedSlotStart(slot.startTime)}
                                         className={[
                                             "rounded-md border px-3 py-1.5 text-xs font-medium transition-colors",
-                                            slot.available
+                                            selectable
                                                 ? isSelected
                                                     ? "border-[#3D46FB] bg-[#3D46FB] text-white"
                                                     : "border-border bg-background text-foreground hover:border-[#3D46FB]/60 hover:bg-[#3D46FB]/5"
@@ -242,7 +263,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                         ].join(" ")}
                                     >
                                         {formatSlotTime(slot.startTime)}
-                                        {slot.available && !isSelected && (
+                                        {selectable && !isSelected && (
                                             <span className="ml-1 text-muted-foreground">
                                                 ({slot.availableCourts})
                                             </span>
