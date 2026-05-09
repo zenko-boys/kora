@@ -15,6 +15,7 @@ import type {
     CreateCourtResponse,
     UpdateCourtRequest,
     UpdateCourtResponse,
+    GetClubSlotsResponse,
 } from "./types";
 import { MOCK_BOOKINGS } from "./mock-data";
 
@@ -185,6 +186,23 @@ export function createApiClient(getToken: GetToken) {
                 `/clubs/${clubId}/courts/${courtId}`,
                 getToken,
                 { method: "PUT", body: JSON.stringify(body) }
+            );
+        },
+
+        getClubSlots: (clubId: string, date: string): Promise<GetClubSlotsResponse> => {
+            if (USE_MOCK) {
+                return Promise.resolve({
+                    clubId,
+                    date,
+                    timeZoneId: "UTC",
+                    slotCellDurationMinutes: 60,
+                    minimumBookingDurationMinutes: 60,
+                    slots: [],
+                });
+            }
+            return apiFetch<GetClubSlotsResponse>(
+                `/clubs/${clubId}/slots?date=${date}`,
+                getToken
             );
         },
     };

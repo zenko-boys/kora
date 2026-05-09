@@ -119,3 +119,21 @@ export interface UpdateCourtResponse {
     id: string;
     name: string;
 }
+
+// ---- Club Slots ----
+
+export interface ClubSlotInfo {
+    startTime: string; // "HH:mm:ss"
+    endTime: string;   // "HH:mm:ss"
+    available: boolean;
+    availableCourts: number;
+}
+
+export interface GetClubSlotsResponse {
+    clubId: string;
+    date: string;
+    timeZoneId: string;
+    slotCellDurationMinutes: number;
+    minimumBookingDurationMinutes: number;
+    slots: ClubSlotInfo[];
+}
