@@ -5,8 +5,7 @@ namespace Kora.Features.Bookings.CreateBooking;
 public record CreateBookingRequest(
     Guid ClubId,
     BookingType Type,
-    DateTime StartsAt,
-    int DurationMinutes,
+    DateTime[] Slots,
     int? CourtsToOccupy,
     int? Capacity
 );

@@ -3,6 +3,9 @@
     "$shared": {
       "contentType": "application/json"
     },
+    "docker":{
+      "baseUrl": "https://localhost:8080"
+    },
     "local": {
       "baseUrl": "https://localhost:7111"
     },

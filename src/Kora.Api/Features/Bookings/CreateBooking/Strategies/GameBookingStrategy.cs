@@ -25,7 +25,8 @@ public class GameBookingStrategy : ICreateBookingStrategy
     {
         var plan = await BookingPlanning.PrepareAsync(_db, clubId, request, requiredCourts: 1, ct);
 
-        if (request.DurationMinutes < plan.Club.MinimumBookingDurationMinutes)
+        var durationMinutes = request.Slots.Length * plan.Club.SlotCellDurationMinutes;
+        if (durationMinutes < plan.Club.MinimumBookingDurationMinutes)
         {
             throw new InvalidOperationException(
                 $"Booking duration must be at least {plan.Club.MinimumBookingDurationMinutes} minutes.");

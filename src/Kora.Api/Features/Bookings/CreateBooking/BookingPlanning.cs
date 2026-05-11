@@ -29,20 +29,30 @@ public static class BookingPlanning
             throw new InvalidOperationException("Club not found.");
         }
 
-        if (request.DurationMinutes % club.SlotCellDurationMinutes != 0)
-        {
-            throw new InvalidOperationException(
-                $"Duration must be a multiple of {club.SlotCellDurationMinutes} minutes.");
-        }
+        var sortedSlotsUtc = request.Slots
+            .Select(s => s.ToUniversalTime())
+            .OrderBy(s => s)
+            .ToList();
 
-        var startsAtUtc = request.StartsAt.ToUniversalTime();
+        var startsAtUtc = sortedSlotsUtc[0];
 
         if (startsAtUtc <= DateTime.UtcNow)
         {
             throw new InvalidOperationException("Booking must start in the future.");
         }
 
-        var endsAtUtc = startsAtUtc.AddMinutes(request.DurationMinutes);
+        var cellDuration = TimeSpan.FromMinutes(club.SlotCellDurationMinutes);
+        for (var i = 1; i < sortedSlotsUtc.Count; i++)
+        {
+            if (sortedSlotsUtc[i] - sortedSlotsUtc[i - 1] != cellDuration)
+            {
+                throw new InvalidOperationException(
+                    $"Slots must be consecutive and spaced {club.SlotCellDurationMinutes} minutes apart.");
+            }
+        }
+
+        var durationMinutes = sortedSlotsUtc.Count * club.SlotCellDurationMinutes;
+        var endsAtUtc = startsAtUtc.AddMinutes(durationMinutes);
 
         club.EnsureBookingWithinOperatingHours(startsAtUtc, endsAtUtc);
 

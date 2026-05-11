@@ -30,8 +30,10 @@ Content-Type: {{contentType}}
 {
   "clubId": "{{clubId}}",
   "type": "Game",
-  "startsAt": "2026-05-01T18:00:00-04:00",
-  "durationMinutes": 60
+  "slots": [
+    "2026-05-01T18:00:00-04:00",
+    "2026-05-01T18:30:00-04:00"
+  ]
 }
 
 ### Create booking — DayUse (ClubStaffOrAdmin enforced inside the strategy)
@@ -42,8 +44,12 @@ Content-Type: {{contentType}}
 {
   "clubId": "{{clubId}}",
   "type": "DayUse",
-  "startsAt": "2026-05-01T10:00:00-03:00",
-  "durationMinutes": 240,
+  "slots": [
+    "2026-05-01T10:00:00-03:00",
+    "2026-05-01T11:00:00-03:00",
+    "2026-05-01T12:00:00-03:00",
+    "2026-05-01T13:00:00-03:00"
+  ],
   "courtsToOccupy": 1,
   "capacity": 16
 }
