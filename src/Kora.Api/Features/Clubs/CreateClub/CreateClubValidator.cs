@@ -4,7 +4,7 @@ namespace Kora.Features.Clubs.CreateClub;
 
 public class CreateClubValidator : AbstractValidator<CreateClubRequest>
 {
-    private static readonly int[] AllowedCellDurations = [15, 30, 60];
+    private static readonly int[] AllowedCellDurations = [15, 20, 30, 60];
 
     public CreateClubValidator()
     {
@@ -20,7 +20,7 @@ public class CreateClubValidator : AbstractValidator<CreateClubRequest>
 
         RuleFor(x => x.SlotCellDurationMinutes)
             .Must(AllowedCellDurations.Contains)
-            .WithMessage("Slot cell duration must be 15, 30, or 60 minutes.");
+            .WithMessage("Slot cell duration must be 15, 20, 30, or 60 minutes.");
 
         RuleFor(x => x.MinimumBookingDurationMinutes)
             .GreaterThan(0)
