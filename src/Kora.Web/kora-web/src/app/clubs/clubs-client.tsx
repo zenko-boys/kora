@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { CreateClubRequest, MyClubSummary } from "@/lib/types";
 
-const SLOT_DURATIONS = [15, 30, 60] as const;
+const SLOT_DURATIONS = [15, 20, 30, 60] as const;
 
 const ROLE_COLORS: Record<string, string> = {
     Admin: "bg-[#3D46FB]/20 text-[#818cf8] border-[#3D46FB]/30",
@@ -39,7 +39,7 @@ function CreateClubForm({ onSuccess, onCancel }: CreateClubFormProps) {
 
     const [name, setName] = useState("");
     const [timeZoneId, setTimeZoneId] = useState("America/Sao_Paulo");
-    const [slotCell, setSlotCell] = useState<15 | 30 | 60>(60);
+    const [slotCell, setSlotCell] = useState<15 | 20 | 30 | 60>(60);
     const [minBooking, setMinBooking] = useState(60);
 
     const mutation = useMutation({
