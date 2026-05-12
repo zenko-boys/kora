@@ -46,13 +46,20 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
 
     const timeZoneId = slotsData?.timeZoneId ?? "UTC";
     const cellMin = slotsData?.slotCellDurationMinutes ?? 60;
+    const minMin = slotsData?.minimumBookingDurationMinutes ?? 60;
     const slots = slotsData?.slots ?? [];
     const maxCourts = slots.length > 0 ? Math.max(...slots.map((s) => s.availableCourts)) : 1;
 
-    // A slot is selectable only if it has enough available courts
+    // Number of consecutive cells required to satisfy the minimum booking duration
+    const numCells = cellMin > 0 ? Math.ceil(minMin / cellMin) : 1;
+
+    // A start slot is selectable only if every cell in the span has enough available courts
     function isStartSlotSelectable(index: number): boolean {
-        const cell = slots[index];
-        return !!cell && cell.availableCourts >= courtsToOccupy;
+        for (let j = 0; j < numCells; j++) {
+            const cell = slots[index + j];
+            if (!cell || cell.availableCourts < courtsToOccupy) return false;
+        }
+        return true;
     }
 
     // Reset selection if it becomes invalid when courtsToOccupy or slots change
@@ -75,14 +82,14 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
 
     const mutation = useMutation({
         mutationFn: () => {
-            const slotUtc = moment
-                .tz(`${date} ${selectedSlotStart}`, "YYYY-MM-DD HH:mm:ss", timeZoneId)
-                .utc()
-                .toISOString();
+            const startMoment = moment.tz(`${date} ${selectedSlotStart}`, "YYYY-MM-DD HH:mm:ss", timeZoneId);
+            const slotsUtc = Array.from({ length: numCells }, (_, i) =>
+                startMoment.clone().add(i * cellMin, "minutes").utc().toISOString()
+            );
 
             const body: CreateBookingRequest = {
                 type,
-                slots: [slotUtc],
+                slots: slotsUtc,
                 courtsToOccupy,
                 capacity: capacity !== "" ? capacity : undefined,
             };
