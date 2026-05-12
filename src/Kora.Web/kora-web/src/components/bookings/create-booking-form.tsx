@@ -14,20 +14,6 @@ function inputCls(extra?: string) {
     return `w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#3D46FB]/50 ${extra ?? ""}`;
 }
 
-const MAX_DURATION_SLOTS = 8;
-
-function buildDurationOptions(cellMin: number, minMin: number): { label: string; value: number }[] {
-    const options: { label: string; value: number }[] = [];
-    for (let mult = Math.ceil(minMin / cellMin); mult <= MAX_DURATION_SLOTS; mult++) {
-        const totalMin = mult * cellMin;
-        const h = Math.floor(totalMin / 60);
-        const m = totalMin % 60;
-        const label = h > 0 && m > 0 ? `${h}h ${m}min` : h > 0 ? `${h}h` : `${m}min`;
-        options.push({ label, value: totalMin });
-    }
-    return options;
-}
-
 export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     const { getToken } = useAuth();
     const queryClient = useQueryClient();
@@ -37,7 +23,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     const [type, setType] = useState<BookingType>("Game");
     const [date, setDate] = useState("");
     const [selectedSlotStart, setSelectedSlotStart] = useState("");
-    const [duration, setDuration] = useState<number | null>(null);
+    const [courtsToOccupy, setCourtsToOccupy] = useState<number>(1);
     const [capacity, setCapacity] = useState<number | "">(10);
 
     // Reset slot selection when club or date changes
@@ -54,39 +40,28 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
         queryKey: ["club-slots", clubId, date],
         queryFn: () => api.getClubSlots(clubId, date),
         enabled: !!clubId && !!date,
-        staleTime: 60_000,
+        staleTime: 0,
+        refetchOnMount: true,
     });
 
     const timeZoneId = slotsData?.timeZoneId ?? "UTC";
     const cellMin = slotsData?.slotCellDurationMinutes ?? 60;
-    const minMin = slotsData?.minimumBookingDurationMinutes ?? 60;
     const slots = slotsData?.slots ?? [];
-    const durationOptions = buildDurationOptions(cellMin, minMin);
+    const maxCourts = slots.length > 0 ? Math.max(...slots.map((s) => s.availableCourts)) : 1;
 
-    // How many consecutive cells the selected duration spans
-    const numCells = duration && cellMin > 0 ? Math.ceil(duration / cellMin) : 1;
-
-    // A start slot is selectable only if every cell in the span is available
+    // A slot is selectable only if it has enough available courts
     function isStartSlotSelectable(index: number): boolean {
-        for (let j = 0; j < numCells; j++) {
-            const cell = slots[index + j];
-            if (!cell || !cell.available) return false;
-        }
-        return true;
+        const cell = slots[index];
+        return !!cell && cell.availableCourts >= courtsToOccupy;
     }
 
-    // Set default duration when options change
-    useEffect(() => {
-        if (durationOptions.length > 0) setDuration(durationOptions[0].value);
-    }, [cellMin, minMin]);
-
-    // Reset selection if it becomes invalid when duration or slots change
+    // Reset selection if it becomes invalid when courtsToOccupy or slots change
     useEffect(() => {
         if (!selectedSlotStart || slots.length === 0) return;
         const idx = slots.findIndex((s) => s.startTime === selectedSlotStart);
         if (idx === -1 || !isStartSlotSelectable(idx)) setSelectedSlotStart("");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [duration, slots]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [courtsToOccupy, slots]);
 
     // Timezone display badge: e.g. "America/Sao_Paulo  → BRT (UTC-03:00)"
     const tzBadge = timeZoneId !== "UTC"
@@ -100,15 +75,15 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
 
     const mutation = useMutation({
         mutationFn: () => {
-            const startsAt = moment
+            const slotUtc = moment
                 .tz(`${date} ${selectedSlotStart}`, "YYYY-MM-DD HH:mm:ss", timeZoneId)
                 .utc()
                 .toISOString();
 
             const body: CreateBookingRequest = {
                 type,
-                startsAt,
-                durationMinutes: duration ?? minMin,
+                slots: [slotUtc],
+                courtsToOccupy,
                 capacity: capacity !== "" ? capacity : undefined,
             };
             return api.createBooking(clubId, body);
@@ -116,6 +91,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
         onSuccess: () => {
             toast.success("Booking created!");
             queryClient.invalidateQueries({ queryKey: ["bookings"] });
+            queryClient.invalidateQueries({ queryKey: ["club-slots", clubId, date] });
             onClose();
         },
         onError: (err: Error) => {
@@ -184,27 +160,25 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                     />
                 </div>
 
-                {/* Duration */}
+                {/* Courts to occupy */}
                 <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">Duration *</label>
-                    <select
-                        name="durationMinutes"
-                        value={duration ?? ""}
-                        onChange={(e) => setDuration(Number(e.target.value))}
-                        disabled={durationOptions.length === 0}
+                    <label className="text-xs font-medium text-muted-foreground">Courts to occupy *</label>
+                    <input
+                        name="courtsToOccupy"
+                        type="number"
+                        min={1}
+                        max={maxCourts > 0 ? maxCourts : 1}
+                        value={courtsToOccupy}
+                        onChange={(e) => {
+                            const v = Math.max(1, Number(e.target.value));
+                            setCourtsToOccupy(v);
+                        }}
                         className={inputCls()}
-                    >
-                        {durationOptions.length === 0 && (
-                            <option value="">—</option>
-                        )}
-                        {durationOptions.map((o) => (
-                            <option key={o.value} value={o.value}>{o.label}</option>
-                        ))}
-                    </select>
+                    />
                 </div>
 
                 {/* Capacity */}
-                <div className="space-y-1.5 sm:col-span-2">
+                <div className="space-y-1.5">
                     <label className="text-xs font-medium text-muted-foreground">Capacity</label>
                     <input
                         name="capacity"

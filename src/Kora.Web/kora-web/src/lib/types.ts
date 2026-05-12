@@ -28,8 +28,7 @@ export interface BookingsFilter {
 
 export interface CreateBookingRequest {
     type: BookingType;
-    startsAt: string;
-    durationMinutes: number;
+    slots: string[];
     courtsToOccupy?: number;
     capacity?: number;
 }
