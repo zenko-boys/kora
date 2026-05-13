@@ -4,28 +4,14 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { toast } from "sonner";
-import { X, Check, Clock, Loader2 } from "lucide-react";
+import { X, Check, Clock, Loader2, Search, Star } from "lucide-react";
 import moment from "moment-timezone";
 import { createApiClient } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import type { BookingType, CreateBookingRequest } from "@/lib/types";
 
 function inputCls(extra?: string) {
-    return `w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#3D46FB]/50 ${extra ?? ""}`;
-}
-
-const MAX_DURATION_SLOTS = 8;
-
-function buildDurationOptions(cellMin: number, minMin: number): { label: string; value: number }[] {
-    const options: { label: string; value: number }[] = [];
-    for (let mult = Math.ceil(minMin / cellMin); mult <= MAX_DURATION_SLOTS; mult++) {
-        const totalMin = mult * cellMin;
-        const h = Math.floor(totalMin / 60);
-        const m = totalMin % 60;
-        const label = h > 0 && m > 0 ? `${h}h ${m}min` : h > 0 ? `${h}h` : `${m}min`;
-        options.push({ label, value: totalMin });
-    }
-    return options;
+    return `w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#82B1FF]/50 ${extra ?? ""}`;
 }
 
 export function CreateBookingForm({ onClose }: { onClose: () => void }) {
@@ -34,14 +20,16 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     const api = createApiClient(async (opts) => getToken(opts));
 
     const [clubId, setClubId] = useState("");
+    const [clubSearch, setClubSearch] = useState("");
     const [type, setType] = useState<BookingType>("Game");
     const [date, setDate] = useState("");
-    const [selectedSlotStart, setSelectedSlotStart] = useState("");
-    const [duration, setDuration] = useState<number | null>(null);
+    const [dateViewMode, setDateViewMode] = useState<"month" | "week">("week");
+    const [selectionRange, setSelectionRange] = useState<{ start: number; end: number } | null>(null);
+    const [courtsToOccupy, setCourtsToOccupy] = useState<number>(1);
     const [capacity, setCapacity] = useState<number | "">(10);
 
     // Reset slot selection when club or date changes
-    useEffect(() => { setSelectedSlotStart(""); }, [clubId, date]);
+    useEffect(() => { setSelectionRange(null); }, [clubId, date]);
 
     const { data: clubsData, isLoading: loadingClubs } = useQuery({
         queryKey: ["my-clubs"],
@@ -49,44 +37,63 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     });
 
     const clubs = clubsData?.clubs ?? [];
+    const filteredClubs = clubSearch.trim()
+        ? clubs.filter((c) => c.name.toLowerCase().includes(clubSearch.trim().toLowerCase()))
+        : clubs;
 
     const { data: slotsData, isLoading: loadingSlots, isFetching: fetchingSlots } = useQuery({
         queryKey: ["club-slots", clubId, date],
         queryFn: () => api.getClubSlots(clubId, date),
         enabled: !!clubId && !!date,
-        staleTime: 60_000,
+        staleTime: 0,
+        refetchOnMount: true,
     });
 
     const timeZoneId = slotsData?.timeZoneId ?? "UTC";
     const cellMin = slotsData?.slotCellDurationMinutes ?? 60;
     const minMin = slotsData?.minimumBookingDurationMinutes ?? 60;
     const slots = slotsData?.slots ?? [];
-    const durationOptions = buildDurationOptions(cellMin, minMin);
+    const maxCourts = slots.length > 0 ? Math.max(...slots.map((s) => s.availableCourts)) : 1;
 
-    // How many consecutive cells the selected duration spans
-    const numCells = duration && cellMin > 0 ? Math.ceil(duration / cellMin) : 1;
+    const selectedCellCount = selectionRange ? selectionRange.end - selectionRange.start + 1 : 0;
+    const meetsMinDuration = selectedCellCount * cellMin >= minMin;
 
-    // A start slot is selectable only if every cell in the span is available
-    function isStartSlotSelectable(index: number): boolean {
-        for (let j = 0; j < numCells; j++) {
-            const cell = slots[index + j];
-            if (!cell || !cell.available) return false;
-        }
-        return true;
+    function isSlotAvailable(index: number): boolean {
+        const cell = slots[index];
+        return !!cell && cell.availableCourts >= courtsToOccupy;
     }
 
-    // Set default duration when options change
-    useEffect(() => {
-        if (durationOptions.length > 0) setDuration(durationOptions[0].value);
-    }, [cellMin, minMin]);
+    function handleSlotClick(index: number) {
+        if (!selectionRange) {
+            setSelectionRange({ start: index, end: index });
+            return;
+        }
+        // Click within current selection → clear
+        if (index >= selectionRange.start && index <= selectionRange.end) {
+            setSelectionRange(null);
+            return;
+        }
+        // Extend if immediately adjacent to either end
+        if (index === selectionRange.start - 1) {
+            setSelectionRange({ start: index, end: selectionRange.end });
+            return;
+        }
+        if (index === selectionRange.end + 1) {
+            setSelectionRange({ start: selectionRange.start, end: index });
+            return;
+        }
+        // Non-adjacent → start fresh
+        setSelectionRange({ start: index, end: index });
+    }
 
-    // Reset selection if it becomes invalid when duration or slots change
+    // Clear selection if any selected slot no longer satisfies courtsToOccupy or slots refresh
     useEffect(() => {
-        if (!selectedSlotStart || slots.length === 0) return;
-        const idx = slots.findIndex((s) => s.startTime === selectedSlotStart);
-        if (idx === -1 || !isStartSlotSelectable(idx)) setSelectedSlotStart("");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [duration, slots]);
+        if (!selectionRange || slots.length === 0) return;
+        for (let i = selectionRange.start; i <= selectionRange.end; i++) {
+            if (!isSlotAvailable(i)) { setSelectionRange(null); return; }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [courtsToOccupy, slots]);
 
     // Timezone display badge: e.g. "America/Sao_Paulo  → BRT (UTC-03:00)"
     const tzBadge = timeZoneId !== "UTC"
@@ -100,15 +107,19 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
 
     const mutation = useMutation({
         mutationFn: () => {
-            const startsAt = moment
-                .tz(`${date} ${selectedSlotStart}`, "YYYY-MM-DD HH:mm:ss", timeZoneId)
-                .utc()
-                .toISOString();
+            const startMoment = moment.tz(
+                `${date} ${slots[selectionRange!.start].startTime}`,
+                "YYYY-MM-DD HH:mm:ss",
+                timeZoneId
+            );
+            const slotsUtc = Array.from({ length: selectedCellCount }, (_, i) =>
+                startMoment.clone().add(i * cellMin, "minutes").utc().toISOString()
+            );
 
             const body: CreateBookingRequest = {
                 type,
-                startsAt,
-                durationMinutes: duration ?? minMin,
+                slots: slotsUtc,
+                courtsToOccupy,
                 capacity: capacity !== "" ? capacity : undefined,
             };
             return api.createBooking(clubId, body);
@@ -116,6 +127,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
         onSuccess: () => {
             toast.success("Booking created!");
             queryClient.invalidateQueries({ queryKey: ["bookings"] });
+            queryClient.invalidateQueries({ queryKey: ["club-slots", clubId, date] });
             onClose();
         },
         onError: (err: Error) => {
@@ -127,94 +139,230 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
         e.preventDefault();
         if (!clubId) { toast.error("Select a club first."); return; }
         if (!date) { toast.error("Select a date."); return; }
-        if (!selectedSlotStart) { toast.error("Select a time slot."); return; }
+        if (!selectionRange) { toast.error("Select at least one time slot."); return; }
+        if (!meetsMinDuration) { toast.error(`Minimum booking duration is ${minMin} min.`); return; }
         mutation.mutate();
     };
 
-    const today = moment().format("YYYY-MM-DD");
+    const todayMoment = moment();
+    const today = todayMoment.format("YYYY-MM-DD");
+    const DAY_INITIALS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+    const visibleDays = (() => {
+        const start = todayMoment.clone().subtract(3, "days");
+        if (dateViewMode === "week") {
+            const weekEnd = todayMoment.clone().endOf("isoWeek");
+            const days: moment.Moment[] = [];
+            for (let d = start.clone(); d.isSameOrBefore(weekEnd, "day"); d.add(1, "day")) {
+                days.push(d.clone());
+            }
+            return days;
+        }
+        const monthEnd = todayMoment.clone().endOf("month");
+        const days: moment.Moment[] = [];
+        for (let d = start.clone(); d.isSameOrBefore(monthEnd, "day"); d.add(1, "day")) {
+            days.push(d.clone());
+        }
+        return days;
+    })();
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-5 rounded-xl border border-[#3D46FB]/30 bg-[#3D46FB]/5 p-5">
+        <form onSubmit={handleSubmit} className="space-y-5 rounded-xl border border-[#424242]/20 bg-[#82B1FF]/5 p-5">
             <h3 className="text-sm font-semibold text-foreground">New Booking</h3>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-                {/* Club */}
-                <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">Club *</label>
-                    <select
-                        required
-                        name="clubId"
-                        value={clubId}
-                        onChange={(e) => setClubId(e.target.value)}
-                        disabled={loadingClubs}
-                        className={inputCls()}
-                    >
-                        <option value="">{loadingClubs ? "Loading…" : "Select a club"}</option>
-                        {clubs.map((c) => (
-                            <option key={c.clubId} value={c.clubId}>{c.name}</option>
-                        ))}
-                    </select>
+            {/* Club search + carousel */}
+            <div className="space-y-2">
+                <label className="text-xs font-medium text-muted-foreground">Club *</label>
+                <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                    <input
+                        type="text"
+                        placeholder="Search clubs…"
+                        value={clubSearch}
+                        onChange={(e) => setClubSearch(e.target.value)}
+                        className={inputCls("pl-8")}
+                    />
                 </div>
+                {loadingClubs ? (
+                    <div className="flex items-center gap-2 py-3 text-xs text-muted-foreground">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Loading clubs…
+                    </div>
+                ) : filteredClubs.length === 0 ? (
+                    <p className="rounded-md border border-dashed border-border py-3 text-center text-xs text-muted-foreground">
+                        No clubs found.
+                    </p>
+                ) : (
+                    <div className="flex gap-3 overflow-x-auto pb-1">
+                        {filteredClubs.map((c) => {
+                            const isSelected = clubId === c.clubId;
+                            const stars = c.rating ?? 0;
+                            return (
+                                <button
+                                    key={c.clubId}
+                                    type="button"
+                                    onClick={() => setClubId(c.clubId)}
+                                    className={[
+                                        "relative flex h-28 w-40 shrink-0 flex-col justify-end overflow-hidden rounded-xl border-2 p-2.5 text-left transition-all",
+                                        isSelected
+                                            ? "border-[#424242] ring-2 ring-[#82B1FF]/40"
+                                            : "border-transparent hover:border-[#424242]/50",
+                                    ].join(" ")}
+                                >
+                                    {c.imageUrl ? (
+                                        <img src={c.imageUrl} alt={c.name} className="absolute inset-0 h-full w-full object-cover" />
+                                    ) : (
+                                        <div className="absolute inset-0 bg-linear-to-br from-[#82B1FF]/60 to-[#82B1FF]/20" />
+                                    )}
+                                    <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
+                                    <div className="relative space-y-0.5">
+                                        <p className="truncate text-xs font-semibold text-white">{c.name}</p>
+                                        <div className="flex items-center justify-between gap-2">
+                                            {c.courtsCount !== undefined && (
+                                                <span className="text-[10px] text-white/80">{c.courtsCount} courts</span>
+                                            )}
+                                            {stars > 0 && (
+                                                <span className="flex items-center gap-0.5">
+                                                    {Array.from({ length: 5 }, (_, i) => (
+                                                        <Star
+                                                            key={i}
+                                                            className={[
+                                                                "h-2.5 w-2.5",
+                                                                i < Math.round(stars)
+                                                                    ? "fill-yellow-400 text-yellow-400"
+                                                                    : "text-white/40",
+                                                            ].join(" ")}
+                                                        />
+                                                    ))}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
 
-                {/* Type */}
-                <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">Type *</label>
-                    <select
-                        name="type"
-                        value={type}
-                        onChange={(e) => setType(e.target.value as BookingType)}
-                        className={inputCls()}
-                    >
-                        <option value="Game">Game</option>
-                        <option value="DayUse">Day Use</option>
-                    </select>
+            {/* Type cards */}
+            <div className="space-y-2">
+                <label className="text-xs font-medium text-muted-foreground">Type *</label>
+                <div className="grid grid-cols-2 gap-3">
+                    {(["Game", "DayUse"] as BookingType[]).map((t) => {
+                        const isSelected = type === t;
+                        const label = t === "Game" ? "Game" : "Day Use";
+                        const description = t === "Game" ? "Book courts for a match" : "Full day access to the club";
+                        return (
+                            <button
+                                key={t}
+                                type="button"
+                                onClick={() => setType(t)}
+                                className={[
+                                    "flex flex-col items-start rounded-xl border-2 px-4 py-3 text-left transition-all",
+                                    isSelected
+                                        ? "border-[#424242] bg-[#82B1FF]/10 ring-2 ring-[#82B1FF]/30"
+                                        : "border-border bg-background hover:border-[#424242]/50 hover:bg-[#82B1FF]/5",
+                                ].join(" ")}
+                            >
+                                <span className={["text-sm font-semibold", isSelected ? "text-[#82B1FF]" : "text-foreground"].join(" ")}>
+                                    {label}
+                                </span>
+                                <span className="mt-0.5 text-[10px] text-muted-foreground">{description}</span>
+                            </button>
+                        );
+                    })}
                 </div>
+            </div>
 
-                {/* Date */}
-                <div className="space-y-1.5">
+            {/* Courts to occupy + Capacity (DayUse only) */}
+            {type === "DayUse" && (
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-muted-foreground">Courts to occupy *</label>
+                        <input
+                            name="courtsToOccupy"
+                            type="number"
+                            min={1}
+                            max={maxCourts > 0 ? maxCourts : 1}
+                            value={courtsToOccupy}
+                            onChange={(e) => {
+                                const v = Math.max(1, Number(e.target.value));
+                                setCourtsToOccupy(v);
+                            }}
+                            className={inputCls()}
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-muted-foreground">Capacity</label>
+                        <input
+                            name="capacity"
+                            type="number"
+                            min={1}
+                            value={capacity}
+                            onChange={(e) => setCapacity(e.target.value === "" ? "" : Number(e.target.value))}
+                            placeholder="Optional"
+                            className={inputCls()}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {/* Date picker */}
+            <div className="space-y-2">
+                <div className="flex items-center justify-between">
                     <label className="text-xs font-medium text-muted-foreground">Date *</label>
-                    <input
-                        required
-                        name="date"
-                        type="date"
-                        min={today}
-                        value={date}
-                        onChange={(e) => setDate(e.target.value)}
-                        className={inputCls()}
-                    />
+                    <div className="flex overflow-hidden rounded-md border border-border text-xs">
+                        <button
+                            type="button"
+                            onClick={() => setDateViewMode("week")}
+                            className={[
+                                "px-3 py-1 transition-colors",
+                                dateViewMode === "week"
+                                    ? "bg-[#82B1FF] text-white"
+                                    : "bg-background text-foreground hover:bg-muted",
+                            ].join(" ")}
+                        >
+                            Week
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setDateViewMode("month")}
+                            className={[
+                                "px-3 py-1 transition-colors",
+                                dateViewMode === "month"
+                                    ? "bg-[#82B1FF] text-white"
+                                    : "bg-background text-foreground hover:bg-muted",
+                            ].join(" ")}
+                        >
+                            Month
+                        </button>
+                    </div>
                 </div>
-
-                {/* Duration */}
-                <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">Duration *</label>
-                    <select
-                        name="durationMinutes"
-                        value={duration ?? ""}
-                        onChange={(e) => setDuration(Number(e.target.value))}
-                        disabled={durationOptions.length === 0}
-                        className={inputCls()}
-                    >
-                        {durationOptions.length === 0 && (
-                            <option value="">—</option>
-                        )}
-                        {durationOptions.map((o) => (
-                            <option key={o.value} value={o.value}>{o.label}</option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* Capacity */}
-                <div className="space-y-1.5 sm:col-span-2">
-                    <label className="text-xs font-medium text-muted-foreground">Capacity</label>
-                    <input
-                        name="capacity"
-                        type="number"
-                        min={1}
-                        value={capacity}
-                        onChange={(e) => setCapacity(e.target.value === "" ? "" : Number(e.target.value))}
-                        placeholder="Optional"
-                        className={inputCls()}
-                    />
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(2.5rem,1fr))] justify-items-center gap-2">
+                    {visibleDays.map((d) => {
+                        const val = d.format("YYYY-MM-DD");
+                        const isPast = d.isBefore(todayMoment, "day");
+                        const isSelected = date === val;
+                        return (
+                            <button
+                                key={val}
+                                type="button"
+                                disabled={isPast}
+                                onClick={() => setDate(val)}
+                                className={[
+                                    "flex shrink-0 flex-col items-center rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
+                                    isPast
+                                        ? "cursor-not-allowed border-border bg-muted/40 text-muted-foreground opacity-40"
+                                        : isSelected
+                                            ? "border-[#424242] bg-[#82B1FF] text-white"
+                                            : "border-border bg-background text-foreground hover:border-[#424242]/60 hover:bg-[#82B1FF]/5",
+                                ].join(" ")}
+                            >
+                                <span className="text-[10px] leading-none opacity-70">{DAY_INITIALS[d.day()]}</span>
+                                <span className="mt-0.5 leading-none">{d.date()}</span>
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -243,35 +391,47 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                             No slots available for this date.
                         </p>
                     ) : (
-                        <div className="flex flex-wrap gap-2">
-                            {slots.map((slot, index) => {
-                                const isSelected = selectedSlotStart === slot.startTime;
-                                const selectable = isStartSlotSelectable(index);
-                                return (
-                                    <button
-                                        key={slot.startTime}
-                                        type="button"
-                                        disabled={!selectable}
-                                        onClick={() => setSelectedSlotStart(slot.startTime)}
-                                        className={[
-                                            "rounded-md border px-3 py-1.5 text-xs font-medium transition-colors",
-                                            selectable
-                                                ? isSelected
-                                                    ? "border-[#3D46FB] bg-[#3D46FB] text-white"
-                                                    : "border-border bg-background text-foreground hover:border-[#3D46FB]/60 hover:bg-[#3D46FB]/5"
-                                                : "cursor-not-allowed border-border bg-muted/40 text-muted-foreground opacity-40",
-                                        ].join(" ")}
-                                    >
-                                        {formatSlotTime(slot.startTime)}
-                                        {selectable && !isSelected && (
-                                            <span className="ml-1 text-muted-foreground">
-                                                ({slot.availableCourts})
-                                            </span>
-                                        )}
-                                    </button>
-                                );
-                            })}
-                        </div>
+                        <>
+                            <div className="grid grid-cols-[repeat(auto-fill,minmax(6rem,1fr))] justify-items-center gap-2">
+                                {slots.map((slot, index) => {
+                                    const available = isSlotAvailable(index);
+                                    const isSelected = !!selectionRange && index >= selectionRange.start && index <= selectionRange.end;
+                                    return (
+                                        <button
+                                            key={slot.startTime}
+                                            type="button"
+                                            disabled={!available}
+                                            onClick={() => handleSlotClick(index)}
+                                            className={[
+                                                "rounded-md border px-3 py-1.5 text-xs font-medium transition-colors",
+                                                available
+                                                    ? isSelected
+                                                        ? "border-[#424242] bg-[#82B1FF] text-white"
+                                                        : "border-border bg-background text-foreground hover:border-[#424242]/60 hover:bg-[#82B1FF]/5"
+                                                    : "cursor-not-allowed border-border bg-muted/40 text-muted-foreground opacity-40",
+                                            ].join(" ")}
+                                        >
+                                            {formatSlotTime(slot.startTime)}&nbsp;–&nbsp;{formatSlotTime(slot.endTime)}
+                                            {available && !isSelected && (
+                                                <span className="ml-1 text-muted-foreground">({slot.availableCourts})</span>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            {selectionRange && (
+                                <div className="mt-2 flex items-center gap-2 rounded-md border border-[#424242]/20 bg-[#82B1FF]/10 px-3 py-2 text-xs">
+                                    <Clock className="h-3.5 w-3.5 text-[#82B1FF]" />
+                                    <span className="font-medium text-foreground">
+                                        {formatSlotTime(slots[selectionRange.start].startTime)}&nbsp;–&nbsp;{formatSlotTime(slots[selectionRange.end].endTime)}
+                                        &nbsp;&middot;&nbsp;{selectedCellCount * cellMin} min
+                                    </span>
+                                    {!meetsMinDuration && (
+                                        <span className="text-destructive">(minimum {minMin} min)</span>
+                                    )}
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
             )}
@@ -284,8 +444,8 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                 <Button
                     type="submit"
                     size="sm"
-                    disabled={mutation.isPending || !selectedSlotStart}
-                    className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
+                    disabled={mutation.isPending || !selectionRange || !meetsMinDuration}
+                    className="bg-[#82B1FF] text-white hover:bg-[#82B1FF]/90"
                 >
                     <Check className="h-3.5 w-3.5" />
                     {mutation.isPending ? "Creating…" : "Create Booking"}
