@@ -57,6 +57,9 @@ export interface MyClubSummary {
     name: string;
     timeZoneId: string;
     role: string;
+    courtsCount?: number;
+    rating?: number;
+    imageUrl?: string;
 }
 
 export interface ListMyClubsResponse {

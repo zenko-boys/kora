@@ -143,7 +143,19 @@ export function createApiClient(getToken: GetToken) {
         },
 
         getMyClubs: (): Promise<ListMyClubsResponse> => {
-            if (USE_MOCK) return Promise.resolve({ clubs: [] });
+            if (USE_MOCK) return Promise.resolve({
+                clubs: [
+                    {
+                        clubId: "club-padel-pinheiros",
+                        name: "Padel Pinheiros",
+                        timeZoneId: "America/Sao_Paulo",
+                        role: "Admin",
+                        courtsCount: 6,
+                        rating: 4.5,
+                        imageUrl: "/images/padel_pinheiros.webp",
+                    },
+                ],
+            });
             return apiFetch<ListMyClubsResponse>("/me/clubs", getToken);
         },
 
