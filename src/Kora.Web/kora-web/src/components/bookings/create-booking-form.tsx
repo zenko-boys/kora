@@ -144,14 +144,21 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     const today = todayMoment.format("YYYY-MM-DD");
     const DAY_INITIALS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
     const visibleDays = (() => {
+        const start = todayMoment.clone().subtract(3, "days");
         if (dateViewMode === "week") {
-            const weekStart = todayMoment.clone().startOf("isoWeek");
-            return Array.from({ length: 7 }, (_, i) => weekStart.clone().add(i, "days"));
+            const weekEnd = todayMoment.clone().endOf("isoWeek");
+            const days: moment.Moment[] = [];
+            for (let d = start.clone(); d.isSameOrBefore(weekEnd, "day"); d.add(1, "day")) {
+                days.push(d.clone());
+            }
+            return days;
         }
-        const monthStart = todayMoment.clone().startOf("month");
-        return Array.from({ length: todayMoment.daysInMonth() }, (_, i) =>
-            monthStart.clone().add(i, "days")
-        );
+        const monthEnd = todayMoment.clone().endOf("month");
+        const days: moment.Moment[] = [];
+        for (let d = start.clone(); d.isSameOrBefore(monthEnd, "day"); d.add(1, "day")) {
+            days.push(d.clone());
+        }
+        return days;
     })();
 
     return (
@@ -192,35 +199,39 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                 </div>
 
                 {/* Courts to occupy */}
-                <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">Courts to occupy *</label>
-                    <input
-                        name="courtsToOccupy"
-                        type="number"
-                        min={1}
-                        max={maxCourts > 0 ? maxCourts : 1}
-                        value={courtsToOccupy}
-                        onChange={(e) => {
-                            const v = Math.max(1, Number(e.target.value));
-                            setCourtsToOccupy(v);
-                        }}
-                        className={inputCls()}
-                    />
-                </div>
+                {type === "DayUse" && (
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-muted-foreground">Courts to occupy *</label>
+                        <input
+                            name="courtsToOccupy"
+                            type="number"
+                            min={1}
+                            max={maxCourts > 0 ? maxCourts : 1}
+                            value={courtsToOccupy}
+                            onChange={(e) => {
+                                const v = Math.max(1, Number(e.target.value));
+                                setCourtsToOccupy(v);
+                            }}
+                            className={inputCls()}
+                        />
+                    </div>
+                )}
 
                 {/* Capacity */}
-                <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">Capacity</label>
-                    <input
-                        name="capacity"
-                        type="number"
-                        min={1}
-                        value={capacity}
-                        onChange={(e) => setCapacity(e.target.value === "" ? "" : Number(e.target.value))}
-                        placeholder="Optional"
-                        className={inputCls()}
-                    />
-                </div>
+                {type === "DayUse" && (
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-muted-foreground">Capacity</label>
+                        <input
+                            name="capacity"
+                            type="number"
+                            min={1}
+                            value={capacity}
+                            onChange={(e) => setCapacity(e.target.value === "" ? "" : Number(e.target.value))}
+                            placeholder="Optional"
+                            className={inputCls()}
+                        />
+                    </div>
+                )}
             </div>
 
             {/* Date picker */}
@@ -254,7 +265,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                         </button>
                     </div>
                 </div>
-                <div className="flex gap-2 overflow-x-auto pb-1">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(2.5rem,1fr))] justify-items-center gap-2">
                     {visibleDays.map((d) => {
                         const val = d.format("YYYY-MM-DD");
                         const isPast = d.isBefore(todayMoment, "day");
@@ -308,7 +319,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                         </p>
                     ) : (
                         <>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="grid grid-cols-[repeat(auto-fill,minmax(6rem,1fr))] justify-items-center gap-2">
                                 {slots.map((slot, index) => {
                                     const available = isSlotAvailable(index);
                                     const isSelected = !!selectionRange && index >= selectionRange.start && index <= selectionRange.end;
