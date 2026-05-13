@@ -22,6 +22,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     const [clubId, setClubId] = useState("");
     const [type, setType] = useState<BookingType>("Game");
     const [date, setDate] = useState("");
+    const [dateViewMode, setDateViewMode] = useState<"month" | "week">("week");
     const [selectionRange, setSelectionRange] = useState<{ start: number; end: number } | null>(null);
     const [courtsToOccupy, setCourtsToOccupy] = useState<number>(1);
     const [capacity, setCapacity] = useState<number | "">(10);
@@ -139,7 +140,19 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
         mutation.mutate();
     };
 
-    const today = moment().format("YYYY-MM-DD");
+    const todayMoment = moment();
+    const today = todayMoment.format("YYYY-MM-DD");
+    const DAY_INITIALS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+    const visibleDays = (() => {
+        if (dateViewMode === "week") {
+            const weekStart = todayMoment.clone().startOf("isoWeek");
+            return Array.from({ length: 7 }, (_, i) => weekStart.clone().add(i, "days"));
+        }
+        const monthStart = todayMoment.clone().startOf("month");
+        return Array.from({ length: todayMoment.daysInMonth() }, (_, i) =>
+            monthStart.clone().add(i, "days")
+        );
+    })();
 
     return (
         <form onSubmit={handleSubmit} className="space-y-5 rounded-xl border border-[#3D46FB]/30 bg-[#3D46FB]/5 p-5">
@@ -178,20 +191,6 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                     </select>
                 </div>
 
-                {/* Date */}
-                <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">Date *</label>
-                    <input
-                        required
-                        name="date"
-                        type="date"
-                        min={today}
-                        value={date}
-                        onChange={(e) => setDate(e.target.value)}
-                        className={inputCls()}
-                    />
-                </div>
-
                 {/* Courts to occupy */}
                 <div className="space-y-1.5">
                     <label className="text-xs font-medium text-muted-foreground">Courts to occupy *</label>
@@ -221,6 +220,65 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                         placeholder="Optional"
                         className={inputCls()}
                     />
+                </div>
+            </div>
+
+            {/* Date picker */}
+            <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                    <label className="text-xs font-medium text-muted-foreground">Date *</label>
+                    <div className="flex overflow-hidden rounded-md border border-border text-xs">
+                        <button
+                            type="button"
+                            onClick={() => setDateViewMode("week")}
+                            className={[
+                                "px-3 py-1 transition-colors",
+                                dateViewMode === "week"
+                                    ? "bg-[#3D46FB] text-white"
+                                    : "bg-background text-foreground hover:bg-muted",
+                            ].join(" ")}
+                        >
+                            Week
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setDateViewMode("month")}
+                            className={[
+                                "px-3 py-1 transition-colors",
+                                dateViewMode === "month"
+                                    ? "bg-[#3D46FB] text-white"
+                                    : "bg-background text-foreground hover:bg-muted",
+                            ].join(" ")}
+                        >
+                            Month
+                        </button>
+                    </div>
+                </div>
+                <div className="flex gap-2 overflow-x-auto pb-1">
+                    {visibleDays.map((d) => {
+                        const val = d.format("YYYY-MM-DD");
+                        const isPast = d.isBefore(todayMoment, "day");
+                        const isSelected = date === val;
+                        return (
+                            <button
+                                key={val}
+                                type="button"
+                                disabled={isPast}
+                                onClick={() => setDate(val)}
+                                className={[
+                                    "flex shrink-0 flex-col items-center rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
+                                    isPast
+                                        ? "cursor-not-allowed border-border bg-muted/40 text-muted-foreground opacity-40"
+                                        : isSelected
+                                            ? "border-[#3D46FB] bg-[#3D46FB] text-white"
+                                            : "border-border bg-background text-foreground hover:border-[#3D46FB]/60 hover:bg-[#3D46FB]/5",
+                                ].join(" ")}
+                            >
+                                <span className="text-[10px] leading-none opacity-70">{DAY_INITIALS[d.day()]}</span>
+                                <span className="mt-0.5 leading-none">{d.date()}</span>
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
