@@ -22,12 +22,12 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     const [clubId, setClubId] = useState("");
     const [type, setType] = useState<BookingType>("Game");
     const [date, setDate] = useState("");
-    const [selectedSlotStart, setSelectedSlotStart] = useState("");
+    const [selectionRange, setSelectionRange] = useState<{ start: number; end: number } | null>(null);
     const [courtsToOccupy, setCourtsToOccupy] = useState<number>(1);
     const [capacity, setCapacity] = useState<number | "">(10);
 
     // Reset slot selection when club or date changes
-    useEffect(() => { setSelectedSlotStart(""); }, [clubId, date]);
+    useEffect(() => { setSelectionRange(null); }, [clubId, date]);
 
     const { data: clubsData, isLoading: loadingClubs } = useQuery({
         queryKey: ["my-clubs"],
@@ -50,23 +50,43 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     const slots = slotsData?.slots ?? [];
     const maxCourts = slots.length > 0 ? Math.max(...slots.map((s) => s.availableCourts)) : 1;
 
-    // Number of consecutive cells required to satisfy the minimum booking duration
-    const numCells = cellMin > 0 ? Math.ceil(minMin / cellMin) : 1;
+    const selectedCellCount = selectionRange ? selectionRange.end - selectionRange.start + 1 : 0;
+    const meetsMinDuration = selectedCellCount * cellMin >= minMin;
 
-    // A start slot is selectable only if every cell in the span has enough available courts
-    function isStartSlotSelectable(index: number): boolean {
-        for (let j = 0; j < numCells; j++) {
-            const cell = slots[index + j];
-            if (!cell || cell.availableCourts < courtsToOccupy) return false;
-        }
-        return true;
+    function isSlotAvailable(index: number): boolean {
+        const cell = slots[index];
+        return !!cell && cell.availableCourts >= courtsToOccupy;
     }
 
-    // Reset selection if it becomes invalid when courtsToOccupy or slots change
+    function handleSlotClick(index: number) {
+        if (!selectionRange) {
+            setSelectionRange({ start: index, end: index });
+            return;
+        }
+        // Click within current selection → clear
+        if (index >= selectionRange.start && index <= selectionRange.end) {
+            setSelectionRange(null);
+            return;
+        }
+        // Extend if immediately adjacent to either end
+        if (index === selectionRange.start - 1) {
+            setSelectionRange({ start: index, end: selectionRange.end });
+            return;
+        }
+        if (index === selectionRange.end + 1) {
+            setSelectionRange({ start: selectionRange.start, end: index });
+            return;
+        }
+        // Non-adjacent → start fresh
+        setSelectionRange({ start: index, end: index });
+    }
+
+    // Clear selection if any selected slot no longer satisfies courtsToOccupy or slots refresh
     useEffect(() => {
-        if (!selectedSlotStart || slots.length === 0) return;
-        const idx = slots.findIndex((s) => s.startTime === selectedSlotStart);
-        if (idx === -1 || !isStartSlotSelectable(idx)) setSelectedSlotStart("");
+        if (!selectionRange || slots.length === 0) return;
+        for (let i = selectionRange.start; i <= selectionRange.end; i++) {
+            if (!isSlotAvailable(i)) { setSelectionRange(null); return; }
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [courtsToOccupy, slots]);
 
@@ -82,8 +102,12 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
 
     const mutation = useMutation({
         mutationFn: () => {
-            const startMoment = moment.tz(`${date} ${selectedSlotStart}`, "YYYY-MM-DD HH:mm:ss", timeZoneId);
-            const slotsUtc = Array.from({ length: numCells }, (_, i) =>
+            const startMoment = moment.tz(
+                `${date} ${slots[selectionRange!.start].startTime}`,
+                "YYYY-MM-DD HH:mm:ss",
+                timeZoneId
+            );
+            const slotsUtc = Array.from({ length: selectedCellCount }, (_, i) =>
                 startMoment.clone().add(i * cellMin, "minutes").utc().toISOString()
             );
 
@@ -110,7 +134,8 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
         e.preventDefault();
         if (!clubId) { toast.error("Select a club first."); return; }
         if (!date) { toast.error("Select a date."); return; }
-        if (!selectedSlotStart) { toast.error("Select a time slot."); return; }
+        if (!selectionRange) { toast.error("Select at least one time slot."); return; }
+        if (!meetsMinDuration) { toast.error(`Minimum booking duration is ${minMin} min.`); return; }
         mutation.mutate();
     };
 
@@ -224,35 +249,47 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                             No slots available for this date.
                         </p>
                     ) : (
-                        <div className="flex flex-wrap gap-2">
-                            {slots.map((slot, index) => {
-                                const isSelected = selectedSlotStart === slot.startTime;
-                                const selectable = isStartSlotSelectable(index);
-                                return (
-                                    <button
-                                        key={slot.startTime}
-                                        type="button"
-                                        disabled={!selectable}
-                                        onClick={() => setSelectedSlotStart(slot.startTime)}
-                                        className={[
-                                            "rounded-md border px-3 py-1.5 text-xs font-medium transition-colors",
-                                            selectable
-                                                ? isSelected
-                                                    ? "border-[#3D46FB] bg-[#3D46FB] text-white"
-                                                    : "border-border bg-background text-foreground hover:border-[#3D46FB]/60 hover:bg-[#3D46FB]/5"
-                                                : "cursor-not-allowed border-border bg-muted/40 text-muted-foreground opacity-40",
-                                        ].join(" ")}
-                                    >
-                                        {formatSlotTime(slot.startTime)}
-                                        {selectable && !isSelected && (
-                                            <span className="ml-1 text-muted-foreground">
-                                                ({slot.availableCourts})
-                                            </span>
-                                        )}
-                                    </button>
-                                );
-                            })}
-                        </div>
+                        <>
+                            <div className="flex flex-wrap gap-2">
+                                {slots.map((slot, index) => {
+                                    const available = isSlotAvailable(index);
+                                    const isSelected = !!selectionRange && index >= selectionRange.start && index <= selectionRange.end;
+                                    return (
+                                        <button
+                                            key={slot.startTime}
+                                            type="button"
+                                            disabled={!available}
+                                            onClick={() => handleSlotClick(index)}
+                                            className={[
+                                                "rounded-md border px-3 py-1.5 text-xs font-medium transition-colors",
+                                                available
+                                                    ? isSelected
+                                                        ? "border-[#3D46FB] bg-[#3D46FB] text-white"
+                                                        : "border-border bg-background text-foreground hover:border-[#3D46FB]/60 hover:bg-[#3D46FB]/5"
+                                                    : "cursor-not-allowed border-border bg-muted/40 text-muted-foreground opacity-40",
+                                            ].join(" ")}
+                                        >
+                                            {formatSlotTime(slot.startTime)}&nbsp;–&nbsp;{formatSlotTime(slot.endTime)}
+                                            {available && !isSelected && (
+                                                <span className="ml-1 text-muted-foreground">({slot.availableCourts})</span>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            {selectionRange && (
+                                <div className="mt-2 flex items-center gap-2 rounded-md border border-[#3D46FB]/30 bg-[#3D46FB]/10 px-3 py-2 text-xs">
+                                    <Clock className="h-3.5 w-3.5 text-[#3D46FB]" />
+                                    <span className="font-medium text-foreground">
+                                        {formatSlotTime(slots[selectionRange.start].startTime)}&nbsp;–&nbsp;{formatSlotTime(slots[selectionRange.end].endTime)}
+                                        &nbsp;&middot;&nbsp;{selectedCellCount * cellMin} min
+                                    </span>
+                                    {!meetsMinDuration && (
+                                        <span className="text-destructive">(minimum {minMin} min)</span>
+                                    )}
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
             )}
@@ -265,7 +302,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                 <Button
                     type="submit"
                     size="sm"
-                    disabled={mutation.isPending || !selectedSlotStart}
+                    disabled={mutation.isPending || !selectionRange || !meetsMinDuration}
                     className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
                 >
                     <Check className="h-3.5 w-3.5" />
