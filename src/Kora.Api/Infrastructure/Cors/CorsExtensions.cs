@@ -11,7 +11,7 @@ public static class CorsExtensions
             options.AddPolicy(PolicyName, policy =>
             {
                 policy
-                    .SetIsOriginAllowed(IsLocalhost)
+                    .AllowAnyOrigin()
                     .AllowAnyHeader()
                     .AllowAnyMethod();
             });
