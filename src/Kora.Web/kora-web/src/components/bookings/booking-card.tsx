@@ -1,12 +1,12 @@
 "use client";
 
 import { format, parseISO } from "date-fns";
-import { Users, Clock, MapPin, CheckCircle2, Trash2, UserMinus } from "lucide-react";
+import { Clock, MapPin, CheckCircle2, Trash2, UserMinus, User } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useUser } from "@clerk/nextjs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import type { BookingCard as BookingCardType } from "@/lib/types";
 
 interface BookingCardProps {
@@ -47,8 +47,16 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
         amIIn,
     } = booking;
 
-    const fillPercent = capacity > 0 ? (participantsCount / capacity) * 100 : 0;
     const isFull = spotsOpen <= 0;
+
+    const { user } = useUser();
+    const userInitials = user
+        ? `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase().trim() || "?"
+        : "?";
+
+    const MAX_AVATARS = 6;
+    const totalSlots = Math.min(capacity, MAX_AVATARS);
+    const overflowCount = capacity > MAX_AVATARS ? capacity - MAX_AVATARS : 0;
 
     return (
         <Card className="flex flex-col overflow-hidden border-border transition-all hover:shadow-md">
@@ -96,19 +104,54 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
                 </div>
 
                 {/* Participants */}
-                <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-1.5 text-muted-foreground">
-                            <Users className="h-3.5 w-3.5" />
-                            <span>{t("players", { count: participantsCount, capacity })}</span>
+                <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                        <div className="flex -space-x-2">
+                            {Array.from({ length: totalSlots }, (_, i) => {
+                                const filled = i < participantsCount;
+                                const isCurrentUser = amIIn && i === 0;
+
+                                if (!filled) {
+                                    return (
+                                        <div
+                                            key={i}
+                                            className="h-8 w-8 shrink-0 rounded-full border-2 border-dashed border-border bg-background ring-2 ring-card"
+                                        />
+                                    );
+                                }
+
+                                if (isCurrentUser && user?.imageUrl) {
+                                    return (
+                                        <div key={i} className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full ring-2 ring-card">
+                                            <img src={user.imageUrl} alt={user.fullName ?? ""} className="h-full w-full object-cover" />
+                                        </div>
+                                    );
+                                }
+
+                                if (isCurrentUser) {
+                                    return (
+                                        <div key={i} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#3D46FB]/20 text-[10px] font-bold text-[#818cf8] ring-2 ring-card">
+                                            {userInitials}
+                                        </div>
+                                    );
+                                }
+
+                                return (
+                                    <div key={i} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted ring-2 ring-card">
+                                        <User className="h-4 w-4 text-muted-foreground" />
+                                    </div>
+                                );
+                            })}
                         </div>
-                        {isFull ? (
-                            <span className="font-semibold text-destructive">{t("full")}</span>
-                        ) : (
-                            <span className="font-semibold text-emerald-500">{t("openSpots", { count: spotsOpen })}</span>
+                        {overflowCount > 0 && (
+                            <span className="text-xs text-muted-foreground">+{overflowCount}</span>
                         )}
                     </div>
-                    <Progress value={fillPercent} className="h-1.5 [&>div]:bg-[#3D46FB]" />
+                    {isFull ? (
+                        <span className="text-xs font-semibold text-destructive">{t("full")}</span>
+                    ) : (
+                        <span className="text-xs font-semibold text-emerald-500">{t("openSpots", { count: spotsOpen })}</span>
+                    )}
                 </div>
 
                 {/* CTA */}
