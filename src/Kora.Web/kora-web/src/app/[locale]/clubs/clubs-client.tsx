@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Plus, Pencil, ChevronRight, Building2, X, Check } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { createApiClient } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -35,6 +36,7 @@ interface CreateClubFormProps {
 function CreateClubForm({ onSuccess, onCancel }: CreateClubFormProps) {
     const { getToken } = useAuth();
     const queryClient = useQueryClient();
+    const t = useTranslations("clubs");
     const api = createApiClient(async () => getToken({ template: "dev" }));
 
     const [name, setName] = useState("");
@@ -54,19 +56,19 @@ function CreateClubForm({ onSuccess, onCancel }: CreateClubFormProps) {
             return api.createClub(body);
         },
         onSuccess: () => {
-            toast.success("Club created!");
+            toast.success(t("toast.created"));
             queryClient.invalidateQueries({ queryKey: ["my-clubs"] });
             onSuccess();
         },
         onError: (err: Error) => {
-            toast.error("Could not create club", { description: err.message });
+            toast.error(t("toast.createFailed"), { description: err.message });
         },
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (minBooking % slotCell !== 0) {
-            toast.error("Minimum booking duration must be a multiple of the slot cell duration.");
+            toast.error(t("toast.minimumMultiple"));
             return;
         }
         mutation.mutate();
@@ -74,49 +76,49 @@ function CreateClubForm({ onSuccess, onCancel }: CreateClubFormProps) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-[#3D46FB]/30 bg-[#3D46FB]/5 p-5">
-            <h3 className="text-sm font-semibold text-foreground">New Club</h3>
+            <h3 className="text-sm font-semibold text-foreground">{t("form.title")}</h3>
 
             <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">Name *</label>
+                    <label className="text-xs font-medium text-muted-foreground">{t("form.name")} *</label>
                     <input
                         required
                         maxLength={120}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="My Tennis Club"
+                        placeholder={t("form.namePlaceholder")}
                         className={inputCls()}
                     />
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">Timezone *</label>
+                    <label className="text-xs font-medium text-muted-foreground">{t("form.timezone")} *</label>
                     <input
                         required
                         maxLength={60}
                         value={timeZoneId}
                         onChange={(e) => setTimeZoneId(e.target.value)}
-                        placeholder="America/Sao_Paulo"
+                        placeholder={t("form.timezonePlaceholder")}
                         className={inputCls()}
                     />
-                    <p className="text-[10px] text-muted-foreground/60">IANA timezone identifier</p>
+                    <p className="text-[10px] text-muted-foreground/60">{t("form.timezoneHint")}</p>
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">Slot cell duration</label>
+                    <label className="text-xs font-medium text-muted-foreground">{t("form.slotCellDuration")}</label>
                     <select
                         value={slotCell}
                         onChange={(e) => setSlotCell(Number(e.target.value) as 15 | 30 | 60)}
                         className={inputCls()}
                     >
                         {SLOT_DURATIONS.map((d) => (
-                            <option key={d} value={d}>{d} minutes</option>
+                            <option key={d} value={d}>{t("form.slotDurationMinutes", { duration: d })}</option>
                         ))}
                     </select>
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">Minimum booking duration</label>
+                    <label className="text-xs font-medium text-muted-foreground">{t("form.minimumBookingDuration")}</label>
                     <input
                         type="number"
                         required
@@ -126,14 +128,14 @@ function CreateClubForm({ onSuccess, onCancel }: CreateClubFormProps) {
                         onChange={(e) => setMinBooking(Number(e.target.value))}
                         className={inputCls()}
                     />
-                    <p className="text-[10px] text-muted-foreground/60">Must be a multiple of {slotCell} min</p>
+                    <p className="text-[10px] text-muted-foreground/60">{t("form.minimumBookingHint", { slotCell })}</p>
                 </div>
             </div>
 
             <div className="flex justify-end gap-2">
                 <Button type="button" variant="ghost" size="sm" onClick={onCancel} disabled={mutation.isPending}>
                     <X className="h-3.5 w-3.5" />
-                    Cancel
+                    {t("form.cancel")}
                 </Button>
                 <Button
                     type="submit"
@@ -142,7 +144,7 @@ function CreateClubForm({ onSuccess, onCancel }: CreateClubFormProps) {
                     className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
                 >
                     <Check className="h-3.5 w-3.5" />
-                    {mutation.isPending ? "Creating…" : "Create Club"}
+                    {mutation.isPending ? t("form.creating") : t("form.create")}
                 </Button>
             </div>
         </form>
@@ -160,6 +162,7 @@ interface EditClubFormProps {
 function EditClubForm({ club, onSuccess, onCancel }: EditClubFormProps) {
     const { getToken } = useAuth();
     const queryClient = useQueryClient();
+    const t = useTranslations("clubs");
     const api = createApiClient(async () => getToken({ template: "dev" }));
     const [name, setName] = useState(club.name);
 
@@ -167,12 +170,12 @@ function EditClubForm({ club, onSuccess, onCancel }: EditClubFormProps) {
         mutationFn: () =>
             api.updateClub(club.clubId, { name, operatingHours: [] }),
         onSuccess: () => {
-            toast.success("Club updated!");
+            toast.success(t("toast.updated"));
             queryClient.invalidateQueries({ queryKey: ["my-clubs"] });
             onSuccess();
         },
         onError: (err: Error) => {
-            toast.error("Could not update club", { description: err.message });
+            toast.error(t("toast.updateFailed"), { description: err.message });
         },
     });
 
@@ -182,7 +185,7 @@ function EditClubForm({ club, onSuccess, onCancel }: EditClubFormProps) {
             className="mt-3 flex items-end gap-2"
         >
             <div className="flex-1 space-y-1">
-                <label className="text-xs font-medium text-muted-foreground">Club name</label>
+                <label className="text-xs font-medium text-muted-foreground">{t("editForm.clubName")}</label>
                 <input
                     required
                     maxLength={120}
@@ -197,7 +200,7 @@ function EditClubForm({ club, onSuccess, onCancel }: EditClubFormProps) {
                 disabled={mutation.isPending}
                 className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
             >
-                {mutation.isPending ? "Saving…" : "Save"}
+                {mutation.isPending ? t("editForm.saving") : t("editForm.save")}
             </Button>
             <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
                 <X className="h-3.5 w-3.5" />
@@ -214,6 +217,7 @@ interface ClubCardProps {
 
 function ClubCard({ club }: ClubCardProps) {
     const [editing, setEditing] = useState(false);
+    const t = useTranslations("clubs");
 
     return (
         <Card className="flex flex-col border-border transition-all hover:shadow-md">
@@ -233,7 +237,7 @@ function ClubCard({ club }: ClubCardProps) {
                         <button
                             onClick={() => setEditing((v) => !v)}
                             className="rounded p-1 text-muted-foreground/50 transition-colors hover:text-foreground"
-                            aria-label="Edit club"
+                            aria-label={t("editClub")}
                         >
                             <Pencil className="h-3.5 w-3.5" />
                         </button>
@@ -254,7 +258,7 @@ function ClubCard({ club }: ClubCardProps) {
                     href={`/clubs/${club.clubId}/courts`}
                     className="inline-flex w-full items-center justify-between rounded-md border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-[#3D46FB]/40 hover:bg-[#3D46FB]/5 hover:text-foreground"
                 >
-                    <span>Manage Courts</span>
+                    <span>{t("manageCourts")}</span>
                     <ChevronRight className="h-4 w-4" />
                 </Link>
             </CardContent>
@@ -266,6 +270,7 @@ function ClubCard({ club }: ClubCardProps) {
 
 export function ClubsClient() {
     const { getToken } = useAuth();
+    const t = useTranslations("clubs");
     const api = createApiClient(async () => getToken({ template: "dev" }));
     const [showCreate, setShowCreate] = useState(false);
 
@@ -282,9 +287,7 @@ export function ClubsClient() {
             <div className="flex items-center justify-between">
                 {!isLoading && !isError && (
                     <p className="text-sm text-muted-foreground">
-                        {clubs.length === 0
-                            ? "No clubs yet"
-                            : `${clubs.length} club${clubs.length !== 1 ? "s" : ""}`}
+                        {t("clubsCount", { count: clubs.length })}
                     </p>
                 )}
                 {!showCreate && (
@@ -294,7 +297,7 @@ export function ClubsClient() {
                         className="ml-auto bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
                     >
                         <Plus className="h-3.5 w-3.5" />
-                        New Club
+                        {t("newClub")}
                     </Button>
                 )}
             </div>
@@ -320,14 +323,14 @@ export function ClubsClient() {
                 </div>
             ) : isError ? (
                 <div className="flex flex-col items-center justify-center rounded-xl border border-destructive/20 bg-destructive/5 py-16 text-center">
-                    <p className="text-sm font-medium text-destructive">Failed to load clubs</p>
-                    <p className="mt-1 text-xs text-muted-foreground">Check your connection and try again.</p>
+                    <p className="text-sm font-medium text-destructive">{t("failedToLoad")}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{t("checkConnection")}</p>
                 </div>
             ) : clubs.length === 0 && !showCreate ? (
                 <div className="flex flex-col items-center justify-center rounded-xl border border-border py-20 text-center">
                     <Building2 className="mb-4 h-10 w-10 text-muted-foreground/40" />
-                    <p className="text-sm font-medium text-muted-foreground">No clubs yet</p>
-                    <p className="mt-1 text-xs text-muted-foreground/60">Create your first club to get started.</p>
+                    <p className="text-sm font-medium text-muted-foreground">{t("noClubsEmpty")}</p>
+                    <p className="mt-1 text-xs text-muted-foreground/60">{t("createFirstClub")}</p>
                 </div>
             ) : (
                 <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

@@ -1,0 +1,151 @@
+{
+    "nav": {
+        "bookings": "Reservas",
+        "clubs": "Clubes",
+        "signIn": "Entrar",
+        "toggleTheme": "Alternar tema"
+    },
+    "bookings": {
+        "page": {
+            "title": "Reservas",
+            "subtitle": "Navegue pelas sess\u00f5es dispon\u00edveis e participe de uma reserva ou crie a sua pr\u00f3pria."
+        },
+        "newBooking": "Nova Reserva",
+        "bookingsFound": "{count, plural, =0 {Nenhuma reserva encontrada} one {1 reserva encontrada} other {{count} reservas encontradas}}",
+        "failedToLoad": "Erro ao carregar reservas",
+        "checkConnection": "Verifique sua conexão e tente novamente.",
+        "noBookingsAvailable": "Nenhuma reserva disponível",
+        "adjustFilters": "Tente ajustar os filtros ou volte mais tarde.",
+        "filter": {
+            "type": "Tipo",
+            "allTypes": "Todos os tipos",
+            "game": "Jogo",
+            "dayUse": "Day Use",
+            "openSpotsOnly": "Apenas com vagas"
+        },
+        "card": {
+            "players": "{count} / {capacity} jogadores",
+            "full": "Lotado",
+            "openSpots": "{count} vaga(s)",
+            "youreIn": "Você está dentro",
+            "bookingFull": "Reserva Lotada",
+            "join": "Entrar na Reserva",
+            "joining": "Entrando…",
+            "deleteBooking": "Excluir reserva"
+        },
+        "form": {
+            "title": "Nova Reserva",
+            "club": "Clube",
+            "searchClubs": "Buscar clubes…",
+            "loadingClubs": "Carregando clubes…",
+            "noClubsFound": "Nenhum clube encontrado.",
+            "courts": "quadras",
+            "type": "Tipo",
+            "gameLabel": "Jogo",
+            "gameDescription": "Reserve quadras para uma partida",
+            "dayUseLabel": "Day Use",
+            "dayUseDescription": "Acesso ao clube por um dia inteiro",
+            "courtsToOccupy": "Quadras a ocupar",
+            "capacity": "Capacidade",
+            "capacityOptional": "Opcional",
+            "date": "Data",
+            "week": "Semana",
+            "month": "Mês",
+            "timeSlots": "Horários",
+            "loadingSlots": "Carregando horários…",
+            "noSlotsAvailable": "Nenhum horário disponível para esta data.",
+            "minimumDuration": "(mínimo {min} min)",
+            "cancel": "Cancelar",
+            "create": "Criar Reserva",
+            "creating": "Criando…"
+        },
+        "toast": {
+            "joined": "Você entrou na reserva!",
+            "joinedDescription": "{count} / {capacity} jogadores agora.",
+            "joinFailed": "Não foi possível entrar na reserva",
+            "cancelled": "Reserva cancelada.",
+            "cancelFailed": "Não foi possível cancelar a reserva",
+            "deleted": "Reserva excluída.",
+            "deleteFailed": "Não foi possível excluir a reserva",
+            "created": "Reserva criada!",
+            "createFailed": "Não foi possível criar a reserva",
+            "selectClub": "Selecione um clube primeiro.",
+            "selectDate": "Selecione uma data.",
+            "selectSlot": "Selecione pelo menos um horário.",
+            "minimumDuration": "A duração mínima da reserva é {min} min."
+        }
+    },
+    "clubs": {
+        "page": {
+            "title": "Meus Clubes",
+            "subtitle": "Gerencie seus clubes e suas configurações."
+        },
+        "newClub": "Novo Clube",
+        "clubsCount": "{count, plural, =0 {Nenhum clube ainda} one {1 clube} other {{count} clubes}}",
+        "failedToLoad": "Erro ao carregar clubes",
+        "checkConnection": "Verifique sua conexão e tente novamente.",
+        "noClubsEmpty": "Nenhum clube ainda",
+        "createFirstClub": "Crie seu primeiro clube para começar.",
+        "manageCourts": "Gerenciar Quadras",
+        "form": {
+            "title": "Novo Clube",
+            "name": "Nome",
+            "namePlaceholder": "Meu Clube de Tênis",
+            "timezone": "Fuso horário",
+            "timezonePlaceholder": "America/Sao_Paulo",
+            "timezoneHint": "Identificador de fuso horário IANA",
+            "slotCellDuration": "Duração da célula de horário",
+            "slotDurationMinutes": "{duration} minutos",
+            "minimumBookingDuration": "Duração mínima de reserva",
+            "minimumBookingHint": "Deve ser múltiplo de {slotCell} min",
+            "cancel": "Cancelar",
+            "create": "Criar Clube",
+            "creating": "Criando…"
+        },
+        "editForm": {
+            "clubName": "Nome do clube",
+            "save": "Salvar",
+            "saving": "Salvando…"
+        },
+        "editClub": "Editar clube",
+        "toast": {
+            "created": "Clube criado!",
+            "createFailed": "Não foi possível criar o clube",
+            "updated": "Clube atualizado!",
+            "updateFailed": "Não foi possível atualizar o clube",
+            "minimumMultiple": "A duração mínima de reserva deve ser múltipla da duração da célula de horário."
+        }
+    },
+    "courts": {
+        "page": {
+            "title": "Quadras"
+        },
+        "backToClubs": "Voltar aos Clubes",
+        "newCourt": "Nova Quadra",
+        "courtsCount": "{count, plural, =0 {Nenhuma quadra ainda} one {1 quadra} other {{count} quadras}}",
+        "failedToLoad": "Erro ao carregar quadras",
+        "checkConnection": "Verifique sua conexão e tente novamente.",
+        "noCourtsEmpty": "Nenhuma quadra ainda",
+        "addFirstCourt": "Adicione a primeira quadra a este clube.",
+        "addedOn": "Adicionada em {date}",
+        "editCourt": "Editar quadra",
+        "form": {
+            "title": "Nova Quadra",
+            "name": "Nome",
+            "namePlaceholder": "Quadra 1",
+            "cancel": "Cancelar",
+            "create": "Criar",
+            "creating": "Criando…"
+        },
+        "editForm": {
+            "save": "Salvar",
+            "saving": "Salvando…"
+        },
+        "toast": {
+            "created": "Quadra criada!",
+            "createFailed": "Não foi possível criar a quadra",
+            "updated": "Quadra atualizada!",
+            "updateFailed": "Não foi possível atualizar a quadra"
+        }
+    }
+}

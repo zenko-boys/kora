@@ -1,2 +1,39 @@
-- criar deploy automation vercel, conectando ao projeto github
-- adicionar i18n para idioma portugues
+- criar deploy automation vercel, conectando ao projeto github - ok
+- adicionar i18n para idioma portugues - ok
+
+
+API
+- adicionar owner na api para sumir com botao delete
+- adicionar rota myrole
+- adicionar regra para deletar o booking caso seja o owner
+- adicionar owner 
+- revisar timezone do retorno da api
+- notificacao de leave antes de 3h para iniciar o jogo
+- nao podemos bookar dois jogos diferentes no mesmo horario, nem fazer join
+- verificar dayuse
+- game level no booking
+- description no booking
+
+UI
+- botao de leave booking
+- tela de gerenciamento, clubes, bookins, pois e difrente para usuario
+- na tela de bookings retornar os clubes que sou owner para poder deletar
+- adicionar pointer na selecao dos cards
+- remover horas do passado da manha, pois hoje a manha ja passou
+- corrigir timezone
+- regra de envio de email 3h antes para leave
+- filtro para staff/manager / melhorar filtros dos bookings
+- alterar number of players to avatar / empty avatar
+- verificar dayuse 
+- game level no booking
+- description no booking
+
+
+
+IDEIA 
+- booking private games
+- pagamentos
+- rankings de clubes
+- rankings de usuarios
+- level de usuario
+- evento

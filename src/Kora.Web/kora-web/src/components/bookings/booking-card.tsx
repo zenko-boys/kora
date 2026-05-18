@@ -2,6 +2,7 @@
 
 import { format, parseISO } from "date-fns";
 import { Users, Clock, MapPin, CheckCircle2, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ const TYPE_COLORS = {
 } as const;
 
 export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, onDelete, isDeleting }: BookingCardProps) {
+    const t = useTranslations("bookings.card");
     const {
         bookingId,
         clubName,
@@ -72,7 +74,7 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
                             <button
                                 onClick={() => onDelete(bookingId)}
                                 disabled={isDeleting}
-                                aria-label="Delete booking"
+                                aria-label={t("deleteBooking")}
                                 className="rounded p-1 text-muted-foreground/50 transition-colors hover:text-destructive disabled:opacity-40"
                             >
                                 <Trash2 className="h-3.5 w-3.5" />
@@ -98,12 +100,12 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
                     <div className="flex items-center justify-between text-xs">
                         <div className="flex items-center gap-1.5 text-muted-foreground">
                             <Users className="h-3.5 w-3.5" />
-                            <span>{participantsCount} / {capacity} players</span>
+                            <span>{t("players", { count: participantsCount, capacity })}</span>
                         </div>
                         {isFull ? (
-                            <span className="font-semibold text-destructive">Full</span>
+                            <span className="font-semibold text-destructive">{t("full")}</span>
                         ) : (
-                            <span className="font-semibold text-emerald-500">{spotsOpen} open</span>
+                            <span className="font-semibold text-emerald-500">{t("openSpots", { count: spotsOpen })}</span>
                         )}
                     </div>
                     <Progress value={fillPercent} className="h-1.5 [&>div]:bg-[#3D46FB]" />
@@ -114,11 +116,11 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
                     {amIIn ? (
                         <div className="flex items-center justify-center gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm font-medium text-emerald-500">
                             <CheckCircle2 className="h-4 w-4" />
-                            You&apos;re In
+                            {t("youreIn")}
                         </div>
                     ) : isFull ? (
                         <Button disabled variant="outline" className="w-full">
-                            Booking Full
+                            {t("bookingFull")}
                         </Button>
                     ) : (
                         <Button
@@ -126,7 +128,7 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
                             disabled={isJoining}
                             className="w-full bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90 disabled:opacity-60"
                         >
-                            {isJoining ? "Joining…" : "Join Booking"}
+                            {isJoining ? t("joining") : t("join")}
                         </Button>
                     )}
                 </div>

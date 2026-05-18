@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { CalendarOff, Plus } from "lucide-react";
 import { BookingCard } from "@/components/bookings/booking-card";
@@ -16,6 +17,7 @@ import type { BookingsFilter } from "@/lib/types";
 export function BookingsClient() {
     const { getToken } = useAuth();
     const queryClient = useQueryClient();
+    const t = useTranslations("bookings");
     const [joiningId, setJoiningId] = useState<string | null>(null);
     const [leavingId, setLeavingId] = useState<string | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -35,13 +37,16 @@ export function BookingsClient() {
             return api.joinBooking(bookingId);
         },
         onSuccess: (result) => {
-            toast.success("You joined the booking!", {
-                description: `${result.participantsCount} / ${result.capacity} players now.`,
+            toast.success(t("toast.joined"), {
+                description: t("toast.joinedDescription", {
+                    count: result.participantsCount,
+                    capacity: result.capacity,
+                }),
             });
             queryClient.invalidateQueries({ queryKey: ["bookings"] });
         },
         onError: (err: Error) => {
-            toast.error("Could not join booking", { description: err.message });
+            toast.error(t("toast.joinFailed"), { description: err.message });
         },
         onSettled: () => setJoiningId(null),
     });
@@ -52,11 +57,11 @@ export function BookingsClient() {
             return api.leaveBooking(bookingId);
         },
         onSuccess: () => {
-            toast.success("Booking cancelled.");
+            toast.success(t("toast.cancelled"));
             queryClient.invalidateQueries({ queryKey: ["bookings"] });
         },
         onError: (err: Error) => {
-            toast.error("Could not cancel booking", { description: err.message });
+            toast.error(t("toast.cancelFailed"), { description: err.message });
         },
         onSettled: () => setLeavingId(null),
     });
@@ -67,11 +72,11 @@ export function BookingsClient() {
             return api.deleteBooking(bookingId);
         },
         onSuccess: () => {
-            toast.success("Booking deleted.");
+            toast.success(t("toast.deleted"));
             queryClient.invalidateQueries({ queryKey: ["bookings"] });
         },
         onError: (err: Error) => {
-            toast.error("Could not delete booking", { description: err.message });
+            toast.error(t("toast.deleteFailed"), { description: err.message });
         },
         onSettled: () => setDeletingId(null),
     });
@@ -89,7 +94,7 @@ export function BookingsClient() {
                         className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
                     >
                         <Plus className="h-3.5 w-3.5" />
-                        New Booking
+                        {t("newBooking")}
                     </Button>
                 )}
             </div>
@@ -105,9 +110,7 @@ export function BookingsClient() {
             {/* Results header */}
             {!isLoading && !isError && (
                 <p className="text-sm text-muted-foreground">
-                    {bookings.length === 0
-                        ? "No bookings found"
-                        : `${bookings.length} booking${bookings.length !== 1 ? "s" : ""} found`}
+                    {t("bookingsFound", { count: bookings.length })}
                 </p>
             )}
 
@@ -120,16 +123,14 @@ export function BookingsClient() {
                 </div>
             ) : isError ? (
                 <div className="flex flex-col items-center justify-center rounded-xl border border-destructive/20 bg-destructive/5 py-16 text-center">
-                    <p className="text-sm font-medium text-destructive">Failed to load bookings</p>
-                    <p className="mt-1 text-xs text-muted-foreground">Check your connection and try again.</p>
+                    <p className="text-sm font-medium text-destructive">{t("failedToLoad")}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{t("checkConnection")}</p>
                 </div>
             ) : bookings.length === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-xl border border-border py-20 text-center">
                     <CalendarOff className="mb-4 h-10 w-10 text-muted-foreground/40" />
-                    <p className="text-sm font-medium text-muted-foreground">No bookings available</p>
-                    <p className="mt-1 text-xs text-muted-foreground/60">
-                        Try adjusting your filters or check back later.
-                    </p>
+                    <p className="text-sm font-medium text-muted-foreground">{t("noBookingsAvailable")}</p>
+                    <p className="mt-1 text-xs text-muted-foreground/60">{t("adjustFilters")}</p>
                 </div>
             ) : (
                 <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

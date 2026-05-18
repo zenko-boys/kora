@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Plus, Pencil, ArrowLeft, LayoutGrid, X, Check } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { format, parseISO } from "date-fns";
 import { createApiClient } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -28,18 +29,19 @@ interface CreateCourtFormProps {
 function CreateCourtForm({ clubId, onSuccess, onCancel }: CreateCourtFormProps) {
     const { getToken } = useAuth();
     const queryClient = useQueryClient();
+    const t = useTranslations("courts");
     const api = createApiClient(async () => getToken({ template: "dev" }));
     const [name, setName] = useState("");
 
     const mutation = useMutation({
         mutationFn: () => api.createCourt(clubId, { name }),
         onSuccess: () => {
-            toast.success("Court created!");
+            toast.success(t("toast.created"));
             queryClient.invalidateQueries({ queryKey: ["courts", clubId] });
             onSuccess();
         },
         onError: (err: Error) => {
-            toast.error("Could not create court", { description: err.message });
+            toast.error(t("toast.createFailed"), { description: err.message });
         },
     });
 
@@ -48,16 +50,16 @@ function CreateCourtForm({ clubId, onSuccess, onCancel }: CreateCourtFormProps) 
             onSubmit={(e) => { e.preventDefault(); mutation.mutate(); }}
             className="space-y-4 rounded-xl border border-[#3D46FB]/30 bg-[#3D46FB]/5 p-5"
         >
-            <h3 className="text-sm font-semibold text-foreground">New Court</h3>
+            <h3 className="text-sm font-semibold text-foreground">{t("form.title")}</h3>
             <div className="flex items-end gap-2">
                 <div className="flex-1 space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">Name *</label>
+                    <label className="text-xs font-medium text-muted-foreground">{t("form.name")} *</label>
                     <input
                         required
                         maxLength={80}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="Court 1"
+                        placeholder={t("form.namePlaceholder")}
                         className={inputCls()}
                     />
                 </div>
@@ -68,7 +70,7 @@ function CreateCourtForm({ clubId, onSuccess, onCancel }: CreateCourtFormProps) 
                     className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
                 >
                     <Check className="h-3.5 w-3.5" />
-                    {mutation.isPending ? "Creating…" : "Create"}
+                    {mutation.isPending ? t("form.creating") : t("form.create")}
                 </Button>
                 <Button type="button" variant="ghost" size="sm" onClick={onCancel} disabled={mutation.isPending}>
                     <X className="h-3.5 w-3.5" />
@@ -88,6 +90,7 @@ interface CourtRowProps {
 function CourtRow({ court, clubId }: CourtRowProps) {
     const { getToken } = useAuth();
     const queryClient = useQueryClient();
+    const t = useTranslations("courts");
     const api = createApiClient(async () => getToken({ template: "dev" }));
     const [editing, setEditing] = useState(false);
     const [name, setName] = useState(court.name);
@@ -95,12 +98,12 @@ function CourtRow({ court, clubId }: CourtRowProps) {
     const mutation = useMutation({
         mutationFn: () => api.updateCourt(clubId, court.id, { name }),
         onSuccess: () => {
-            toast.success("Court updated!");
+            toast.success(t("toast.updated"));
             queryClient.invalidateQueries({ queryKey: ["courts", clubId] });
             setEditing(false);
         },
         onError: (err: Error) => {
-            toast.error("Could not update court", { description: err.message });
+            toast.error(t("toast.updateFailed"), { description: err.message });
         },
     });
 
@@ -130,7 +133,7 @@ function CourtRow({ court, clubId }: CourtRowProps) {
                             disabled={mutation.isPending}
                             className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
                         >
-                            {mutation.isPending ? "Saving…" : "Save"}
+                            {mutation.isPending ? t("editForm.saving") : t("editForm.save")}
                         </Button>
                         <Button
                             type="button"
@@ -146,13 +149,13 @@ function CourtRow({ court, clubId }: CourtRowProps) {
                         <div className="flex-1 min-w-0">
                             <p className="truncate text-sm font-medium text-foreground">{court.name}</p>
                             <p className="text-xs text-muted-foreground">
-                                Added {format(parseISO(court.createdAt), "MMM d, yyyy")}
+                                {t("addedOn", { date: format(parseISO(court.createdAt), "MMM d, yyyy") })}
                             </p>
                         </div>
                         <button
                             onClick={() => setEditing(true)}
                             className="shrink-0 rounded p-1.5 text-muted-foreground/50 transition-colors hover:text-foreground"
-                            aria-label="Edit court"
+                            aria-label={t("editCourt")}
                         >
                             <Pencil className="h-3.5 w-3.5" />
                         </button>
@@ -171,6 +174,7 @@ interface CourtsClientProps {
 
 export function CourtsClient({ clubId }: CourtsClientProps) {
     const { getToken } = useAuth();
+    const t = useTranslations("courts");
     const api = createApiClient(async () => getToken({ template: "dev" }));
     const [showCreate, setShowCreate] = useState(false);
 
@@ -190,7 +194,7 @@ export function CourtsClient({ clubId }: CourtsClientProps) {
                     className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                     <ArrowLeft className="h-4 w-4" />
-                    Back to Clubs
+                    {t("backToClubs")}
                 </Link>
 
                 {!showCreate && (
@@ -200,7 +204,7 @@ export function CourtsClient({ clubId }: CourtsClientProps) {
                         className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
                     >
                         <Plus className="h-3.5 w-3.5" />
-                        New Court
+                        {t("newCourt")}
                     </Button>
                 )}
             </div>
@@ -217,9 +221,7 @@ export function CourtsClient({ clubId }: CourtsClientProps) {
             {/* Count */}
             {!isLoading && !isError && (
                 <p className="text-sm text-muted-foreground">
-                    {courts.length === 0
-                        ? "No courts yet"
-                        : `${courts.length} court${courts.length !== 1 ? "s" : ""}`}
+                    {t("courtsCount", { count: courts.length })}
                 </p>
             )}
 
@@ -240,14 +242,14 @@ export function CourtsClient({ clubId }: CourtsClientProps) {
                 </div>
             ) : isError ? (
                 <div className="flex flex-col items-center justify-center rounded-xl border border-destructive/20 bg-destructive/5 py-16 text-center">
-                    <p className="text-sm font-medium text-destructive">Failed to load courts</p>
-                    <p className="mt-1 text-xs text-muted-foreground">Check your connection and try again.</p>
+                    <p className="text-sm font-medium text-destructive">{t("failedToLoad")}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{t("checkConnection")}</p>
                 </div>
             ) : courts.length === 0 && !showCreate ? (
                 <div className="flex flex-col items-center justify-center rounded-xl border border-border py-16 text-center">
                     <LayoutGrid className="mb-4 h-10 w-10 text-muted-foreground/40" />
-                    <p className="text-sm font-medium text-muted-foreground">No courts yet</p>
-                    <p className="mt-1 text-xs text-muted-foreground/60">Add your first court to this club.</p>
+                    <p className="text-sm font-medium text-muted-foreground">{t("noCourtsEmpty")}</p>
+                    <p className="mt-1 text-xs text-muted-foreground/60">{t("addFirstCourt")}</p>
                 </div>
             ) : (
                 <div className="space-y-3">
