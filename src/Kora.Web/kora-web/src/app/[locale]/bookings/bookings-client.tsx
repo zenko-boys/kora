@@ -14,7 +14,7 @@ import { createApiClient } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import type { BookingsFilter } from "@/lib/types";
 
-export function BookingsClient() {
+export function BookingsClient({ title, subtitle }: { title: string; subtitle: string }) {
     const { getToken } = useAuth();
     const queryClient = useQueryClient();
     const t = useTranslations("bookings");
@@ -85,8 +85,12 @@ export function BookingsClient() {
 
     return (
         <div className="space-y-6">
-            {/* Action bar */}
-            <div className="flex justify-end">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
+                </div>
                 {!showCreate && (
                     <Button
                         size="sm"

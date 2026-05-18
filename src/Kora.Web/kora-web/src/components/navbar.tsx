@@ -42,12 +42,6 @@ export function Navbar() {
                     >
                         {t("bookings")}
                     </Link>
-                    <Link
-                        href="/clubs"
-                        className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        {t("clubs")}
-                    </Link>
                     {isSignedIn && (
                         <Link
                             href="/manage"

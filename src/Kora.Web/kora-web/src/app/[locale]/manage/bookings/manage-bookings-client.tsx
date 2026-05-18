@@ -25,7 +25,7 @@ import type { BookingsFilter, MyClubSummary } from "@/lib/types";
 
 const MANAGEMENT_ROLES = ["Owner", "Manager", "Admin"];
 
-export function ManageBookingsClient() {
+export function ManageBookingsClient({ title, subtitle }: { title: string; subtitle: string }) {
     const { getToken } = useAuth();
     const qc = useQueryClient();
     const t = useTranslations("manage");
@@ -76,8 +76,12 @@ export function ManageBookingsClient() {
 
     return (
         <div className="space-y-6">
-            {/* Action bar */}
-            <div className="flex justify-end">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
+                    <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
+                </div>
                 {!showCreate && (
                     <Button
                         size="sm"
