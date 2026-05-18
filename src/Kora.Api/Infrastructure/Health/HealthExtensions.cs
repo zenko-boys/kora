@@ -36,8 +36,11 @@ public static class HealthExtensions
             {
                 context.Response.ContentType = "application/json";
 
+                var version = Environment.GetEnvironmentVariable("APP_VERSION") ?? "local";
+
                 var result = new
                 {
+                    version,
                     status = report.Status.ToString(),
                     checks = report.Entries.Select(e => new
                     {

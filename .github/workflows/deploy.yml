@@ -1,0 +1,61 @@
+name: Deploy API
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set version
+        id: version
+        run: echo "value=1.0.${{ github.run_number }}" >> $GITHUB_OUTPUT
+
+      - name: Tag release
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag v${{ steps.version.outputs.value }}-${{ inputs.environment }}
+          git push origin v${{ steps.version.outputs.value }}-${{ inputs.environment }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.value }}-${{ inputs.environment }}
+          name: v${{ steps.version.outputs.value }} (${{ inputs.environment }})
+          generate_release_notes: true
+
+      - name: Set Fly config
+        id: fly-config
+        run: |
+          if [ "${{ inputs.environment }}" = "prod" ]; then
+            echo "app=koraplay-api" >> $GITHUB_OUTPUT
+            echo "config=fly.toml" >> $GITHUB_OUTPUT
+          else
+            echo "app=koraplay-api-dev" >> $GITHUB_OUTPUT
+            echo "config=fly.dev.toml" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy to Fly.io
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - run: |
+          flyctl deploy \
+            --config ${{ steps.fly-config.outputs.config }} \
+            --app ${{ steps.fly-config.outputs.app }} \
+            --build-arg APP_VERSION=${{ steps.version.outputs.value }} \
+            --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

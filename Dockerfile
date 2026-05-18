@@ -16,6 +16,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 COPY --from=build /publish .
 
+ARG APP_VERSION=local
+ENV APP_VERSION=$APP_VERSION
+
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
 
