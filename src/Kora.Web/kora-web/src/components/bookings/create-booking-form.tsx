@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { X, Check, Clock, Loader2, Search, Star } from "lucide-react";
 import moment from "moment-timezone";
@@ -17,6 +18,7 @@ function inputCls(extra?: string) {
 export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     const { getToken } = useAuth();
     const queryClient = useQueryClient();
+    const t = useTranslations("bookings");
     const api = createApiClient(async (opts) => getToken(opts));
 
     const [clubId, setClubId] = useState("");
@@ -125,22 +127,22 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
             return api.createBooking(clubId, body);
         },
         onSuccess: () => {
-            toast.success("Booking created!");
+            toast.success(t("toast.created"));
             queryClient.invalidateQueries({ queryKey: ["bookings"] });
             queryClient.invalidateQueries({ queryKey: ["club-slots", clubId, date] });
             onClose();
         },
         onError: (err: Error) => {
-            toast.error("Could not create booking", { description: err.message });
+            toast.error(t("toast.createFailed"), { description: err.message });
         },
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!clubId) { toast.error("Select a club first."); return; }
-        if (!date) { toast.error("Select a date."); return; }
-        if (!selectionRange) { toast.error("Select at least one time slot."); return; }
-        if (!meetsMinDuration) { toast.error(`Minimum booking duration is ${minMin} min.`); return; }
+        if (!clubId) { toast.error(t("toast.selectClub")); return; }
+        if (!date) { toast.error(t("toast.selectDate")); return; }
+        if (!selectionRange) { toast.error(t("toast.selectSlot")); return; }
+        if (!meetsMinDuration) { toast.error(t("toast.minimumDuration", { min: minMin })); return; }
         mutation.mutate();
     };
 
@@ -167,16 +169,16 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-5 rounded-xl border border-[#424242]/20 bg-[#82B1FF]/5 p-5">
-            <h3 className="text-sm font-semibold text-foreground">New Booking</h3>
+            <h3 className="text-sm font-semibold text-foreground">{t("form.title")}</h3>
 
             {/* Club search + carousel */}
             <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground">Club *</label>
+                <label className="text-xs font-medium text-muted-foreground">{t("form.club")} *</label>
                 <div className="relative">
                     <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                     <input
                         type="text"
-                        placeholder="Search clubs…"
+                        placeholder={t("form.searchClubs")}
                         value={clubSearch}
                         onChange={(e) => setClubSearch(e.target.value)}
                         className={inputCls("pl-8")}
@@ -185,11 +187,11 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                 {loadingClubs ? (
                     <div className="flex items-center gap-2 py-3 text-xs text-muted-foreground">
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        Loading clubs…
+                        {t("form.loadingClubs")}
                     </div>
                 ) : filteredClubs.length === 0 ? (
                     <p className="rounded-md border border-dashed border-border py-3 text-center text-xs text-muted-foreground">
-                        No clubs found.
+                        {t("form.noClubsFound")}
                     </p>
                 ) : (
                     <div className="flex gap-3 overflow-x-auto pb-1">
@@ -218,7 +220,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                         <p className="truncate text-xs font-semibold text-white">{c.name}</p>
                                         <div className="flex items-center justify-between gap-2">
                                             {c.courtsCount !== undefined && (
-                                                <span className="text-[10px] text-white/80">{c.courtsCount} courts</span>
+                                                <span className="text-[10px] text-white/80">{c.courtsCount} {t("form.courts")}</span>
                                             )}
                                             {stars > 0 && (
                                                 <span className="flex items-center gap-0.5">
@@ -246,17 +248,17 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
 
             {/* Type cards */}
             <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground">Type *</label>
+                <label className="text-xs font-medium text-muted-foreground">{t("form.type")} *</label>
                 <div className="grid grid-cols-2 gap-3">
-                    {(["Game", "DayUse"] as BookingType[]).map((t) => {
-                        const isSelected = type === t;
-                        const label = t === "Game" ? "Game" : "Day Use";
-                        const description = t === "Game" ? "Book courts for a match" : "Full day access to the club";
+                    {(["Game", "DayUse"] as BookingType[]).map((tp) => {
+                        const isSelected = type === tp;
+                        const label = tp === "Game" ? t("form.gameLabel") : t("form.dayUseLabel");
+                        const description = tp === "Game" ? t("form.gameDescription") : t("form.dayUseDescription");
                         return (
                             <button
-                                key={t}
+                                key={tp}
                                 type="button"
-                                onClick={() => setType(t)}
+                                onClick={() => setType(tp)}
                                 className={[
                                     "flex flex-col items-start rounded-xl border-2 px-4 py-3 text-left transition-all",
                                     isSelected
@@ -278,7 +280,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
             {type === "DayUse" && (
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-muted-foreground">Courts to occupy *</label>
+                        <label className="text-xs font-medium text-muted-foreground">{t("form.courtsToOccupy")} *</label>
                         <input
                             name="courtsToOccupy"
                             type="number"
@@ -293,14 +295,14 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-muted-foreground">Capacity</label>
+                        <label className="text-xs font-medium text-muted-foreground">{t("form.capacity")}</label>
                         <input
                             name="capacity"
                             type="number"
                             min={1}
                             value={capacity}
                             onChange={(e) => setCapacity(e.target.value === "" ? "" : Number(e.target.value))}
-                            placeholder="Optional"
+                            placeholder={t("form.capacityOptional")}
                             className={inputCls()}
                         />
                     </div>
@@ -310,7 +312,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
             {/* Date picker */}
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                    <label className="text-xs font-medium text-muted-foreground">Date *</label>
+                    <label className="text-xs font-medium text-muted-foreground">{t("form.date")} *</label>
                     <div className="flex overflow-hidden rounded-md border border-border text-xs">
                         <button
                             type="button"
@@ -322,7 +324,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                     : "bg-background text-foreground hover:bg-muted",
                             ].join(" ")}
                         >
-                            Week
+                            {t("form.week")}
                         </button>
                         <button
                             type="button"
@@ -334,7 +336,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                     : "bg-background text-foreground hover:bg-muted",
                             ].join(" ")}
                         >
-                            Month
+                            {t("form.month")}
                         </button>
                     </div>
                 </div>
@@ -384,11 +386,11 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                     {loadingSlots || fetchingSlots ? (
                         <div className="flex items-center gap-2 py-4 text-xs text-muted-foreground">
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                            Loading slots…
+                            {t("form.loadingSlots")}
                         </div>
                     ) : slots.length === 0 ? (
                         <p className="rounded-md border border-dashed border-border py-4 text-center text-xs text-muted-foreground">
-                            No slots available for this date.
+                            {t("form.noSlotsAvailable")}
                         </p>
                     ) : (
                         <>
@@ -427,7 +429,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                         &nbsp;&middot;&nbsp;{selectedCellCount * cellMin} min
                                     </span>
                                     {!meetsMinDuration && (
-                                        <span className="text-destructive">(minimum {minMin} min)</span>
+                                        <span className="text-destructive">{t("form.minimumDuration", { min: minMin })}</span>
                                     )}
                                 </div>
                             )}
@@ -439,7 +441,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
             <div className="flex justify-end gap-2">
                 <Button type="button" variant="ghost" size="sm" onClick={onClose} disabled={mutation.isPending}>
                     <X className="h-3.5 w-3.5" />
-                    Cancel
+                    {t("form.cancel")}
                 </Button>
                 <Button
                     type="submit"
@@ -448,7 +450,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                     className="bg-[#82B1FF] text-white hover:bg-[#82B1FF]/90"
                 >
                     <Check className="h-3.5 w-3.5" />
-                    {mutation.isPending ? "Creating…" : "Create Booking"}
+                    {mutation.isPending ? t("form.creating") : t("form.create")}
                 </Button>
             </div>
         </form>

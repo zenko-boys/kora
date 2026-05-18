@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Switch } from "@/components/ui/switch";
 import {
     Select,
@@ -17,6 +18,7 @@ interface BookingsFilterBarProps {
 }
 
 export function BookingsFilterBar({ filters, onChange }: BookingsFilterBarProps) {
+    const t = useTranslations("bookings.filter");
     const handleTypeChange = (value: string | null) => {
         if (!value) return;
         onChange({
@@ -34,16 +36,16 @@ export function BookingsFilterBar({ filters, onChange }: BookingsFilterBarProps)
             {/* Type filter */}
             <div className="flex items-center gap-2">
                 <Label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    Type
+                    {t("type")}
                 </Label>
                 <Select value={filters.type ?? "all"} onValueChange={handleTypeChange}>
                     <SelectTrigger className="h-8 w-32 text-sm">
-                        <SelectValue placeholder="All" />
+                        <SelectValue placeholder={t("allTypes")} />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="all">All types</SelectItem>
-                        <SelectItem value="Game">Game</SelectItem>
-                        <SelectItem value="DayUse">Day Use</SelectItem>
+                        <SelectItem value="all">{t("allTypes")}</SelectItem>
+                        <SelectItem value="Game">{t("game")}</SelectItem>
+                        <SelectItem value="DayUse">{t("dayUse")}</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
@@ -60,7 +62,7 @@ export function BookingsFilterBar({ filters, onChange }: BookingsFilterBarProps)
                     htmlFor="open-spots"
                     className="cursor-pointer text-sm text-muted-foreground"
                 >
-                    Open spots only
+                    {t("openSpotsOnly")}
                 </Label>
             </div>
         </div>

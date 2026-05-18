@@ -1,0 +1,151 @@
+{
+    "nav": {
+        "bookings": "Bookings",
+        "clubs": "Clubs",
+        "signIn": "Sign In",
+        "toggleTheme": "Toggle theme"
+    },
+    "bookings": {
+        "page": {
+            "title": "Bookings",
+            "subtitle": "Browse available sessions and join a booking or create your own."
+        },
+        "newBooking": "New Booking",
+        "bookingsFound": "{count, plural, =0 {No bookings found} one {1 booking found} other {{count} bookings found}}",
+        "failedToLoad": "Failed to load bookings",
+        "checkConnection": "Check your connection and try again.",
+        "noBookingsAvailable": "No bookings available",
+        "adjustFilters": "Try adjusting your filters or check back later.",
+        "filter": {
+            "type": "Type",
+            "allTypes": "All types",
+            "game": "Game",
+            "dayUse": "Day Use",
+            "openSpotsOnly": "Open spots only"
+        },
+        "card": {
+            "players": "{count} / {capacity} players",
+            "full": "Full",
+            "openSpots": "{count} open",
+            "youreIn": "You're In",
+            "bookingFull": "Booking Full",
+            "join": "Join Booking",
+            "joining": "Joining…",
+            "deleteBooking": "Delete booking"
+        },
+        "form": {
+            "title": "New Booking",
+            "club": "Club",
+            "searchClubs": "Search clubs…",
+            "loadingClubs": "Loading clubs…",
+            "noClubsFound": "No clubs found.",
+            "courts": "courts",
+            "type": "Type",
+            "gameLabel": "Game",
+            "gameDescription": "Book courts for a match",
+            "dayUseLabel": "Day Use",
+            "dayUseDescription": "Full day access to the club",
+            "courtsToOccupy": "Courts to occupy",
+            "capacity": "Capacity",
+            "capacityOptional": "Optional",
+            "date": "Date",
+            "week": "Week",
+            "month": "Month",
+            "timeSlots": "Time Slots",
+            "loadingSlots": "Loading slots…",
+            "noSlotsAvailable": "No slots available for this date.",
+            "minimumDuration": "(minimum {min} min)",
+            "cancel": "Cancel",
+            "create": "Create Booking",
+            "creating": "Creating…"
+        },
+        "toast": {
+            "joined": "You joined the booking!",
+            "joinedDescription": "{count} / {capacity} players now.",
+            "joinFailed": "Could not join booking",
+            "cancelled": "Booking cancelled.",
+            "cancelFailed": "Could not cancel booking",
+            "deleted": "Booking deleted.",
+            "deleteFailed": "Could not delete booking",
+            "created": "Booking created!",
+            "createFailed": "Could not create booking",
+            "selectClub": "Select a club first.",
+            "selectDate": "Select a date.",
+            "selectSlot": "Select at least one time slot.",
+            "minimumDuration": "Minimum booking duration is {min} min."
+        }
+    },
+    "clubs": {
+        "page": {
+            "title": "My Clubs",
+            "subtitle": "Manage your clubs and their settings."
+        },
+        "newClub": "New Club",
+        "clubsCount": "{count, plural, =0 {No clubs yet} one {1 club} other {{count} clubs}}",
+        "failedToLoad": "Failed to load clubs",
+        "checkConnection": "Check your connection and try again.",
+        "noClubsEmpty": "No clubs yet",
+        "createFirstClub": "Create your first club to get started.",
+        "manageCourts": "Manage Courts",
+        "form": {
+            "title": "New Club",
+            "name": "Name",
+            "namePlaceholder": "My Tennis Club",
+            "timezone": "Timezone",
+            "timezonePlaceholder": "America/Sao_Paulo",
+            "timezoneHint": "IANA timezone identifier",
+            "slotCellDuration": "Slot cell duration",
+            "slotDurationMinutes": "{duration} minutes",
+            "minimumBookingDuration": "Minimum booking duration",
+            "minimumBookingHint": "Must be a multiple of {slotCell} min",
+            "cancel": "Cancel",
+            "create": "Create Club",
+            "creating": "Creating…"
+        },
+        "editForm": {
+            "clubName": "Club name",
+            "save": "Save",
+            "saving": "Saving…"
+        },
+        "editClub": "Edit club",
+        "toast": {
+            "created": "Club created!",
+            "createFailed": "Could not create club",
+            "updated": "Club updated!",
+            "updateFailed": "Could not update club",
+            "minimumMultiple": "Minimum booking duration must be a multiple of the slot cell duration."
+        }
+    },
+    "courts": {
+        "page": {
+            "title": "Courts"
+        },
+        "backToClubs": "Back to Clubs",
+        "newCourt": "New Court",
+        "courtsCount": "{count, plural, =0 {No courts yet} one {1 court} other {{count} courts}}",
+        "failedToLoad": "Failed to load courts",
+        "checkConnection": "Check your connection and try again.",
+        "noCourtsEmpty": "No courts yet",
+        "addFirstCourt": "Add your first court to this club.",
+        "addedOn": "Added {date}",
+        "editCourt": "Edit court",
+        "form": {
+            "title": "New Court",
+            "name": "Name",
+            "namePlaceholder": "Court 1",
+            "cancel": "Cancel",
+            "create": "Create",
+            "creating": "Creating…"
+        },
+        "editForm": {
+            "save": "Save",
+            "saving": "Saving…"
+        },
+        "toast": {
+            "created": "Court created!",
+            "createFailed": "Could not create court",
+            "updated": "Court updated!",
+            "updateFailed": "Could not update court"
+        }
+    }
+}

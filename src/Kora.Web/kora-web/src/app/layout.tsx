@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { getLocale } from "next-intl/server";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Providers } from "@/components/providers";
-import { Navbar } from "@/components/navbar";
-import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const inter = Inter({
@@ -17,20 +15,17 @@ export const metadata: Metadata = {
   description: "Court booking platform",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
   return (
     <ClerkProvider>
-      <html lang="en" className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
+      <html lang={locale} className={`${inter.variable} h-full antialiased`} suppressHydrationWarning>
         <body className="min-h-full flex flex-col bg-background text-foreground">
-          <Providers>
-            <Navbar />
-            <div className="flex-1">{children}</div>
-            <Toaster richColors position="bottom-right" />
-          </Providers>
+          {children}
         </body>
       </html>
     </ClerkProvider>
