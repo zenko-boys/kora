@@ -30,7 +30,7 @@ public static class BookingPlanning
         }
 
         var sortedSlotsUtc = request.Slots
-            .Select(s => s.ToUniversalTime())
+            .Select(s => s.UtcDateTime)
             .OrderBy(s => s)
             .ToList();
 

@@ -21,7 +21,7 @@ Authorization: Bearer {{$dotenv TOKEN}}
 GET {{baseUrl}}/api/v1/bookings?clubId={{clubId}}&fromUtc=2026-05-01T00:00:00Z&toUtc=2026-05-08T00:00:00Z
 Authorization: Bearer {{$dotenv TOKEN}}
 
-### Create booking — Game (any authenticated user)
+### Create booking — Game, open (any authenticated user)
 # @name createBooking
 POST {{baseUrl}}/api/v1/bookings
 Authorization: Bearer {{$dotenv TOKEN}}
@@ -33,10 +33,28 @@ Content-Type: {{contentType}}
   "slots": [
     "2026-05-01T18:00:00-04:00",
     "2026-05-01T18:30:00-04:00"
-  ]
+  ],
+  "isPrivate": false,
+  "description": null
 }
 
-### Create booking — DayUse (ClubStaffOrAdmin enforced inside the strategy)
+### Create booking — Game, private (only participants can see it)
+POST {{baseUrl}}/api/v1/bookings
+Authorization: Bearer {{$dotenv TOKEN}}
+Content-Type: {{contentType}}
+
+{
+  "clubId": "{{clubId}}",
+  "type": "Game",
+  "slots": [
+    "2026-05-01T18:00:00-04:00",
+    "2026-05-01T18:30:00-04:00"
+  ],
+  "isPrivate": true,
+  "description": "Private match — invite only"
+}
+
+### Create booking — DayUse (club staff, owner, or admin only)
 POST {{baseUrl}}/api/v1/bookings
 Authorization: Bearer {{$dotenv TOKEN}}
 Content-Type: {{contentType}}
@@ -51,7 +69,9 @@ Content-Type: {{contentType}}
     "2026-05-01T13:00:00-03:00"
   ],
   "courtsToOccupy": 1,
-  "capacity": 16
+  "capacity": 16,
+  "isPrivate": false,
+  "description": "Open day at the club — all members welcome"
 }
 
 ### Join Booking — uses id from Create Booking

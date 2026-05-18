@@ -5,21 +5,14 @@
 namespace Kora.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class AddDayUseAndPublish : Migration
+    public partial class AddBookingIsPrivate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "CourtsOccupied",
-                table: "Slots",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
             migrationBuilder.AddColumn<bool>(
-                name: "IsPublished",
-                table: "Slots",
+                name: "IsPrivate",
+                table: "Bookings",
                 type: "boolean",
                 nullable: false,
                 defaultValue: false);
@@ -29,12 +22,8 @@ namespace Kora.Api.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "CourtsOccupied",
-                table: "Slots");
-
-            migrationBuilder.DropColumn(
-                name: "IsPublished",
-                table: "Slots");
+                name: "IsPrivate",
+                table: "Bookings");
         }
     }
 }

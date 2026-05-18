@@ -15,8 +15,8 @@ public class CreateBookingValidator : AbstractValidator<CreateBookingRequest>
             .WithMessage("At least one slot is required.");
 
         RuleForEach(x => x.Slots)
-            .Must(d => d.Kind != DateTimeKind.Unspecified)
-            .WithMessage("Each slot must include 'Z' (UTC) or a timezone offset like '-04:00'.");
+            .Must(d => d != default)
+            .WithMessage("Each slot must be a valid date/time with an offset, e.g. '2026-05-18T22:00:00-03:00'.");
 
         When(x => x.Type == BookingType.DayUse, () =>
         {

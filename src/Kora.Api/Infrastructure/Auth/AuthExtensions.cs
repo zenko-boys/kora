@@ -12,6 +12,7 @@ public static class AuthExtensions
     public static IServiceCollection AddKoraAuth(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
+        services.AddScoped<CurrentUserIdHolder>();
         services.AddScoped<IUserContext, UserContext>();
         services.AddScoped<IAuthorizationHandler, AdminOnlyHandler>();
         services.AddScoped<IAuthorizationHandler, ClubStaffOrAdminHandler>();
@@ -37,22 +38,6 @@ public static class AuthExtensions
                     ValidAudience = string.IsNullOrWhiteSpace(options.Audience) ? null : options.Audience
                 };
 
-                jwt.Events = new JwtBearerEvents
-                {
-                    OnTokenValidated = context =>
-                    {
-                        var principal = context.Principal;
-                        var email = principal?.FindFirstValue(ClaimTypes.Email)
-                            ?? principal?.FindFirstValue("email");
-
-                        if (string.IsNullOrWhiteSpace(email))
-                        {
-                            context.Fail("Token is missing required 'email' claim.");
-                        }
-
-                        return Task.CompletedTask;
-                    }
-                };
             });
 
         services.AddAuthorization(options =>

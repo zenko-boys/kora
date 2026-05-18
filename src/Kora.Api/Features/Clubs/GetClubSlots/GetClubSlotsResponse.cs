@@ -10,8 +10,8 @@ public record GetClubSlotsResponse(
 );
 
 public record SlotInfo(
-    TimeOnly StartTime,
-    TimeOnly EndTime,
+    DateTimeOffset StartTime,
+    DateTimeOffset EndTime,
     bool Available,
     int AvailableCourts
 );

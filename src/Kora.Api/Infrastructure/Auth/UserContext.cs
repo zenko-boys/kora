@@ -12,16 +12,19 @@ public class UserContext : IUserContext
     private readonly IHttpContextAccessor _http;
     private readonly AppDbContext _db;
     private readonly AuthOptions _authOptions;
+    private readonly CurrentUserIdHolder _userIdHolder;
     private User? _cached;
 
     public UserContext(
         IHttpContextAccessor http,
         AppDbContext db,
-        IOptions<AuthOptions> authOptions)
+        IOptions<AuthOptions> authOptions,
+        CurrentUserIdHolder userIdHolder)
     {
         _http = http;
         _db = db;
         _authOptions = authOptions.Value;
+        _userIdHolder = userIdHolder;
     }
 
     public async Task<User> GetCurrentUserAsync(CancellationToken ct = default)
@@ -44,20 +47,22 @@ public class UserContext : IUserContext
             ?? throw new InvalidOperationException("JWT is missing 'sub' claim.");
 
         var email = principal.FindFirstValue(ClaimTypes.Email)
-            ?? principal.FindFirstValue("email")
-            ?? throw new InvalidOperationException("JWT is missing 'email' claim.");
-
-        var expectedRole = _authOptions.AdminEmails
-            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Any(a => a.Equals(email, StringComparison.OrdinalIgnoreCase))
-                ? UserRole.Admin
-                : UserRole.Player;
+            ?? principal.FindFirstValue("email");
 
         var user = await _db.Users
             .FirstOrDefaultAsync(u => u.IdpUserId == idpUserId, ct);
 
         if (user is null)
         {
+            if (email is null)
+                throw new InvalidOperationException("User not found and token has no email to create one.");
+
+            var expectedRole = _authOptions.AdminEmails
+                .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Any(a => a.Equals(email, StringComparison.OrdinalIgnoreCase))
+                    ? UserRole.Admin
+                    : UserRole.Member;
+
             user = new User
             {
                 Id = Guid.NewGuid(),
@@ -70,13 +75,23 @@ public class UserContext : IUserContext
             _db.Users.Add(user);
             await _db.SaveChangesAsync(ct);
         }
-        else if (user.Role != expectedRole)
+        else if (email is not null)
         {
-            user.Role = expectedRole;
-            await _db.SaveChangesAsync(ct);
+            var expectedRole = _authOptions.AdminEmails
+                .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Any(a => a.Equals(email, StringComparison.OrdinalIgnoreCase))
+                    ? UserRole.Admin
+                    : UserRole.Member;
+
+            if (user.Role != expectedRole)
+            {
+                user.Role = expectedRole;
+                await _db.SaveChangesAsync(ct);
+            }
         }
 
         _cached = user;
+        _userIdHolder.UserId = user.Id;
         return user;
     }
 }

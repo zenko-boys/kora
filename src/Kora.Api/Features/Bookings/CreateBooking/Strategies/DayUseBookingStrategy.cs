@@ -36,6 +36,7 @@ public class DayUseBookingStrategy : ICreateBookingStrategy
             StartsAt = plan.StartsAtUtc,
             EndsAt = plan.EndsAtUtc,
             Capacity = request.Capacity!.Value,
+            Description = request.Description,
             CreatedAt = DateTime.UtcNow,
             Reservations = plan.FreeCourtIds
                 .Select(courtId => new Reservation

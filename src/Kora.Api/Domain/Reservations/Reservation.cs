@@ -3,7 +3,7 @@ using Kora.Domain.Courts;
 
 namespace Kora.Domain.Reservations;
 
-public class Reservation
+public class Reservation : IAuditable
 {
     public Guid Id { get; set; }
 
@@ -14,6 +14,10 @@ public class Reservation
     public DateTime StartsAt { get; set; }
 
     public DateTime EndsAt { get; set; }
+
+    public DateTime UpdatedAt { get; set; }
+    public Guid CreatedBy { get; set; }
+    public Guid UpdatedBy { get; set; }
 
     public Booking? Booking { get; set; }
 

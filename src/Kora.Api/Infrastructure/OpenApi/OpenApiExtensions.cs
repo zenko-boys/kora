@@ -13,7 +13,7 @@ public static class OpenApiExtensions
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 Name = "Authorization",
-                Description = "Paste a JWT here (Clerk session token).",
+                Description = "Paste a Clerk session token: await window.Clerk.session.getToken()",
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.Http,
                 Scheme = "bearer",

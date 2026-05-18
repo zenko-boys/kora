@@ -32,6 +32,11 @@ public class LeaveBookingHandler : IHandler
             throw new InvalidOperationException("Cannot leave a booking that has already started.");
         }
 
+        if (booking.StartsAt - DateTime.UtcNow < TimeSpan.FromHours(24))
+        {
+            throw new InvalidOperationException("Cannot leave a booking less than 24 hours before it starts.");
+        }
+
         var currentUser = await _userContext.GetCurrentUserAsync(ct);
 
         var participant = booking.Participants.FirstOrDefault(p => p.UserId == currentUser.Id);
@@ -43,11 +48,15 @@ public class LeaveBookingHandler : IHandler
 
         booking.Participants.Remove(participant);
 
+        if (booking.Participants.Count == 0)
+        {
+            _db.Bookings.Remove(booking);
+            await _db.SaveChangesAsync(ct);
+            return new LeaveBookingResponse(booking.Id, 0, booking.Capacity, true);
+        }
+
         await _db.SaveChangesAsync(ct);
 
-        return new LeaveBookingResponse(
-            booking.Id,
-            booking.Participants.Count,
-            booking.Capacity);
+        return new LeaveBookingResponse(booking.Id, booking.Participants.Count, booking.Capacity, false);
     }
 }

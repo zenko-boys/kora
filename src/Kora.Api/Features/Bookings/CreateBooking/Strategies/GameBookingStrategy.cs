@@ -2,6 +2,7 @@ using Kora.Domain.Bookings;
 using Kora.Domain.Reservations;
 using Kora.Infrastructure.Auth;
 using Kora.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Kora.Features.Bookings.CreateBooking.Strategies;
 
@@ -34,6 +35,16 @@ public class GameBookingStrategy : ICreateBookingStrategy
 
         var currentUser = await _userContext.GetCurrentUserAsync(ct);
 
+        var hasConflict = await _db.Bookings
+            .AnyAsync(b => b.Participants.Any(p => p.UserId == currentUser.Id)
+                        && b.StartsAt < plan.EndsAtUtc
+                        && b.EndsAt > plan.StartsAtUtc, ct);
+
+        if (hasConflict)
+        {
+            throw new InvalidOperationException("User already has a booking during this time.");
+        }
+
         var booking = new Booking
         {
             Id = Guid.NewGuid(),
@@ -42,6 +53,8 @@ public class GameBookingStrategy : ICreateBookingStrategy
             StartsAt = plan.StartsAtUtc,
             EndsAt = plan.EndsAtUtc,
             Capacity = GameCapacity,
+            IsPrivate = request.IsPrivate,
+            Description = request.Description,
             CreatedAt = DateTime.UtcNow,
             Participants =
             {

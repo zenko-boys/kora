@@ -17,7 +17,7 @@ namespace Kora.Api.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.26")
+                .HasAnnotation("ProductVersion", "10.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -37,8 +37,17 @@ namespace Kora.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("EndsAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsPrivate")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("StartsAt")
                         .HasColumnType("timestamp with time zone");
@@ -47,6 +56,12 @@ namespace Kora.Api.Migrations
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -84,6 +99,9 @@ namespace Kora.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("MinimumBookingDurationMinutes")
                         .HasColumnType("integer");
 
@@ -99,6 +117,12 @@ namespace Kora.Api.Migrations
                         .IsRequired()
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -119,11 +143,20 @@ namespace Kora.Api.Migrations
                     b.Property<Guid>("ClubId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
                     b.Property<int>("DayOfWeek")
                         .HasColumnType("integer");
 
                     b.Property<TimeOnly>("OpenTime")
                         .HasColumnType("time without time zone");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -143,10 +176,19 @@ namespace Kora.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid");
 
                     b.HasKey("ClubId", "UserId");
 
@@ -167,10 +209,19 @@ namespace Kora.Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(80)
                         .HasColumnType("character varying(80)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -194,11 +245,20 @@ namespace Kora.Api.Migrations
                     b.Property<Guid>("CourtId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("EndsAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("StartsAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 

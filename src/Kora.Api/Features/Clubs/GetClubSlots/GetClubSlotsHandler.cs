@@ -68,8 +68,10 @@ public class GetClubSlotsHandler : IHandler
             var cellStart = new TimeOnly(startTicks);
             var cellEnd = new TimeOnly(startTicks + cellTicks);
 
-            var cellStartUtc = TimeZoneInfo.ConvertTimeToUtc(date.ToDateTime(cellStart), tz);
-            var cellEndUtc = TimeZoneInfo.ConvertTimeToUtc(date.ToDateTime(cellEnd), tz);
+            var cellStartLocal = date.ToDateTime(cellStart);
+            var cellEndLocal = date.ToDateTime(cellEnd);
+            var cellStartUtc = TimeZoneInfo.ConvertTimeToUtc(cellStartLocal, tz);
+            var cellEndUtc = TimeZoneInfo.ConvertTimeToUtc(cellEndLocal, tz);
 
             var busyCourts = reservations
                 .Where(r => r.StartsAt < cellEndUtc && r.EndsAt > cellStartUtc)
@@ -78,7 +80,9 @@ public class GetClubSlotsHandler : IHandler
                 .Count();
 
             var availableCourts = totalCourts - busyCourts;
-            slots.Add(new SlotInfo(cellStart, cellEnd, availableCourts > 0, availableCourts));
+            var startOffset = new DateTimeOffset(cellStartLocal, tz.GetUtcOffset(cellStartLocal));
+            var endOffset = new DateTimeOffset(cellEndLocal, tz.GetUtcOffset(cellEndLocal));
+            slots.Add(new SlotInfo(startOffset, endOffset, availableCourts > 0, availableCourts));
         }
 
         return new GetClubSlotsResponse(

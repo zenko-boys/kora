@@ -40,6 +40,17 @@ public class JoinBookingHandler : IHandler
             throw new InvalidOperationException("User has already joined this booking.");
         }
 
+        var hasConflict = await _db.Bookings
+            .AnyAsync(b => b.Id != bookingId
+                        && b.Participants.Any(p => p.UserId == currentUser.Id)
+                        && b.StartsAt < booking.EndsAt
+                        && b.EndsAt > booking.StartsAt, ct);
+
+        if (hasConflict)
+        {
+            throw new InvalidOperationException("User already has a booking during this time.");
+        }
+
         if (booking.Participants.Count >= booking.Capacity)
         {
             throw new InvalidOperationException("Booking is full.");

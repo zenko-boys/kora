@@ -5,28 +5,24 @@
 namespace Kora.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class AddClubTimeZone : Migration
+    public partial class AddBookingDescription : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "TimeZoneId",
-                table: "Clubs",
-                type: "character varying(60)",
-                maxLength: 60,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.Sql("UPDATE \"Clubs\" SET \"TimeZoneId\" = 'America/Sao_Paulo' WHERE \"TimeZoneId\" = '';");
+                name: "Description",
+                table: "Bookings",
+                type: "text",
+                nullable: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "TimeZoneId",
-                table: "Clubs");
+                name: "Description",
+                table: "Bookings");
         }
     }
 }

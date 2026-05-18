@@ -30,6 +30,7 @@ public static class DependencyInjection
         app.UseCors(CorsExtensions.PolicyName);
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseMiddleware<ResolveUserMiddleware>();
         app.UseHealthChecksConfiguration();
 
         using (var scope = app.Services.CreateScope())

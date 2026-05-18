@@ -33,7 +33,8 @@ public class ListBookingsHandler : IHandler
         var to = toUtc?.ToUniversalTime() ?? from.AddDays(7);
 
         var query = _db.Bookings
-            .Where(b => b.StartsAt > from && b.StartsAt < to);
+            .Where(b => b.StartsAt > from && b.StartsAt < to)
+            .Where(b => !b.IsPrivate || b.Participants.Any(p => p.UserId == currentUser.Id));
 
         if (clubId.HasValue)
         {
@@ -54,23 +55,37 @@ public class ListBookingsHandler : IHandler
             query = query.Where(b => b.Participants.Count >= b.Capacity);
         }
 
-        var bookings = await query
+        var raw = await query
             .OrderBy(b => b.StartsAt)
             .Take(MaxResults)
-            .Select(b => new BookingSummary(
+            .Select(b => new
+            {
                 b.Id,
                 b.ClubId,
-                b.Club!.Name,
-                b.Reservations.Select(r => r.Court!.Name).FirstOrDefault() ?? string.Empty,
+                ClubName = b.Club!.Name,
+                ClubTimeZoneId = b.Club.TimeZoneId,
+                CourtName = b.Reservations.Select(r => r.Court!.Name).FirstOrDefault() ?? string.Empty,
                 b.Type,
+                b.IsPrivate,
                 b.StartsAt,
                 b.EndsAt,
-                b.Participants.Count,
+                ParticipantsCount = b.Participants.Count,
                 b.Capacity,
-                b.Capacity - b.Participants.Count,
-                b.Participants.Any(p => p.UserId == currentUser.Id)
-            ))
+                AmIIn = b.Participants.Any(p => p.UserId == currentUser.Id)
+            })
             .ToListAsync(ct);
+
+        var bookings = raw.Select(b =>
+        {
+            var tz = TimeZoneInfo.FindSystemTimeZoneById(b.ClubTimeZoneId);
+            var startsAt = new DateTimeOffset(b.StartsAt, TimeSpan.Zero).ToOffset(tz.GetUtcOffset(b.StartsAt));
+            var endsAt = new DateTimeOffset(b.EndsAt, TimeSpan.Zero).ToOffset(tz.GetUtcOffset(b.EndsAt));
+            return new BookingSummary(
+                b.Id, b.ClubId, b.ClubName, b.ClubTimeZoneId, b.CourtName,
+                b.Type, b.IsPrivate, startsAt, endsAt,
+                b.ParticipantsCount, b.Capacity,
+                b.Capacity - b.ParticipantsCount, b.AmIIn);
+        }).ToList();
 
         return new ListBookingsResponse(bookings);
     }
