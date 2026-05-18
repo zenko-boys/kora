@@ -20,7 +20,6 @@ export function BookingsClient({ title, subtitle }: { title: string; subtitle: s
     const t = useTranslations("bookings");
     const [joiningId, setJoiningId] = useState<string | null>(null);
     const [leavingId, setLeavingId] = useState<string | null>(null);
-    const [deletingId, setDeletingId] = useState<string | null>(null);
     const [showCreate, setShowCreate] = useState(false);
     const [filters, setFilters] = useState<BookingsFilter>({});
 
@@ -64,21 +63,6 @@ export function BookingsClient({ title, subtitle }: { title: string; subtitle: s
             toast.error(t("toast.cancelFailed"), { description: err.message });
         },
         onSettled: () => setLeavingId(null),
-    });
-
-    const deleteMutation = useMutation({
-        mutationFn: (bookingId: string) => {
-            setDeletingId(bookingId);
-            return api.deleteBooking(bookingId);
-        },
-        onSuccess: () => {
-            toast.success(t("toast.deleted"));
-            queryClient.invalidateQueries({ queryKey: ["bookings"] });
-        },
-        onError: (err: Error) => {
-            toast.error(t("toast.deleteFailed"), { description: err.message });
-        },
-        onSettled: () => setDeletingId(null),
     });
 
     const bookings = data?.bookings ?? [];
@@ -146,8 +130,6 @@ export function BookingsClient({ title, subtitle }: { title: string; subtitle: s
                             isJoining={joiningId === booking.bookingId && joinMutation.isPending}
                             onLeave={(id) => leaveMutation.mutate(id)}
                             isLeaving={leavingId === booking.bookingId && leaveMutation.isPending}
-                            onDelete={(id) => deleteMutation.mutate(id)}
-                            isDeleting={deletingId === booking.bookingId && deleteMutation.isPending}
                         />
                     ))}
                 </div>

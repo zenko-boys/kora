@@ -75,7 +75,7 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
                                 onClick={() => onDelete(bookingId)}
                                 disabled={isDeleting}
                                 aria-label={t("deleteBooking")}
-                                className="rounded p-1 text-muted-foreground/50 transition-colors hover:text-destructive disabled:opacity-40"
+                                className="cursor-pointer rounded p-1 text-muted-foreground/50 transition-colors hover:text-destructive disabled:opacity-40"
                             >
                                 <Trash2 className="h-3.5 w-3.5" />
                             </button>
