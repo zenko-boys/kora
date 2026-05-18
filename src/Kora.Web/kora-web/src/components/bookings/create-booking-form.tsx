@@ -9,6 +9,7 @@ import { X, Check, Clock, Loader2, Search, Star } from "lucide-react";
 import moment from "moment-timezone";
 import { createApiClient } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import type { BookingType, CreateBookingRequest } from "@/lib/types";
 
 function inputCls(extra?: string) {
@@ -29,6 +30,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     const [selectionRange, setSelectionRange] = useState<{ start: number; end: number } | null>(null);
     const [courtsToOccupy, setCourtsToOccupy] = useState<number>(1);
     const [capacity, setCapacity] = useState<number | "">(10);
+    const [description, setDescription] = useState("");
 
     // Reset slot selection when club or date changes
     useEffect(() => { setSelectionRange(null); }, [clubId, date]);
@@ -60,9 +62,19 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     const selectedCellCount = selectionRange ? selectionRange.end - selectionRange.start + 1 : 0;
     const meetsMinDuration = selectedCellCount * cellMin >= minMin;
 
+    function isSlotPast(index: number): boolean {
+        const cell = slots[index];
+        if (!cell || !date) return false;
+        const nowInClubTz = moment.tz(timeZoneId);
+        if (date !== nowInClubTz.format("YYYY-MM-DD")) return false;
+        const slotStart = moment.tz(`${date} ${cell.startTime}`, "YYYY-MM-DD HH:mm:ss", timeZoneId);
+        return slotStart.isBefore(nowInClubTz);
+    }
+
     function isSlotAvailable(index: number): boolean {
         const cell = slots[index];
-        return !!cell && cell.availableCourts >= courtsToOccupy;
+        if (!cell || cell.availableCourts < courtsToOccupy) return false;
+        return !isSlotPast(index);
     }
 
     function handleSlotClick(index: number) {
@@ -123,6 +135,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                 slots: slotsUtc,
                 courtsToOccupy,
                 capacity: capacity !== "" ? capacity : undefined,
+                description: description || undefined,
             };
             return api.createBooking(clubId, body);
         },
@@ -399,6 +412,8 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                             <div className="grid grid-cols-[repeat(auto-fill,minmax(6rem,1fr))] justify-items-center gap-2">
                                 {slots.map((slot, index) => {
                                     const available = isSlotAvailable(index);
+                                    const past = !available && isSlotPast(index);
+                                    const occupied = !available && !past;
                                     const isSelected = !!selectionRange && index >= selectionRange.start && index <= selectionRange.end;
                                     return (
                                         <button
@@ -412,7 +427,9 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                                     ? isSelected
                                                         ? "cursor-pointer border-[#424242] bg-[#82B1FF] text-white"
                                                         : "cursor-pointer border-border bg-background text-foreground hover:border-[#424242]/60 hover:bg-[#82B1FF]/5"
-                                                    : "cursor-not-allowed border-border bg-muted/40 text-muted-foreground opacity-40",
+                                                    : occupied
+                                                        ? "cursor-not-allowed border-red-500/30 bg-red-500/10 text-red-400"
+                                                        : "cursor-not-allowed border-border bg-muted/40 text-muted-foreground opacity-40",
                                             ].join(" ")}
                                         >
                                             {formatSlotTime(slot.startTime)}&nbsp;–&nbsp;{formatSlotTime(slot.endTime)}
@@ -437,6 +454,19 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                             )}
                         </>
                     )}
+                </div>
+            )}
+
+            {!!clubId && (
+                <div className="space-y-2">
+                    <label className="text-xs font-medium text-muted-foreground">
+                        {t("form.description")}
+                        <span className="ml-1 text-muted-foreground/60">({t("form.capacityOptional")})</span>
+                    </label>
+                    <RichTextEditor
+                        onChange={setDescription}
+                        placeholder={t("form.descriptionPlaceholder")}
+                    />
                 </div>
             )}
 

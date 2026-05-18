@@ -31,6 +31,7 @@ export interface CreateBookingRequest {
     slots: string[];
     courtsToOccupy?: number;
     capacity?: number;
+    description?: string;
 }
 
 export interface JoinBookingResponse {
