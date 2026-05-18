@@ -48,6 +48,14 @@ export function Navbar() {
                     >
                         {t("clubs")}
                     </Link>
+                    {isSignedIn && (
+                        <Link
+                            href="/manage"
+                            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                        >
+                            {t("manage")}
+                        </Link>
+                    )}
                 </nav>
 
                 {/* Auth + theme toggle + locale switcher */}
