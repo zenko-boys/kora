@@ -29,6 +29,8 @@
             "full": "Lotado",
             "openSpots": "{count} vaga(s)",
             "youreIn": "Você está dentro",
+            "leave": "Sair",
+            "leaving": "Saindo…",
             "bookingFull": "Reserva Lotada",
             "join": "Entrar na Reserva",
             "joining": "Entrando…",
@@ -58,7 +60,9 @@
             "minimumDuration": "(mínimo {min} min)",
             "cancel": "Cancelar",
             "create": "Criar Reserva",
-            "creating": "Criando…"
+            "creating": "Criando…",
+            "description": "Descrição",
+            "descriptionPlaceholder": "Adicione detalhes sobre esta reserva (opcional)…"
         },
         "toast": {
             "joined": "Você entrou na reserva!",

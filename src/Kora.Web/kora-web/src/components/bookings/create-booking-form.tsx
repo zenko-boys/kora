@@ -9,6 +9,7 @@ import { X, Check, Clock, Loader2, Search, Star } from "lucide-react";
 import moment from "moment-timezone";
 import { createApiClient } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import type { BookingType, CreateBookingRequest } from "@/lib/types";
 
 function inputCls(extra?: string) {
@@ -29,6 +30,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     const [selectionRange, setSelectionRange] = useState<{ start: number; end: number } | null>(null);
     const [courtsToOccupy, setCourtsToOccupy] = useState<number>(1);
     const [capacity, setCapacity] = useState<number | "">(10);
+    const [description, setDescription] = useState("");
 
     // Reset slot selection when club or date changes
     useEffect(() => { setSelectionRange(null); }, [clubId, date]);
@@ -60,9 +62,19 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     const selectedCellCount = selectionRange ? selectionRange.end - selectionRange.start + 1 : 0;
     const meetsMinDuration = selectedCellCount * cellMin >= minMin;
 
+    function isSlotPast(index: number): boolean {
+        const cell = slots[index];
+        if (!cell || !date) return false;
+        const nowInClubTz = moment.tz(timeZoneId);
+        if (date !== nowInClubTz.format("YYYY-MM-DD")) return false;
+        const slotStart = moment.tz(`${date} ${cell.startTime}`, "YYYY-MM-DD HH:mm:ss", timeZoneId);
+        return slotStart.isBefore(nowInClubTz);
+    }
+
     function isSlotAvailable(index: number): boolean {
         const cell = slots[index];
-        return !!cell && cell.availableCourts >= courtsToOccupy;
+        if (!cell || cell.availableCourts < courtsToOccupy) return false;
+        return !isSlotPast(index);
     }
 
     function handleSlotClick(index: number) {
@@ -123,6 +135,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                 slots: slotsUtc,
                 courtsToOccupy,
                 capacity: capacity !== "" ? capacity : undefined,
+                description: description || undefined,
             };
             return api.createBooking(clubId, body);
         },
@@ -204,7 +217,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                     type="button"
                                     onClick={() => setClubId(c.clubId)}
                                     className={[
-                                        "relative flex h-28 w-40 shrink-0 flex-col justify-end overflow-hidden rounded-xl border-2 p-2.5 text-left transition-all",
+                                        "relative flex h-28 w-40 shrink-0 cursor-pointer flex-col justify-end overflow-hidden rounded-xl border-2 p-2.5 text-left transition-all",
                                         isSelected
                                             ? "border-[#424242] ring-2 ring-[#82B1FF]/40"
                                             : "border-transparent hover:border-[#424242]/50",
@@ -246,38 +259,39 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                 )}
             </div>
 
-            {/* Type cards */}
-            <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground">{t("form.type")} *</label>
-                <div className="grid grid-cols-2 gap-3">
-                    {(["Game", "DayUse"] as BookingType[]).map((tp) => {
-                        const isSelected = type === tp;
-                        const label = tp === "Game" ? t("form.gameLabel") : t("form.dayUseLabel");
-                        const description = tp === "Game" ? t("form.gameDescription") : t("form.dayUseDescription");
-                        return (
-                            <button
-                                key={tp}
-                                type="button"
-                                onClick={() => setType(tp)}
-                                className={[
-                                    "flex flex-col items-start rounded-xl border-2 px-4 py-3 text-left transition-all",
-                                    isSelected
-                                        ? "border-[#424242] bg-[#82B1FF]/10 ring-2 ring-[#82B1FF]/30"
-                                        : "border-border bg-background hover:border-[#424242]/50 hover:bg-[#82B1FF]/5",
-                                ].join(" ")}
-                            >
-                                <span className={["text-sm font-semibold", isSelected ? "text-[#82B1FF]" : "text-foreground"].join(" ")}>
-                                    {label}
-                                </span>
-                                <span className="mt-0.5 text-[10px] text-muted-foreground">{description}</span>
-                            </button>
-                        );
-                    })}
+            {!!clubId && (
+                <div className="space-y-2">
+                    <label className="text-xs font-medium text-muted-foreground">{t("form.type")} *</label>
+                    <div className="grid grid-cols-2 gap-3">
+                        {(["Game", "DayUse"] as BookingType[]).map((tp) => {
+                            const isSelected = type === tp;
+                            const label = tp === "Game" ? t("form.gameLabel") : t("form.dayUseLabel");
+                            const description = tp === "Game" ? t("form.gameDescription") : t("form.dayUseDescription");
+                            return (
+                                <button
+                                    key={tp}
+                                    type="button"
+                                    onClick={() => setType(tp)}
+                                    className={[
+                                        "flex flex-col items-start cursor-pointer rounded-xl border-2 px-4 py-3 text-left transition-all",
+                                        isSelected
+                                            ? "border-[#424242] bg-[#82B1FF]/10 ring-2 ring-[#82B1FF]/30"
+                                            : "border-border bg-background hover:border-[#424242]/50 hover:bg-[#82B1FF]/5",
+                                    ].join(" ")}
+                                >
+                                    <span className={["text-sm font-semibold", isSelected ? "text-[#82B1FF]" : "text-foreground"].join(" ")}>
+                                        {label}
+                                    </span>
+                                    <span className="mt-0.5 text-[10px] text-muted-foreground">{description}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Courts to occupy + Capacity (DayUse only) */}
-            {type === "DayUse" && (
+            {!!clubId && type === "DayUse" && (
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <label className="text-xs font-medium text-muted-foreground">{t("form.courtsToOccupy")} *</label>
@@ -309,64 +323,65 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                 </div>
             )}
 
-            {/* Date picker */}
-            <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                    <label className="text-xs font-medium text-muted-foreground">{t("form.date")} *</label>
-                    <div className="flex overflow-hidden rounded-md border border-border text-xs">
-                        <button
-                            type="button"
-                            onClick={() => setDateViewMode("week")}
-                            className={[
-                                "px-3 py-1 transition-colors",
-                                dateViewMode === "week"
-                                    ? "bg-[#82B1FF] text-white"
-                                    : "bg-background text-foreground hover:bg-muted",
-                            ].join(" ")}
-                        >
-                            {t("form.week")}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setDateViewMode("month")}
-                            className={[
-                                "px-3 py-1 transition-colors",
-                                dateViewMode === "month"
-                                    ? "bg-[#82B1FF] text-white"
-                                    : "bg-background text-foreground hover:bg-muted",
-                            ].join(" ")}
-                        >
-                            {t("form.month")}
-                        </button>
-                    </div>
-                </div>
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(2.5rem,1fr))] justify-items-center gap-2">
-                    {visibleDays.map((d) => {
-                        const val = d.format("YYYY-MM-DD");
-                        const isPast = d.isBefore(todayMoment, "day");
-                        const isSelected = date === val;
-                        return (
+            {!!clubId && (
+                <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                        <label className="text-xs font-medium text-muted-foreground">{t("form.date")} *</label>
+                        <div className="flex overflow-hidden rounded-md border border-border text-xs">
                             <button
-                                key={val}
                                 type="button"
-                                disabled={isPast}
-                                onClick={() => setDate(val)}
+                                onClick={() => setDateViewMode("week")}
                                 className={[
-                                    "flex shrink-0 flex-col items-center rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
-                                    isPast
-                                        ? "cursor-not-allowed border-border bg-muted/40 text-muted-foreground opacity-40"
-                                        : isSelected
-                                            ? "border-[#424242] bg-[#82B1FF] text-white"
-                                            : "border-border bg-background text-foreground hover:border-[#424242]/60 hover:bg-[#82B1FF]/5",
+                                    "cursor-pointer px-3 py-1 transition-colors",
+                                    dateViewMode === "week"
+                                        ? "bg-[#82B1FF] text-white"
+                                        : "bg-background text-foreground hover:bg-muted",
                                 ].join(" ")}
                             >
-                                <span className="text-[10px] leading-none opacity-70">{DAY_INITIALS[d.day()]}</span>
-                                <span className="mt-0.5 leading-none">{d.date()}</span>
+                                {t("form.week")}
                             </button>
-                        );
-                    })}
+                            <button
+                                type="button"
+                                onClick={() => setDateViewMode("month")}
+                                className={[
+                                    "cursor-pointer px-3 py-1 transition-colors",
+                                    dateViewMode === "month"
+                                        ? "bg-[#82B1FF] text-white"
+                                        : "bg-background text-foreground hover:bg-muted",
+                                ].join(" ")}
+                            >
+                                {t("form.month")}
+                            </button>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-[repeat(auto-fill,minmax(2.5rem,1fr))] justify-items-center gap-2">
+                        {visibleDays.map((d) => {
+                            const val = d.format("YYYY-MM-DD");
+                            const isPast = d.isBefore(todayMoment, "day");
+                            const isSelected = date === val;
+                            return (
+                                <button
+                                    key={val}
+                                    type="button"
+                                    disabled={isPast}
+                                    onClick={() => setDate(val)}
+                                    className={[
+                                        "flex shrink-0 flex-col items-center rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
+                                        isPast
+                                            ? "cursor-not-allowed border-border bg-muted/40 text-muted-foreground opacity-40"
+                                            : isSelected
+                                                ? "cursor-pointer border-[#424242] bg-[#82B1FF] text-white"
+                                                : "cursor-pointer border-border bg-background text-foreground hover:border-[#424242]/60 hover:bg-[#82B1FF]/5",
+                                    ].join(" ")}
+                                >
+                                    <span className="text-[10px] leading-none opacity-70">{DAY_INITIALS[d.day()]}</span>
+                                    <span className="mt-0.5 leading-none">{d.date()}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Slot picker */}
             {clubId && date && (
@@ -397,6 +412,8 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                             <div className="grid grid-cols-[repeat(auto-fill,minmax(6rem,1fr))] justify-items-center gap-2">
                                 {slots.map((slot, index) => {
                                     const available = isSlotAvailable(index);
+                                    const past = !available && isSlotPast(index);
+                                    const occupied = !available && !past;
                                     const isSelected = !!selectionRange && index >= selectionRange.start && index <= selectionRange.end;
                                     return (
                                         <button
@@ -408,9 +425,11 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                                 "rounded-md border px-3 py-1.5 text-xs font-medium transition-colors",
                                                 available
                                                     ? isSelected
-                                                        ? "border-[#424242] bg-[#82B1FF] text-white"
-                                                        : "border-border bg-background text-foreground hover:border-[#424242]/60 hover:bg-[#82B1FF]/5"
-                                                    : "cursor-not-allowed border-border bg-muted/40 text-muted-foreground opacity-40",
+                                                        ? "cursor-pointer border-[#424242] bg-[#82B1FF] text-white"
+                                                        : "cursor-pointer border-border bg-background text-foreground hover:border-[#424242]/60 hover:bg-[#82B1FF]/5"
+                                                    : occupied
+                                                        ? "cursor-not-allowed border-red-500/30 bg-red-500/10 text-red-400"
+                                                        : "cursor-not-allowed border-border bg-muted/40 text-muted-foreground opacity-40",
                                             ].join(" ")}
                                         >
                                             {formatSlotTime(slot.startTime)}&nbsp;–&nbsp;{formatSlotTime(slot.endTime)}
@@ -435,6 +454,19 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                             )}
                         </>
                     )}
+                </div>
+            )}
+
+            {!!clubId && (
+                <div className="space-y-2">
+                    <label className="text-xs font-medium text-muted-foreground">
+                        {t("form.description")}
+                        <span className="ml-1 text-muted-foreground/60">({t("form.capacityOptional")})</span>
+                    </label>
+                    <RichTextEditor
+                        onChange={setDescription}
+                        placeholder={t("form.descriptionPlaceholder")}
+                    />
                 </div>
             )}
 

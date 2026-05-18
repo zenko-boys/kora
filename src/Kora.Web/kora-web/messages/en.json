@@ -29,6 +29,8 @@
             "full": "Full",
             "openSpots": "{count} open",
             "youreIn": "You're In",
+            "leave": "Leave",
+            "leaving": "Leaving…",
             "bookingFull": "Booking Full",
             "join": "Join Booking",
             "joining": "Joining…",
@@ -58,7 +60,9 @@
             "minimumDuration": "(minimum {min} min)",
             "cancel": "Cancel",
             "create": "Create Booking",
-            "creating": "Creating…"
+            "creating": "Creating…",
+            "description": "Description",
+            "descriptionPlaceholder": "Add details about this booking (optional)…"
         },
         "toast": {
             "joined": "You joined the booking!",

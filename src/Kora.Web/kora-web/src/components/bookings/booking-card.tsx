@@ -1,7 +1,7 @@
 "use client";
 
 import { format, parseISO } from "date-fns";
-import { Users, Clock, MapPin, CheckCircle2, Trash2 } from "lucide-react";
+import { Users, Clock, MapPin, CheckCircle2, Trash2, UserMinus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -75,7 +75,7 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
                                 onClick={() => onDelete(bookingId)}
                                 disabled={isDeleting}
                                 aria-label={t("deleteBooking")}
-                                className="rounded p-1 text-muted-foreground/50 transition-colors hover:text-destructive disabled:opacity-40"
+                                className="cursor-pointer rounded p-1 text-muted-foreground/50 transition-colors hover:text-destructive disabled:opacity-40"
                             >
                                 <Trash2 className="h-3.5 w-3.5" />
                             </button>
@@ -112,12 +112,24 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
                 </div>
 
                 {/* CTA */}
-                <div className="flex justify-center pt-1">
+                <div className="flex items-center justify-between gap-2 pt-1">
                     {amIIn ? (
-                        <div className="flex items-center justify-center gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm font-medium text-emerald-500">
-                            <CheckCircle2 className="h-4 w-4" />
-                            {t("youreIn")}
-                        </div>
+                        <>
+                            <div className="flex items-center gap-1.5 text-sm font-medium text-emerald-500">
+                                <CheckCircle2 className="h-4 w-4" />
+                                {t("youreIn")}
+                            </div>
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => onLeave(bookingId)}
+                                disabled={isLeaving}
+                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                            >
+                                <UserMinus className="h-3.5 w-3.5" />
+                                {isLeaving ? t("leaving") : t("leave")}
+                            </Button>
+                        </>
                     ) : isFull ? (
                         <Button disabled variant="outline" className="w-full">
                             {t("bookingFull")}

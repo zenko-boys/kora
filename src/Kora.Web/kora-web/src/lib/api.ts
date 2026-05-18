@@ -115,9 +115,9 @@ export function createApiClient(getToken: GetToken) {
                 };
             }
             return apiFetch<LeaveBookingResponse>(
-                `/bookings/${bookingId}/join`,
+                `/bookings/${bookingId}/leave`,
                 getToken,
-                { method: "DELETE" }
+                { method: "POST" }
             );
         },
 
