@@ -1,10 +1,32 @@
 {
     "nav": {
+        "home": "Home",
         "bookings": "Bookings",
         "clubs": "Clubs",
         "manage": "Manage",
         "signIn": "Sign In",
         "toggleTheme": "Toggle theme"
+    },
+    "home": {
+        "title": "Home",
+        "sidebar": {
+            "rank": "Rank",
+            "gamesPlayed": "Games",
+            "won": "Won",
+            "lost": "Lost",
+            "rating": "Rating",
+            "medals": "Medals",
+            "noMedals": "No medals yet.",
+            "upcomingGames": "Upcoming Games",
+            "noUpcoming": "No upcoming games.",
+            "viewAll": "View all bookings"
+        },
+        "feed": {
+            "title": "What's new",
+            "loadMore": "Load more",
+            "loading": "Loading...",
+            "empty": "No updates yet."
+        }
     },
     "bookings": {
         "page": {

@@ -1,7 +1,7 @@
 "use client";
 
 import { UserButton, SignInButton, useAuth } from "@clerk/nextjs";
-import { CalendarDays, Sun, Moon, Languages } from "lucide-react";
+import { CalendarDays, Sun, Moon, Languages, House } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
@@ -36,6 +36,13 @@ export function Navbar() {
 
                 {/* Nav links */}
                 <nav className="hidden items-center gap-6 sm:flex">
+                    <Link
+                        href="/"
+                        className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                        <House className="inline-block h-4 w-4" />
+                        <span className="sr-only">{t("home")}</span>
+                    </Link>
                     <Link
                         href="/bookings"
                         className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"

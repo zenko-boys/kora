@@ -16,8 +16,11 @@ import type {
     UpdateCourtRequest,
     UpdateCourtResponse,
     GetClubSlotsResponse,
+    PlayerStatsResponse,
+    UpcomingGamesResponse,
+    FeedResponse,
 } from "./types";
-import { MOCK_BOOKINGS } from "./mock-data";
+import { MOCK_BOOKINGS, MOCK_PLAYER_STATS, MOCK_UPCOMING_GAMES, MOCK_FEED_ITEMS } from "./mock-data";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
 const API_V1 = `${API_BASE}/api/v1`;
@@ -220,6 +223,24 @@ export function createApiClient(getToken: GetToken) {
             }
             return apiFetch<GetClubSlotsResponse>(
                 `/clubs/${clubId}/slots?date=${date}`,
+                getToken
+            );
+        },
+
+        getPlayerStats: (): Promise<PlayerStatsResponse> => {
+            if (USE_MOCK || true) return Promise.resolve({ stats: MOCK_PLAYER_STATS });
+            return apiFetch<PlayerStatsResponse>("/players/me/stats", getToken);
+        },
+
+        getUpcomingGames: (): Promise<UpcomingGamesResponse> => {
+            if (USE_MOCK || true) return Promise.resolve({ games: MOCK_UPCOMING_GAMES });
+            return apiFetch<UpcomingGamesResponse>("/bookings/upcoming", getToken);
+        },
+
+        getFeed: (cursor?: string): Promise<FeedResponse> => {
+            if (USE_MOCK || true) return Promise.resolve({ items: MOCK_FEED_ITEMS });
+            return apiFetch<FeedResponse>(
+                `/feed${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`,
                 getToken
             );
         },

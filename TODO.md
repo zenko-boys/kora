@@ -14,21 +14,21 @@
 - [ ] notificacao de leave antes de 3h para iniciar o jogo
 
 ## UI
-- [ ] botao de leave booking
-- [ ] tela de gerenciamento, clubes, bookings, pois e diferente para usuario
-- [ ] na tela de bookings retornar os clubes que sou owner para poder deletar
-- [ ] adicionar pointer na selecao dos cards
-- [ ] remover horas do passado da manha, pois hoje a manha ja passou
+- [x] botao de leave booking
+- [x] tela de gerenciamento, clubes, bookings, pois e diferente para usuario
+- [x] na tela de bookings retornar os clubes que sou owner para poder deletar
+- [x] adicionar pointer na selecao dos cards
+- [x] remover horas do passado da manha, pois hoje a manha ja passou
 - [ ] corrigir timezone
-- [ ] regra de envio de email 3h antes para leave
+- [x] regra de envio de email 24h antes para leave
 - [ ] filtro para staff/manager / melhorar filtros dos bookings
-- [ ] alterar number of players to avatar / empty avatar
+- [x] alterar number of players to avatar / empty avatar
 - [ ] game level no booking
 - [ ] description no booking
 
 ## Infra
 - [x] criar deploy automation vercel, conectando ao projeto github
-- [ ] adicionar i18n para idioma portugues
+- [x] adicionar i18n para idioma portugues
 
 ## Ideias
 - [ ] pagamentos
