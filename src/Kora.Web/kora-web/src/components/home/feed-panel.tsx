@@ -19,10 +19,10 @@ export function FeedPanel() {
         isFetchingNextPage,
     } = useInfiniteQuery({
         queryKey: ["feed"],
-        queryFn: ({ pageParam }) =>
-            api.getFeed(pageParam as string | undefined),
+        queryFn: ({ pageParam }: { pageParam: string | undefined }) =>
+            api.getFeed(pageParam),
         getNextPageParam: (last) => last.nextCursor ?? undefined,
-        initialPageParam: undefined,
+        initialPageParam: undefined as string | undefined,
     });
 
     const items = data?.pages.flatMap((p) => p.items) ?? [];
