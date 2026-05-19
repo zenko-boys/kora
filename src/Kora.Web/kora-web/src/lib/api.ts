@@ -42,7 +42,13 @@ async function apiFetch<T>(
 
     if (!res.ok) {
         const text = await res.text().catch(() => res.statusText);
-        throw new Error(`API error ${res.status}: ${text}`);
+        let message = `API error ${res.status}: ${text}`;
+        try {
+            const body = JSON.parse(text);
+            if (body?.detail) message = body.detail;
+            else if (body?.title) message = body.title;
+        } catch { /* not JSON, keep raw text */ }
+        throw new Error(message);
     }
 
     if (res.status === 204 || res.headers.get("content-length") === "0") {

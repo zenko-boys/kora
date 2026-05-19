@@ -160,7 +160,6 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     };
 
     const todayMoment = moment();
-    const today = todayMoment.format("YYYY-MM-DD");
     const DAY_INITIALS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
     const visibleDays = (() => {
         const start = todayMoment.clone().subtract(3, "days");
@@ -181,9 +180,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     })();
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-5 rounded-xl border border-[#424242]/20 bg-[#82B1FF]/5 p-5">
-            <h3 className="text-sm font-semibold text-foreground">{t("form.title")}</h3>
-
+        <form onSubmit={handleSubmit} className="space-y-5">
             {/* Club search + carousel */}
             <div className="space-y-2">
                 <label className="text-xs font-medium text-muted-foreground">{t("form.club")} *</label>
@@ -479,7 +476,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                     type="submit"
                     size="sm"
                     disabled={mutation.isPending || !selectionRange || !meetsMinDuration}
-                    className="bg-[#82B1FF] text-white hover:bg-[#82B1FF]/90"
+                    className="bg-emerald-500 text-white hover:bg-emerald-500/90"
                 >
                     <Check className="h-3.5 w-3.5" />
                     {mutation.isPending ? t("form.creating") : t("form.create")}

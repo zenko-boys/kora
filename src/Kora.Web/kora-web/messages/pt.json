@@ -70,6 +70,7 @@
             "joinFailed": "Não foi possível entrar na reserva",
             "cancelled": "Reserva cancelada.",
             "cancelFailed": "Não foi possível cancelar a reserva",
+            "cancelTooLate": "Não é possível cancelar uma reserva com menos de 24 horas de antecedência.",
             "deleted": "Reserva excluída.",
             "deleteFailed": "Não foi possível excluir a reserva",
             "created": "Reserva criada!",
