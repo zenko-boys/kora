@@ -17,13 +17,16 @@ interface BookingCardProps {
     isLeaving: boolean;
     onDelete?: (bookingId: string) => void;
     isDeleting?: boolean;
+    isManageView?: boolean;
 }
 
 function formatTime(utcString: string) {
+    if (!utcString) return "--:--";
     return format(parseISO(utcString), "HH:mm");
 }
 
 function formatDate(utcString: string) {
+    if (!utcString) return "---";
     return format(parseISO(utcString), "EEE, MMM d");
 }
 
@@ -32,7 +35,7 @@ const TYPE_COLORS = {
     DayUse: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
 } as const;
 
-export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, onDelete, isDeleting }: BookingCardProps) {
+export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, onDelete, isDeleting, isManageView = false }: BookingCardProps) {
     const t = useTranslations("bookings.card");
     const {
         bookingId,
@@ -155,38 +158,40 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
                 </div>
 
                 {/* CTA */}
-                <div className="flex items-center justify-between gap-2 pt-1">
-                    {amIIn ? (
-                        <>
-                            <div className="flex items-center gap-1.5 text-sm font-medium text-emerald-500">
-                                <CheckCircle2 className="h-4 w-4" />
-                                {t("youreIn")}
-                            </div>
-                            <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => onLeave(bookingId)}
-                                disabled={isLeaving}
-                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                            >
-                                <UserMinus className="h-3.5 w-3.5" />
-                                {isLeaving ? t("leaving") : t("leave")}
+                {!isManageView && (
+                    <div className="flex items-center justify-between gap-2 pt-1">
+                        {amIIn ? (
+                            <>
+                                <div className="flex items-center gap-1.5 text-sm font-medium text-emerald-500">
+                                    <CheckCircle2 className="h-4 w-4" />
+                                    {t("youreIn")}
+                                </div>
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => onLeave(bookingId)}
+                                    disabled={isLeaving}
+                                    className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                >
+                                    <UserMinus className="h-3.5 w-3.5" />
+                                    {isLeaving ? t("leaving") : t("leave")}
+                                </Button>
+                            </>
+                        ) : isFull ? (
+                            <Button disabled variant="outline" className="w-full">
+                                {t("bookingFull")}
                             </Button>
-                        </>
-                    ) : isFull ? (
-                        <Button disabled variant="outline" className="w-full">
-                            {t("bookingFull")}
-                        </Button>
-                    ) : (
-                        <Button
-                            onClick={() => onJoin(bookingId)}
-                            disabled={isJoining}
-                            className="w-full bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90 disabled:opacity-60"
-                        >
-                            {isJoining ? t("joining") : t("join")}
-                        </Button>
-                    )}
-                </div>
+                        ) : (
+                            <Button
+                                onClick={() => onJoin(bookingId)}
+                                disabled={isJoining}
+                                className="w-full bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90 disabled:opacity-60"
+                            >
+                                {isJoining ? t("joining") : t("join")}
+                            </Button>
+                        )}
+                    </div>
+                )}
             </CardContent>
         </Card>
     );

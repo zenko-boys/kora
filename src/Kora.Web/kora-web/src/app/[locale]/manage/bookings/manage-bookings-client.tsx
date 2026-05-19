@@ -11,7 +11,7 @@ import { createApiClient } from "@/lib/api";
 import { BookingCard } from "@/components/bookings/booking-card";
 import { BookingCardSkeleton } from "@/components/bookings/booking-card-skeleton";
 import { BookingsFilterBar } from "@/components/bookings/bookings-filter-bar";
-import { CreateBookingForm } from "@/components/bookings/create-booking-form";
+import { CreateBookingDialog } from "@/components/bookings/create-booking-dialog";
 import { Button } from "@/components/ui/button";
 import {
     Select,
@@ -22,8 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import type { BookingsFilter, MyClubSummary } from "@/lib/types";
-
-const MANAGEMENT_ROLES = ["Owner", "Manager", "Admin"];
+import { MANAGEMENT_ROLES } from "@/lib/constants";
 
 export function ManageBookingsClient({ title, subtitle }: { title: string; subtitle: string }) {
     const { getToken } = useAuth();
@@ -82,20 +81,17 @@ export function ManageBookingsClient({ title, subtitle }: { title: string; subti
                     <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
                     <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
                 </div>
-                {!showCreate && (
-                    <Button
-                        size="sm"
-                        onClick={() => setShowCreate(true)}
-                        className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
-                    >
-                        <Plus className="h-3.5 w-3.5" />
-                        {t("bookings.newBooking")}
-                    </Button>
-                )}
+                <Button
+                    size="sm"
+                    onClick={() => setShowCreate(true)}
+                    className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
+                >
+                    <Plus className="h-3.5 w-3.5" />
+                    {t("bookings.newBooking")}
+                </Button>
             </div>
 
-            {/* Create form */}
-            {showCreate && <CreateBookingForm onClose={() => setShowCreate(false)} />}
+            <CreateBookingDialog open={showCreate} onOpenChange={setShowCreate} />
 
             {/* Filters */}
             <div className="rounded-xl border border-border bg-card px-4 py-3">
@@ -165,6 +161,7 @@ export function ManageBookingsClient({ title, subtitle }: { title: string; subti
                             isJoining={false}
                             onLeave={() => { }}
                             isLeaving={false}
+                            isManageView
                             onDelete={(id) => deleteMutation.mutate(id)}
                             isDeleting={deletingId === booking.bookingId && deleteMutation.isPending}
                         />

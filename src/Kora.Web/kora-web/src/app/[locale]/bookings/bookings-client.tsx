@@ -9,7 +9,7 @@ import { CalendarOff, Plus } from "lucide-react";
 import { BookingCard } from "@/components/bookings/booking-card";
 import { BookingCardSkeleton } from "@/components/bookings/booking-card-skeleton";
 import { BookingsFilterBar } from "@/components/bookings/bookings-filter-bar";
-import { CreateBookingForm } from "@/components/bookings/create-booking-form";
+import { CreateBookingDialog } from "@/components/bookings/create-booking-dialog";
 import { createApiClient } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import type { BookingsFilter } from "@/lib/types";
@@ -60,7 +60,11 @@ export function BookingsClient({ title, subtitle }: { title: string; subtitle: s
             queryClient.invalidateQueries({ queryKey: ["bookings"] });
         },
         onError: (err: Error) => {
-            toast.error(t("toast.cancelFailed"), { description: err.message });
+            const knownErrors: Record<string, string> = {
+                "Cannot leave a booking less than 24 hours before it starts.": "toast.cancelTooLate",
+            };
+            const description = knownErrors[err.message] ? t(knownErrors[err.message]) : err.message;
+            toast.error(t("toast.cancelFailed"), { description });
         },
         onSettled: () => setLeavingId(null),
     });
@@ -75,20 +79,17 @@ export function BookingsClient({ title, subtitle }: { title: string; subtitle: s
                     <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
                     <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
                 </div>
-                {!showCreate && (
-                    <Button
-                        size="sm"
-                        onClick={() => setShowCreate(true)}
-                        className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
-                    >
-                        <Plus className="h-3.5 w-3.5" />
-                        {t("newBooking")}
-                    </Button>
-                )}
+                <Button
+                    size="sm"
+                    onClick={() => setShowCreate(true)}
+                    className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
+                >
+                    <Plus className="h-3.5 w-3.5" />
+                    {t("newBooking")}
+                </Button>
             </div>
 
-            {/* Create form */}
-            {showCreate && <CreateBookingForm onClose={() => setShowCreate(false)} />}
+            <CreateBookingDialog open={showCreate} onOpenChange={setShowCreate} />
 
             {/* Filter bar */}
             <div className="rounded-xl border border-border bg-card px-4 py-3">

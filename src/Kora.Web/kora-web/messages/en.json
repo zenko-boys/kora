@@ -70,6 +70,7 @@
             "joinFailed": "Could not join booking",
             "cancelled": "Booking cancelled.",
             "cancelFailed": "Could not cancel booking",
+            "cancelTooLate": "Cannot leave a booking less than 24 hours before it starts.",
             "deleted": "Booking deleted.",
             "deleteFailed": "Could not delete booking",
             "created": "Booking created!",
