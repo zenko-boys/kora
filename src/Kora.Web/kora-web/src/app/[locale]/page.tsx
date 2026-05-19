@@ -1,11 +1,13 @@
-import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import { HomeClient } from "./home-client";
 
-export default async function Home({
+export default async function HomePage({
     params,
 }: {
     params: Promise<{ locale: string }>;
 }) {
     const { locale } = await params;
-    redirect(`/${locale}/bookings`);
+    const t = await getTranslations({ locale, namespace: "home" });
+    return <HomeClient title={t("title")} />;
 }
 

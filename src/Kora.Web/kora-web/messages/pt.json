@@ -1,10 +1,32 @@
 {
     "nav": {
+        "home": "Início",
         "bookings": "Reservas",
         "clubs": "Clubes",
         "manage": "Gerenciar",
         "signIn": "Entrar",
         "toggleTheme": "Alternar tema"
+    },
+    "home": {
+        "title": "Início",
+        "sidebar": {
+            "rank": "Rank",
+            "gamesPlayed": "Jogos",
+            "won": "Vitórias",
+            "lost": "Derrotas",
+            "rating": "Avaliação",
+            "medals": "Medalhas",
+            "noMedals": "Nenhuma medalha ainda.",
+            "upcomingGames": "Próximos Jogos",
+            "noUpcoming": "Nenhum jogo agendado.",
+            "viewAll": "Ver todos os bookings"
+        },
+        "feed": {
+            "title": "Novidades",
+            "loadMore": "Carregar mais",
+            "loading": "Carregando...",
+            "empty": "Nenhuma novidade por enquanto."
+        }
     },
     "bookings": {
         "page": {
