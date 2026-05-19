@@ -13,7 +13,7 @@ import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import type { BookingType, CreateBookingRequest } from "@/lib/types";
 
 function inputCls(extra?: string) {
-    return `w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#82B1FF]/50 ${extra ?? ""}`;
+    return `w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#93C5FD]/50 ${extra ?? ""}`;
 }
 
 export function CreateBookingForm({ onClose }: { onClose: () => void }) {
@@ -216,14 +216,14 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                     className={[
                                         "relative flex h-28 w-40 shrink-0 cursor-pointer flex-col justify-end overflow-hidden rounded-xl border-2 p-2.5 text-left transition-all",
                                         isSelected
-                                            ? "border-[#424242] ring-2 ring-[#82B1FF]/40"
-                                            : "border-transparent hover:border-[#424242]/50",
+                                            ? "border-[#93C5FD] ring-2 ring-[#93C5FD]/40"
+                                            : "border-transparent hover:border-[#93C5FD]/40",
                                     ].join(" ")}
                                 >
                                     {c.imageUrl ? (
                                         <img src={c.imageUrl} alt={c.name} className="absolute inset-0 h-full w-full object-cover" />
                                     ) : (
-                                        <div className="absolute inset-0 bg-linear-to-br from-[#82B1FF]/60 to-[#82B1FF]/20" />
+                                        <div className="absolute inset-0 bg-linear-to-br from-[#93C5FD]/60 to-[#93C5FD]/20" />
                                     )}
                                     <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
                                     <div className="relative space-y-0.5">
@@ -272,11 +272,11 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                     className={[
                                         "flex flex-col items-start cursor-pointer rounded-xl border-2 px-4 py-3 text-left transition-all",
                                         isSelected
-                                            ? "border-[#424242] bg-[#82B1FF]/10 ring-2 ring-[#82B1FF]/30"
-                                            : "border-border bg-background hover:border-[#424242]/50 hover:bg-[#82B1FF]/5",
+                                            ? "border-[#93C5FD] bg-[#93C5FD]/10 ring-2 ring-[#93C5FD]/30"
+                                            : "border-border bg-background hover:border-[#93C5FD]/40 hover:bg-[#93C5FD]/5",
                                     ].join(" ")}
                                 >
-                                    <span className={["text-sm font-semibold", isSelected ? "text-[#82B1FF]" : "text-foreground"].join(" ")}>
+                                    <span className={["text-sm font-semibold", isSelected ? "text-[#93C5FD]" : "text-foreground"].join(" ")}>
                                         {label}
                                     </span>
                                     <span className="mt-0.5 text-[10px] text-muted-foreground">{description}</span>
@@ -331,7 +331,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                 className={[
                                     "cursor-pointer px-3 py-1 transition-colors",
                                     dateViewMode === "week"
-                                        ? "bg-[#82B1FF] text-white"
+                                        ? "bg-[#93C5FD] text-white"
                                         : "bg-background text-foreground hover:bg-muted",
                                 ].join(" ")}
                             >
@@ -343,7 +343,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                 className={[
                                     "cursor-pointer px-3 py-1 transition-colors",
                                     dateViewMode === "month"
-                                        ? "bg-[#82B1FF] text-white"
+                                        ? "bg-[#93C5FD] text-white"
                                         : "bg-background text-foreground hover:bg-muted",
                                 ].join(" ")}
                             >
@@ -367,8 +367,8 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                         isPast
                                             ? "cursor-not-allowed border-border bg-muted/40 text-muted-foreground opacity-40"
                                             : isSelected
-                                                ? "cursor-pointer border-[#424242] bg-[#82B1FF] text-white"
-                                                : "cursor-pointer border-border bg-background text-foreground hover:border-[#424242]/60 hover:bg-[#82B1FF]/5",
+                                                ? "cursor-pointer border-[#93C5FD] bg-[#93C5FD] text-white"
+                                                : "cursor-pointer border-border bg-background text-foreground hover:border-[#93C5FD]/40 hover:bg-[#93C5FD]/5",
                                     ].join(" ")}
                                 >
                                     <span className="text-[10px] leading-none opacity-70">{DAY_INITIALS[d.day()]}</span>
@@ -422,8 +422,8 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                                 "rounded-md border px-3 py-1.5 text-xs font-medium transition-colors",
                                                 available
                                                     ? isSelected
-                                                        ? "cursor-pointer border-[#424242] bg-[#82B1FF] text-white"
-                                                        : "cursor-pointer border-border bg-background text-foreground hover:border-[#424242]/60 hover:bg-[#82B1FF]/5"
+                                                        ? "cursor-pointer border-[#93C5FD] bg-[#93C5FD] text-white"
+                                                        : "cursor-pointer border-border bg-background text-foreground hover:border-[#93C5FD]/40 hover:bg-[#93C5FD]/5"
                                                     : occupied
                                                         ? "cursor-not-allowed border-red-500/30 bg-red-500/10 text-red-400"
                                                         : "cursor-not-allowed border-border bg-muted/40 text-muted-foreground opacity-40",
@@ -438,8 +438,8 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                 })}
                             </div>
                             {selectionRange && (
-                                <div className="mt-2 flex items-center gap-2 rounded-md border border-[#424242]/20 bg-[#82B1FF]/10 px-3 py-2 text-xs">
-                                    <Clock className="h-3.5 w-3.5 text-[#82B1FF]" />
+                                <div className="mt-2 flex items-center gap-2 rounded-md border border-[#93C5FD]/25 bg-[#93C5FD]/8 px-3 py-2 text-xs">
+                                    <Clock className="h-3.5 w-3.5 text-[#93C5FD]" />
                                     <span className="font-medium text-foreground">
                                         {formatSlotTime(slots[selectionRange.start].startTime)}&nbsp;–&nbsp;{formatSlotTime(slots[selectionRange.end].endTime)}
                                         &nbsp;&middot;&nbsp;{selectedCellCount * cellMin} min

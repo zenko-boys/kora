@@ -34,7 +34,7 @@ export function CreateBookingDialog({ open, onOpenChange }: CreateBookingDialogP
     if (isMobile) {
         if (!open) return null;
         return (
-            <div className="rounded-xl border border-[#82B1FF]/30 bg-[#82B1FF]/5 shadow-[0_4px_24px_rgba(130,177,255,0.10)] p-5">
+            <div className="rounded-xl border border-[#93C5FD]/25 bg-[#93C5FD]/5 shadow-[0_4px_24px_rgba(147,197,253,0.08)] p-5">
                 <h3 className="mb-5 text-sm font-semibold text-foreground">{t("form.title")}</h3>
                 <CreateBookingForm onClose={() => onOpenChange(false)} />
             </div>
