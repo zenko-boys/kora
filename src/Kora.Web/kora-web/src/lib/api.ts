@@ -240,7 +240,7 @@ export function createApiClient(getToken: GetToken) {
         getFeed: (cursor?: string): Promise<FeedResponse> => {
             if (USE_MOCK || true) return Promise.resolve({ items: MOCK_FEED_ITEMS });
             return apiFetch<FeedResponse>(
-                `/feed${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`,
+                cursor ? `/feed?cursor=${encodeURIComponent(cursor as string)}` : "/feed",
                 getToken
             );
         },
