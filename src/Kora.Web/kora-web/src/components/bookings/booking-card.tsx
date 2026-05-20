@@ -1,6 +1,6 @@
 "use client";
 
-import { format, parseISO } from "date-fns";
+import moment from "moment-timezone";
 import { Clock, MapPin, CheckCircle2, Trash2, UserMinus, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useUser } from "@clerk/nextjs";
@@ -20,14 +20,14 @@ interface BookingCardProps {
     isManageView?: boolean;
 }
 
-function formatTime(utcString: string) {
-    if (!utcString) return "--:--";
-    return format(parseISO(utcString), "HH:mm");
+function formatTime(isoString: string) {
+    if (!isoString) return "--:--";
+    return moment.parseZone(isoString).format("HH:mm");
 }
 
-function formatDate(utcString: string) {
-    if (!utcString) return "---";
-    return format(parseISO(utcString), "EEE, MMM d");
+function formatDate(isoString: string) {
+    if (!isoString) return "---";
+    return moment.parseZone(isoString).format("ddd, MMM D");
 }
 
 const TYPE_COLORS = {
@@ -42,8 +42,8 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
         clubName,
         courtName,
         type,
-        startsAtUtc,
-        endsAtUtc,
+        startsAt,
+        endsAt,
         participantsCount,
         capacity,
         spotsOpen,
@@ -99,10 +99,10 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
                 {/* Time */}
                 <div className="flex items-center gap-2 text-sm">
                     <Clock className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    <span className="font-medium text-foreground">{formatDate(startsAtUtc)}</span>
+                    <span className="font-medium text-foreground">{formatDate(startsAt)}</span>
                     <span className="text-muted-foreground">·</span>
                     <span className="text-muted-foreground">
-                        {formatTime(startsAtUtc)} – {formatTime(endsAtUtc)}
+                        {formatTime(startsAt)} – {formatTime(endsAt)}
                     </span>
                 </div>
 

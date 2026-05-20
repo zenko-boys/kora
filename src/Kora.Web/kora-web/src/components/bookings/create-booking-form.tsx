@@ -67,7 +67,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
         if (!cell || !date) return false;
         const nowInClubTz = moment.tz(timeZoneId);
         if (date !== nowInClubTz.format("YYYY-MM-DD")) return false;
-        const slotStart = moment.tz(`${date} ${cell.startTime}`, "YYYY-MM-DD HH:mm:ss", timeZoneId);
+        const slotStart = moment.parseZone(cell.startTime);
         return slotStart.isBefore(nowInClubTz);
     }
 
@@ -114,25 +114,20 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
         ? moment.tz(timeZoneId).format("[UTC]Z") + " · " + timeZoneId
         : "UTC";
 
-    function formatSlotTime(timeStr: string) {
-        // timeStr is "HH:mm:ss" local to the club timezone
-        return moment.tz(`${date} ${timeStr}`, "YYYY-MM-DD HH:mm:ss", timeZoneId).format("HH:mm");
+    function formatSlotTime(isoString: string) {
+        return moment.parseZone(isoString).format("HH:mm");
     }
 
     const mutation = useMutation({
         mutationFn: () => {
-            const startMoment = moment.tz(
-                `${date} ${slots[selectionRange!.start].startTime}`,
-                "YYYY-MM-DD HH:mm:ss",
-                timeZoneId
-            );
-            const slotsUtc = Array.from({ length: selectedCellCount }, (_, i) =>
-                startMoment.clone().add(i * cellMin, "minutes").utc().toISOString()
+            const startMoment = moment.parseZone(slots[selectionRange!.start].startTime);
+            const slotTimes = Array.from({ length: selectedCellCount }, (_, i) =>
+                startMoment.clone().add(i * cellMin, "minutes").format()
             );
 
             const body: CreateBookingRequest = {
                 type,
-                slots: slotsUtc,
+                slots: slotTimes,
                 courtsToOccupy,
                 capacity: capacity !== "" ? capacity : undefined,
                 description: description || undefined,
