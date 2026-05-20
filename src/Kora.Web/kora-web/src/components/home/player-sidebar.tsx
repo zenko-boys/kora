@@ -1,4 +1,4 @@
-import { format, parseISO } from "date-fns";
+import moment from "moment-timezone";
 import { ptBR } from "date-fns/locale";
 import { Star, Trophy, CalendarDays, ArrowRight } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
@@ -154,7 +154,7 @@ export function PlayerSidebar({ stats, upcomingGames }: PlayerSidebarProps) {
                 ) : (
                     <div className="space-y-2">
                         {upcomingGames.map((game) => {
-                            const start = parseISO(game.startsAtUtc);
+                            const start = moment.parseZone(game.startsAt);
                             return (
                                 <div
                                     key={game.bookingId}
@@ -163,7 +163,7 @@ export function PlayerSidebar({ stats, upcomingGames }: PlayerSidebarProps) {
                                     <p className="truncate text-xs font-medium text-foreground">{game.clubName}</p>
                                     <p className="text-[10px] text-muted-foreground">
                                         {game.courtName} &middot;{" "}
-                                        {format(start, "dd MMM, HH:mm", { locale: ptBR })}
+                                        {start.locale("pt-BR").format("DD MMM, HH:mm")}
                                     </p>
                                     <p className="mt-0.5 text-[10px] text-muted-foreground">
                                         {game.participantsCount}/{game.capacity} jogadores

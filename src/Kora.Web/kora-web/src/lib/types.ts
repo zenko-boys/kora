@@ -6,8 +6,10 @@ export interface BookingCard {
     clubName: string;
     courtName: string;
     type: BookingType;
-    startsAtUtc: string;
-    endsAtUtc: string;
+    startsAt: string;
+    endsAt: string;
+    timeZoneId: string;
+    isPrivate: boolean;
     participantsCount: number;
     capacity: number;
     spotsOpen: number;
@@ -154,8 +156,8 @@ export interface UpcomingGame {
     clubImageUrl?: string;
     courtName: string;
     type: BookingType;
-    startsAtUtc: string;
-    endsAtUtc: string;
+    startsAt: string;
+    endsAt: string;
     participantsCount: number;
     capacity: number;
 }
@@ -189,8 +191,8 @@ export interface FeedResponse {
 // ---- Club Slots ----
 
 export interface ClubSlotInfo {
-    startTime: string; // "HH:mm:ss"
-    endTime: string;   // "HH:mm:ss"
+    startTime: string; // ISO 8601 with club timezone offset, e.g. "2026-05-22T06:00:00-03:00"
+    endTime: string;   // ISO 8601 with club timezone offset, e.g. "2026-05-22T06:30:00-03:00"
     available: boolean;
     availableCourts: number;
 }
