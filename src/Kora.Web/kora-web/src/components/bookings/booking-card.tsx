@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import moment from "moment-timezone";
+import "moment/locale/pt";
 import { Clock, MapPin, CheckCircle2, Trash2, UserMinus, User } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useUser } from "@clerk/nextjs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -34,9 +35,9 @@ function formatTime(isoString: string) {
     return moment.parseZone(isoString).format("HH:mm");
 }
 
-function formatDate(isoString: string) {
+function formatDate(isoString: string, locale: string) {
     if (!isoString) return "---";
-    return moment.parseZone(isoString).format("ddd, MMM D");
+    return moment.parseZone(isoString).locale(locale).format("ddd, MMM D");
 }
 
 const TYPE_COLORS = {
@@ -46,6 +47,7 @@ const TYPE_COLORS = {
 
 export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, onDelete, isDeleting, isManageView = false }: BookingCardProps) {
     const t = useTranslations("bookings.card");
+    const locale = useLocale();
     const [confirmOpen, setConfirmOpen] = useState(false);
     const {
         bookingId,
@@ -109,7 +111,7 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
                 {/* Time */}
                 <div className="flex items-center gap-2 text-sm">
                     <Clock className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    <span className="font-medium text-foreground">{formatDate(startsAt)}</span>
+                    <span className="font-medium text-foreground">{formatDate(startsAt, locale)}</span>
                     <span className="text-muted-foreground">·</span>
                     <span className="text-muted-foreground">
                         {formatTime(startsAt)} – {formatTime(endsAt)}

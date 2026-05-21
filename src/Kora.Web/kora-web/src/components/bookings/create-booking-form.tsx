@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { X, Check, Clock, Loader2, Search, Star } from "lucide-react";
 import moment from "moment-timezone";
 import { createApiClient } from "@/lib/api";
+import { MANAGEMENT_ROLES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import type { BookingType, CreateBookingRequest } from "@/lib/types";
@@ -44,6 +45,15 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     const filteredClubs = clubSearch.trim()
         ? clubs.filter((c) => c.name.toLowerCase().includes(clubSearch.trim().toLowerCase()))
         : clubs;
+
+    const selectedClubRole = clubs.find((c) => c.clubId === clubId)?.role ?? "";
+    const canCreateDayUse = MANAGEMENT_ROLES.includes(selectedClubRole);
+    const availableTypes: BookingType[] = canCreateDayUse ? ["Game", "DayUse"] : ["Game"];
+
+    // Reset to Game if selected club doesn't allow Day Use
+    useEffect(() => {
+        if (!canCreateDayUse && type === "DayUse") setType("Game");
+    }, [canCreateDayUse, type]);
 
     const { data: slotsData, isLoading: loadingSlots, isFetching: fetchingSlots } = useQuery({
         queryKey: ["club-slots", clubId, date],
@@ -254,8 +264,8 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
             {!!clubId && (
                 <div className="space-y-2">
                     <label className="text-xs font-medium text-muted-foreground">{t("form.type")} *</label>
-                    <div className="grid grid-cols-2 gap-3">
-                        {(["Game", "DayUse"] as BookingType[]).map((tp) => {
+                    <div className={["grid gap-3", availableTypes.length > 1 ? "grid-cols-2" : "grid-cols-1"].join(" ")}>
+                        {availableTypes.map((tp) => {
                             const isSelected = type === tp;
                             const label = tp === "Game" ? t("form.gameLabel") : t("form.dayUseLabel");
                             const description = tp === "Game" ? t("form.gameDescription") : t("form.dayUseDescription");
