@@ -56,7 +56,13 @@
             "bookingFull": "Booking Full",
             "join": "Join Booking",
             "joining": "Joining…",
-            "deleteBooking": "Delete booking"
+            "deleteBooking": "Delete booking",
+            "joinConfirm": {
+                "title": "Join this booking?",
+                "description": "You are about to join this booking. Do you want to continue?",
+                "confirm": "Yes, join",
+                "cancel": "Cancel"
+            }
         },
         "form": {
             "title": "New Booking",

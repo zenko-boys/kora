@@ -42,7 +42,7 @@
         "filter": {
             "type": "Tipo",
             "allTypes": "Todos os tipos",
-            "game": "Jogo",
+            "game": "Game",
             "dayUse": "Day Use",
             "openSpotsOnly": "Apenas com vagas"
         },
@@ -56,7 +56,13 @@
             "bookingFull": "Reserva Lotada",
             "join": "Entrar na Reserva",
             "joining": "Entrando…",
-            "deleteBooking": "Excluir reserva"
+            "deleteBooking": "Excluir reserva",
+            "joinConfirm": {
+                "title": "Entrar nesta reserva?",
+                "description": "Você está prestes a entrar nesta reserva. Deseja continuar?",
+                "confirm": "Sim, entrar",
+                "cancel": "Cancelar"
+            }
         },
         "form": {
             "title": "Nova Reserva",
@@ -226,7 +232,7 @@
             "players": "{count} / {capacity} jogadores",
             "spots": "{count} vaga(s)",
             "full": "Lotado",
-            "game": "Jogo",
+            "game": "Game",
             "dayUse": "Day Use",
             "newBooking": "Nova Reserva",
             "delete": "Excluir",

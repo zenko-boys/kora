@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import moment from "moment-timezone";
 import { Clock, MapPin, CheckCircle2, Trash2, UserMinus, User } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -7,6 +8,14 @@ import { useUser } from "@clerk/nextjs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/components/ui/dialog";
 import type { BookingCard as BookingCardType } from "@/lib/types";
 
 interface BookingCardProps {
@@ -37,6 +46,7 @@ const TYPE_COLORS = {
 
 export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, onDelete, isDeleting, isManageView = false }: BookingCardProps) {
     const t = useTranslations("bookings.card");
+    const [confirmOpen, setConfirmOpen] = useState(false);
     const {
         bookingId,
         clubName,
@@ -182,13 +192,38 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
                                 {t("bookingFull")}
                             </Button>
                         ) : (
-                            <Button
-                                onClick={() => onJoin(bookingId)}
-                                disabled={isJoining}
-                                className="w-full bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90 disabled:opacity-60"
-                            >
-                                {isJoining ? t("joining") : t("join")}
-                            </Button>
+                            <>
+                                <Button
+                                    onClick={() => setConfirmOpen(true)}
+                                    disabled={isJoining}
+                                    className="w-full bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90 disabled:opacity-60"
+                                >
+                                    {isJoining ? t("joining") : t("join")}
+                                </Button>
+
+                                <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+                                    <DialogContent className="sm:max-w-sm">
+                                        <DialogHeader>
+                                            <DialogTitle>{t("joinConfirm.title")}</DialogTitle>
+                                            <DialogDescription>{t("joinConfirm.description")}</DialogDescription>
+                                        </DialogHeader>
+                                        <DialogFooter className="gap-2 sm:gap-0">
+                                            <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+                                                {t("joinConfirm.cancel")}
+                                            </Button>
+                                            <Button
+                                                onClick={() => {
+                                                    setConfirmOpen(false);
+                                                    onJoin(bookingId);
+                                                }}
+                                                className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
+                                            >
+                                                {t("joinConfirm.confirm")}
+                                            </Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+                            </>
                         )}
                     </div>
                 )}
