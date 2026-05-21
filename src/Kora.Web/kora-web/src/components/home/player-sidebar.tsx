@@ -1,5 +1,5 @@
 import moment from "moment-timezone";
-import { ptBR } from "date-fns/locale";
+import "moment/locale/pt";
 import { Star, Trophy, CalendarDays, ArrowRight } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { useLocale } from "next-intl";
@@ -163,7 +163,7 @@ export function PlayerSidebar({ stats, upcomingGames }: PlayerSidebarProps) {
                                     <p className="truncate text-xs font-medium text-foreground">{game.clubName}</p>
                                     <p className="text-[10px] text-muted-foreground">
                                         {game.courtName} &middot;{" "}
-                                        {start.locale("pt-BR").format("DD MMM, HH:mm")}
+                                        {start.locale(locale).format("DD MMM, HH:mm")}
                                     </p>
                                     <p className="mt-0.5 text-[10px] text-muted-foreground">
                                         {game.participantsCount}/{game.capacity} jogadores

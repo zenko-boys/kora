@@ -227,6 +227,23 @@ export function createApiClient(getToken: GetToken) {
             );
         },
 
+        getCourtSlots: (clubId: string, courtId: string, date: string): Promise<GetClubSlotsResponse> => {
+            if (USE_MOCK) {
+                return Promise.resolve({
+                    clubId,
+                    date,
+                    timeZoneId: "UTC",
+                    slotCellDurationMinutes: 60,
+                    minimumBookingDurationMinutes: 60,
+                    slots: [],
+                });
+            }
+            return apiFetch<GetClubSlotsResponse>(
+                `/clubs/${clubId}/courts/${courtId}/slots?date=${date}`,
+                getToken
+            );
+        },
+
         getPlayerStats: (): Promise<PlayerStatsResponse> => {
             if (USE_MOCK || true) return Promise.resolve({ stats: MOCK_PLAYER_STATS });
             return apiFetch<PlayerStatsResponse>("/players/me/stats", getToken);
