@@ -41,7 +41,7 @@
         "adjustFilters": "Try adjusting your filters or check back later.",
         "filter": {
             "type": "Type",
-            "allTypes": "All types",
+            "allTypes": "All",
             "game": "Game",
             "dayUse": "Day Use",
             "openSpotsOnly": "Open spots only"

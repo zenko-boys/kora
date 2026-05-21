@@ -41,7 +41,7 @@
         "adjustFilters": "Tente ajustar os filtros ou volte mais tarde.",
         "filter": {
             "type": "Tipo",
-            "allTypes": "Todos os tipos",
+            "allTypes": "Todos",
             "game": "Game",
             "dayUse": "Day Use",
             "openSpotsOnly": "Apenas com vagas"
@@ -225,7 +225,7 @@
             "title": "Reservas",
             "subtitle": "Visualize e gerencie todas as reservas dos seus clubes.",
             "allClubs": "Todos os clubes",
-            "allTypes": "Todos os tipos",
+            "allTypes": "Todos",
             "openSpotsOnly": "Apenas com vagas",
             "noBookings": "Nenhuma reserva encontrada",
             "adjustFilters": "Tente ajustar os filtros ou volte mais tarde.",
