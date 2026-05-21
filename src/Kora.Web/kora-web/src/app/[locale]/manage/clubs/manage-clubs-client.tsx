@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
-import { Building2, ChevronRight, CalendarDays } from "lucide-react";
+import { Building2, ChevronRight, CalendarDays, Clock } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { createApiClient } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
@@ -74,6 +74,13 @@ export function ManageClubsClient() {
                             >
                                 <Building2 className="h-3.5 w-3.5" />
                                 {t("clubs.manageCourts")}
+                            </Link>
+                            <Link
+                                href={`/manage/clubs/${club.clubId}/slots`}
+                                className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-[#3D46FB]/50 hover:text-foreground"
+                            >
+                                <Clock className="h-3.5 w-3.5" />
+                                {t("clubs.manageSlots")}
                             </Link>
                             <Link
                                 href={`/manage/bookings?clubId=${club.clubId}`}

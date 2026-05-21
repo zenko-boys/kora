@@ -197,6 +197,7 @@
             "courtsCount": "{count, plural, =0 {Nenhuma quadra} one {1 quadra} other {{count} quadras}}",
             "manageCourts": "Quadras",
             "manageBookings": "Reservas",
+            "manageSlots": "Slots",
             "role": "Função"
         },
         "clubDetail": {
@@ -241,6 +242,20 @@
                 "deleted": "Reserva excluída.",
                 "deleteFailed": "Não foi possível excluir a reserva"
             }
+        },
+        "slots": {
+            "title": "Slots",
+            "subtitle": "Horários disponíveis por quadra para a data selecionada.",
+            "back": "Voltar ao clube",
+            "selectDate": "Selecione uma data para ver os slots",
+            "timezone": "Fuso horário",
+            "available": "Disponível",
+            "occupied": "Ocupado",
+            "past": "Passado",
+            "noSlots": "Nenhum slot disponível para esta data",
+            "noCourts": "Nenhuma quadra encontrada para este clube",
+            "failedToLoad": "Erro ao carregar slots",
+            "checkConnection": "Verifique sua conexão e tente novamente."
         }
     }
 }
