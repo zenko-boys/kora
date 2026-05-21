@@ -30,26 +30,21 @@ export function BookingsFilterBar({ filters, onChange }: BookingsFilterBarProps)
     return (
         <div className="flex flex-wrap items-center gap-4">
             {/* Type filter */}
-            <div className="flex items-center gap-2">
-                <Label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    {t("type")}
-                </Label>
-                <ToggleGroup
-                    value={[filters.type ?? "all"]}
-                    onValueChange={handleTypeChange}
-                    className="h-8 rounded-md border border-border bg-background p-0.5"
-                >
-                    <ToggleGroupItem value="all" className="h-6 rounded px-2.5 text-xs data-[state=on]:bg-foreground/10 data-[state=on]:text-foreground">
-                        {t("allTypes")}
-                    </ToggleGroupItem>
-                    <ToggleGroupItem value="Game" className="h-6 rounded px-2.5 text-xs data-[state=on]:bg-[#3D46FB]/20 data-[state=on]:text-[#818cf8]">
-                        {t("game")}
-                    </ToggleGroupItem>
-                    <ToggleGroupItem value="DayUse" className="h-6 rounded px-2.5 text-xs data-[state=on]:bg-emerald-500/20 data-[state=on]:text-emerald-400">
-                        {t("dayUse")}
-                    </ToggleGroupItem>
-                </ToggleGroup>
-            </div>
+            <ToggleGroup
+                value={[filters.type ?? "all"]}
+                onValueChange={handleTypeChange}
+                className="h-8 rounded-md border border-border bg-background p-0.5"
+            >
+                <ToggleGroupItem value="all" className="h-6 rounded px-2.5 text-xs aria-pressed:bg-foreground/10 aria-pressed:text-foreground">
+                    {t("allTypes")}
+                </ToggleGroupItem>
+                <ToggleGroupItem value="Game" className="h-6 rounded px-2.5 text-xs aria-pressed:bg-[#3D46FB]/20 aria-pressed:text-[#818cf8]">
+                    {t("game")}
+                </ToggleGroupItem>
+                <ToggleGroupItem value="DayUse" className="h-6 rounded px-2.5 text-xs aria-pressed:bg-emerald-500/20 aria-pressed:text-emerald-400">
+                    {t("dayUse")}
+                </ToggleGroupItem>
+            </ToggleGroup>
 
             {/* Open spots toggle */}
             <div className="flex items-center gap-2">
