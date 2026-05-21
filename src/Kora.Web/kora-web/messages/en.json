@@ -223,6 +223,7 @@
             }
         },
         "bookings": {
+            "title": "Bookings",
             "allClubs": "All clubs",
             "allTypes": "All types",
             "openSpotsOnly": "Open spots only",
