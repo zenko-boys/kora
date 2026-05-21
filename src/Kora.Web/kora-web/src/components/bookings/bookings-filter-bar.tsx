@@ -2,13 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Switch } from "@/components/ui/switch";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Label } from "@/components/ui/label";
 import type { BookingsFilter, BookingType } from "@/lib/types";
 
@@ -19,11 +13,13 @@ interface BookingsFilterBarProps {
 
 export function BookingsFilterBar({ filters, onChange }: BookingsFilterBarProps) {
     const t = useTranslations("bookings.filter");
-    const handleTypeChange = (value: string | null) => {
-        if (!value) return;
+
+    const handleTypeChange = (values: string[]) => {
+        const val = values[0];
+        if (!val) return; // prevent full deselection
         onChange({
             ...filters,
-            type: value === "all" ? undefined : (value as BookingType),
+            type: val === "all" ? undefined : (val as BookingType),
         });
     };
 
@@ -38,16 +34,21 @@ export function BookingsFilterBar({ filters, onChange }: BookingsFilterBarProps)
                 <Label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     {t("type")}
                 </Label>
-                <Select value={filters.type ?? "all"} onValueChange={handleTypeChange}>
-                    <SelectTrigger className="h-8 w-32 text-sm">
-                        <SelectValue placeholder={t("allTypes")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">{t("allTypes")}</SelectItem>
-                        <SelectItem value="Game">{t("game")}</SelectItem>
-                        <SelectItem value="DayUse">{t("dayUse")}</SelectItem>
-                    </SelectContent>
-                </Select>
+                <ToggleGroup
+                    value={[filters.type ?? "all"]}
+                    onValueChange={handleTypeChange}
+                    className="h-8 rounded-md border border-border bg-background p-0.5"
+                >
+                    <ToggleGroupItem value="all" className="h-6 rounded px-2.5 text-xs data-[state=on]:bg-foreground/10 data-[state=on]:text-foreground">
+                        {t("allTypes")}
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="Game" className="h-6 rounded px-2.5 text-xs data-[state=on]:bg-[#3D46FB]/20 data-[state=on]:text-[#818cf8]">
+                        {t("game")}
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="DayUse" className="h-6 rounded px-2.5 text-xs data-[state=on]:bg-emerald-500/20 data-[state=on]:text-emerald-400">
+                        {t("dayUse")}
+                    </ToggleGroupItem>
+                </ToggleGroup>
             </div>
 
             {/* Open spots toggle */}
