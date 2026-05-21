@@ -17,6 +17,11 @@ import {
     DialogDescription,
     DialogFooter,
 } from "@/components/ui/dialog";
+import {
+    Tooltip,
+    TooltipTrigger,
+    TooltipContent,
+} from "@/components/ui/tooltip";
 import type { BookingCard as BookingCardType } from "@/lib/types";
 
 interface BookingCardProps {
@@ -137,17 +142,23 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
 
                                 if (isCurrentUser && user?.imageUrl) {
                                     return (
-                                        <div key={i} className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full ring-2 ring-card">
-                                            <img src={user.imageUrl} alt={user.fullName ?? ""} className="h-full w-full object-cover" />
-                                        </div>
+                                        <Tooltip key={i}>
+                                            <TooltipTrigger render={<div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full ring-2 ring-card" />}>
+                                                <img src={user.imageUrl} alt={user.fullName ?? ""} className="h-full w-full object-cover" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>{user?.fullName ?? user?.firstName}</TooltipContent>
+                                        </Tooltip>
                                     );
                                 }
 
                                 if (isCurrentUser) {
                                     return (
-                                        <div key={i} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#3D46FB]/20 text-[10px] font-bold text-[#818cf8] ring-2 ring-card">
-                                            {userInitials}
-                                        </div>
+                                        <Tooltip key={i}>
+                                            <TooltipTrigger render={<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#3D46FB]/20 text-[10px] font-bold text-[#818cf8] ring-2 ring-card" />}>
+                                                {userInitials}
+                                            </TooltipTrigger>
+                                            <TooltipContent>{user?.fullName ?? user?.firstName}</TooltipContent>
+                                        </Tooltip>
                                     );
                                 }
 
