@@ -256,5 +256,109 @@
             "failedToLoad": "Failed to load slots",
             "checkConnection": "Check your connection and try again."
         }
+    },
+    "landing": {
+        "hero": {
+            "badge": "Padel booking platform",
+            "headline1": "The sport that is",
+            "headline2": "dominating",
+            "headline3": "Brazil.",
+            "description": "Book courts, find compatible players and discover clubs across the country — straight from your phone.",
+            "ctaPrimary": "Get started",
+            "ctaSecondary": "View clubs",
+            "socialProof": "+2,800 bookings made this month",
+            "matchCard": {
+                "label": "Next available slot",
+                "court": "Arena Kora · Court 3",
+                "today": "today",
+                "spots": "3 of 4 · 1 spot left",
+                "join": "Join"
+            }
+        },
+        "stats": {
+            "playersValue": "47.2k",
+            "playersLabel": "active players",
+            "courtsValue": "+312",
+            "courtsLabel": "registered courts",
+            "statesValue": "8",
+            "statesLabel": "states covered"
+        },
+        "brazil": {
+            "badge": "Expansion in Brazil",
+            "badgeGrowth": "+340% in 3 years",
+            "headline": "Padel grows 5x faster than any other sport in the country.",
+            "description": "With over 2 million players and rapid growth in São Paulo, Rio de Janeiro, Brasília and Curitiba, padel has become the fastest-growing sport in Brazil.",
+            "fact1": "2nd most played racket sport in the world",
+            "fact2": "Over 800 new clubs opened in the last 2 years",
+            "fact3": "67% of players are between 18 and 40 years old",
+            "fact4": "Present in all 26 Brazilian states"
+        },
+        "benefits": {
+            "badge": "Why padel",
+            "headline": "A sport that transforms you on and off the court.",
+            "card1Title": "Cardiovascular health",
+            "card1Desc": "45 minutes of padel equals 8 km of running in cardiovascular impact, with less strain on joints.",
+            "card2Title": "Social connection",
+            "card2Desc": "Always played in doubles. Every match is a real opportunity to meet new people.",
+            "card3Title": "Strategic thinking",
+            "card3Desc": "A game of spatial awareness, anticipation, and fast decisions under pressure.",
+            "card4Title": "For all levels",
+            "card4Desc": "From your very first game to a regional tournament, padel adapts to your pace. The learning curve is the shortest among racket sports."
+        },
+        "players": {
+            "badge": "Kora Community",
+            "headline": "Never play without a partner again.",
+            "description": "Kora connects players by skill level, location and availability. Build your ideal pair or join an open match.",
+            "feature1": "Filter by level: beginner, intermediate, and advanced",
+            "feature2": "Match history and ratings from other players",
+            "feature3": "Notifications for open slots near you",
+            "feature4": "Groups and tournaments organised by clubs",
+            "cta": "Explore open matches",
+            "count": "+2,400 players available today",
+            "p1Name": "Fernanda Queiroz",
+            "p1Level": "Advanced",
+            "p1City": "São Paulo",
+            "p1Games": "84 matches",
+            "p2Name": "Matheus Lira",
+            "p2Level": "Intermediate",
+            "p2City": "Curitiba",
+            "p2Games": "41 matches",
+            "p3Name": "Renata Vidal",
+            "p3Level": "Beginner",
+            "p3City": "Rio de Janeiro",
+            "p3Games": "12 matches"
+        },
+        "access": {
+            "badge": "Built for everyone",
+            "headline": "Truly accessible.",
+            "description": "No barrier — technical, geographic or financial — should stop anyone from playing padel.",
+            "f1Title": "Anywhere",
+            "f1Text": "Available across Brazil, with new partner clubs added every week.",
+            "f2Title": "Any level",
+            "f2Text": "From your first ever game to a regional tournament — everyone is welcome.",
+            "f3Title": "Secure bookings",
+            "f3Text": "Protected payments and free cancellation up to 2 hours before the match.",
+            "f4Title": "Book in 30 s",
+            "f4Text": "Pick a court, choose a time and confirm. No queues, no phone calls."
+        },
+        "howto": {
+            "badge": "How it works",
+            "headline": "From idea to court in 3 steps.",
+            "s1n": "01",
+            "s1Title": "Create your account",
+            "s1Text": "Quick sign-up with Google, Apple or email. No long forms, no hassle.",
+            "s2n": "02",
+            "s2Title": "Choose your court",
+            "s2Text": "Filter by city, club, time and match type. See real-time availability.",
+            "s3n": "03",
+            "s3Title": "Play and connect",
+            "s3Text": "Confirm, pay and show up. Invite partners or join an open match."
+        },
+        "cta": {
+            "headline": "Ready to play?",
+            "description": "Join thousands of players who already book, connect and play through Kora.",
+            "primary": "Book now",
+            "secondary": "Explore clubs"
+        }
     }
 }

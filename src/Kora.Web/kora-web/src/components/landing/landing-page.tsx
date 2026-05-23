@@ -17,6 +17,7 @@ import {
     Globe,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 // ---------------------------------------------------------------------------
 // Scroll-reveal hook
@@ -48,6 +49,7 @@ function useReveal<T extends HTMLElement = HTMLDivElement>() {
 // HERO
 // ---------------------------------------------------------------------------
 function HeroSection() {
+    const t = useTranslations("landing");
     return (
         <section
             className="relative overflow-hidden bg-[#0d0e14]"
@@ -71,20 +73,19 @@ function HeroSection() {
                     <div className="flex items-center gap-3">
                         <span aria-hidden="true" className="h-px w-8 bg-[#3D46FB]" />
                         <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#3D46FB]">
-                            Plataforma de booking de padel
+                            {t("hero.badge")}
                         </span>
                     </div>
 
                     <h1 className="text-[clamp(2.8rem,6vw,5rem)] font-bold leading-[1.04] tracking-tighter text-white">
-                        O esporte que está
+                        {t("hero.headline1")}
                         <br />
-                        <span className="text-[#818cf8]">dominando</span>
-                        <br />o Brasil.
+                        <span className="text-[#818cf8]">{t("hero.headline2")}</span>
+                        <br />{t("hero.headline3")}
                     </h1>
 
                     <p className="max-w-[48ch] text-base leading-relaxed text-zinc-400">
-                        Reserve quadras, encontre jogadores compatíveis e descubra clubes em
-                        todo o país — direto do seu celular.
+                        {t("hero.description")}
                     </p>
 
                     <div className="flex flex-wrap items-center gap-4">
@@ -92,14 +93,14 @@ function HeroSection() {
                             href="/bookings"
                             className="group inline-flex items-center gap-2.5 rounded-lg bg-[#3D46FB] px-7 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-[2px] hover:bg-[#4f58fc] hover:shadow-[0_12px_35px_rgba(61,70,251,0.38)] active:scale-[0.98]"
                         >
-                            Começar agora
+                            {t("hero.ctaPrimary")}
                             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
                         </Link>
                         <Link
                             href="/clubs"
                             className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-7 py-3.5 text-sm font-semibold text-white/70 transition-all duration-300 hover:border-white/20 hover:bg-white/[0.08] hover:text-white active:scale-[0.98]"
                         >
-                            Ver clubes
+                            {t("hero.ctaSecondary")}
                         </Link>
                     </div>
 
@@ -113,7 +114,7 @@ function HeroSection() {
                             ))}
                         </div>
                         <span className="text-sm text-zinc-500">
-                            +2.800 partidas reservadas este mês
+                            {t("hero.socialProof")}
                         </span>
                     </div>
                 </div>
@@ -138,13 +139,13 @@ function HeroSection() {
                         <div className="absolute bottom-5 left-5 right-5 rounded-xl border border-white/10 bg-black/50 p-4 backdrop-blur-md">
                             <div className="flex items-start justify-between gap-4">
                                 <div>
-                                    <p className="text-[11px] text-zinc-500">Próxima vaga disponível</p>
+                                    <p className="text-[11px] text-zinc-500">{t("hero.matchCard.label")}</p>
                                     <p className="mt-0.5 text-sm font-medium text-white">
-                                        Arena Kora · Quadra 3
+                                        {t("hero.matchCard.court")}
                                     </p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-[11px] text-zinc-500">hoje</p>
+                                    <p className="text-[11px] text-zinc-500">{t("hero.matchCard.today")}</p>
                                     <p className="mt-0.5 text-sm font-bold text-[#818cf8]">19:00</p>
                                 </div>
                             </div>
@@ -159,9 +160,9 @@ function HeroSection() {
                                         />
                                     ))}
                                 </div>
-                                <span className="text-xs text-zinc-500">3 de 4 · 1 vaga restante</span>
+                                <span className="text-xs text-zinc-500">{t("hero.matchCard.spots")}</span>
                                 <span className="ml-auto cursor-pointer text-xs font-semibold text-[#3D46FB] transition-colors hover:text-[#818cf8]">
-                                    Entrar
+                                    {t("hero.matchCard.join")}
                                 </span>
                             </div>
                         </div>
@@ -182,12 +183,13 @@ function HeroSection() {
 // STATS
 // ---------------------------------------------------------------------------
 function StatsSection() {
+    const t = useTranslations("landing");
     const [ref, visible] = useReveal();
 
     const stats = [
-        { value: "47,2k", label: "jogadores ativos" },
-        { value: "+312", label: "quadras cadastradas" },
-        { value: "8", label: "estados cobertos" },
+        { value: t("stats.playersValue"), label: t("stats.playersLabel") },
+        { value: t("stats.courtsValue"), label: t("stats.courtsLabel") },
+        { value: t("stats.statesValue"), label: t("stats.statesLabel") },
     ];
 
     return (
@@ -220,13 +222,14 @@ function StatsSection() {
 // BRAZIL EXPANSION
 // ---------------------------------------------------------------------------
 function BrazilSection() {
+    const t = useTranslations("landing");
     const [ref, visible] = useReveal();
 
     const facts = [
-        { icon: Globe, text: "2º esporte de raquete mais praticado no mundo" },
-        { icon: TrendingUp, text: "Mais de 800 novos clubes abertos nos últimos 2 anos" },
-        { icon: Users, text: "67% dos praticantes têm entre 18 e 40 anos" },
-        { icon: MapPin, text: "Presente em todos os 26 estados brasileiros" },
+        { icon: Globe, text: t("brazil.fact1") },
+        { icon: TrendingUp, text: t("brazil.fact2") },
+        { icon: Users, text: t("brazil.fact3") },
+        { icon: MapPin, text: t("brazil.fact4") },
     ];
 
     return (
@@ -254,7 +257,7 @@ function BrazilSection() {
                         <div className="absolute left-5 top-5 flex items-center gap-2 rounded-full border border-[#3D46FB]/30 bg-[#3D46FB]/15 px-4 py-2 backdrop-blur-sm">
                             <TrendingUp className="h-4 w-4 text-[#818cf8]" />
                             <span className="text-xs font-semibold text-[#818cf8]">
-                                +340% em 3 anos
+                                {t("brazil.badgeGrowth")}
                             </span>
                         </div>
                     </div>
@@ -272,18 +275,16 @@ function BrazilSection() {
                         <div className="flex items-center gap-3">
                             <span aria-hidden="true" className="h-px w-8 bg-[#3D46FB]" />
                             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#3D46FB]">
-                                Expansão no Brasil
+                                {t("brazil.badge")}
                             </span>
                         </div>
 
                         <h2 className="text-4xl font-bold leading-[1.1] tracking-tighter text-white lg:text-5xl">
-                            O padel cresce 5x mais rápido que qualquer outro esporte no país.
+                            {t("brazil.headline")}
                         </h2>
 
                         <p className="text-base leading-relaxed text-zinc-400">
-                            Com mais de 2 milhões de praticantes e crescimento acelerado em São
-                            Paulo, Rio de Janeiro, Brasília e Curitiba, o padel se consolidou como
-                            o esporte de mais rápida ascensão do Brasil.
+                            {t("brazil.description")}
                         </p>
 
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -307,35 +308,32 @@ function BrazilSection() {
 // BENEFITS BENTO
 // ---------------------------------------------------------------------------
 function BenefitsSection() {
+    const t = useTranslations("landing");
     const [ref, visible] = useReveal();
 
     const benefits = [
         {
             icon: Heart,
-            title: "Saúde cardiovascular",
-            description:
-                "45 minutos de padel equivalem a 8 km de corrida em impacto cardiovascular, com menor sobrecarga nas articulações.",
+            title: t("benefits.card1Title"),
+            description: t("benefits.card1Desc"),
             wide: true,
         },
         {
             icon: Users,
-            title: "Conexão social",
-            description:
-                "Sempre jogado em duplas. Cada partida é uma oportunidade real de conhecer pessoas novas.",
+            title: t("benefits.card2Title"),
+            description: t("benefits.card2Desc"),
             wide: false,
         },
         {
             icon: Brain,
-            title: "Raciocínio estratégico",
-            description:
-                "Um jogo de leitura espacial, antecipação e decisões rápidas sob pressão.",
+            title: t("benefits.card3Title"),
+            description: t("benefits.card3Desc"),
             wide: false,
         },
         {
             icon: Trophy,
-            title: "Para todos os níveis",
-            description:
-                "Do iniciante ao competidor regional, o padel se adapta ao seu ritmo. A curva de aprendizado é a mais curta entre os esportes de raquete.",
+            title: t("benefits.card4Title"),
+            description: t("benefits.card4Desc"),
             wide: true,
         },
     ];
@@ -355,11 +353,11 @@ function BenefitsSection() {
                     <div className="mb-4 flex items-center gap-3">
                         <span aria-hidden="true" className="h-px w-8 bg-[#3D46FB]" />
                         <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#3D46FB]">
-                            Por que padel
+                            {t("benefits.badge")}
                         </span>
                     </div>
                     <h2 className="text-4xl font-bold leading-[1.1] tracking-tighter text-white lg:text-5xl">
-                        Um esporte que transforma dentro e fora da quadra.
+                        {t("benefits.headline")}
                     </h2>
                 </div>
 
@@ -400,37 +398,38 @@ function BenefitsSection() {
 // FIND PLAYERS
 // ---------------------------------------------------------------------------
 function FindPlayersSection() {
+    const t = useTranslations("landing");
     const [ref, visible] = useReveal();
 
     const players = [
         {
             seed: 73,
-            name: "Fernanda Queiroz",
-            level: "Avançado",
-            city: "São Paulo",
-            games: "84 partidas",
+            name: t("players.p1Name"),
+            level: t("players.p1Level"),
+            city: t("players.p1City"),
+            games: t("players.p1Games"),
         },
         {
             seed: 22,
-            name: "Matheus Lira",
-            level: "Intermediário",
-            city: "Curitiba",
-            games: "41 partidas",
+            name: t("players.p2Name"),
+            level: t("players.p2Level"),
+            city: t("players.p2City"),
+            games: t("players.p2Games"),
         },
         {
             seed: 55,
-            name: "Renata Vidal",
-            level: "Iniciante",
-            city: "Rio de Janeiro",
-            games: "12 partidas",
+            name: t("players.p3Name"),
+            level: t("players.p3Level"),
+            city: t("players.p3City"),
+            games: t("players.p3Games"),
         },
     ];
 
     const features = [
-        "Filtro por nível: iniciante, intermediário e avançado",
-        "Histórico de partidas e avaliações entre jogadores",
-        "Notificações de vagas abertas perto de você",
-        "Grupos e campeonatos organizados pelos clubes",
+        t("players.feature1"),
+        t("players.feature2"),
+        t("players.feature3"),
+        t("players.feature4"),
     ];
 
     return (
@@ -450,18 +449,16 @@ function FindPlayersSection() {
                         <div className="flex items-center gap-3">
                             <span aria-hidden="true" className="h-px w-8 bg-[#3D46FB]" />
                             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#3D46FB]">
-                                Comunidade Kora
+                                {t("players.badge")}
                             </span>
                         </div>
 
                         <h2 className="text-4xl font-bold leading-[1.1] tracking-tighter text-white lg:text-5xl">
-                            Nunca fique sem parceiro de jogo.
+                            {t("players.headline")}
                         </h2>
 
                         <p className="text-base leading-relaxed text-zinc-400">
-                            O Kora conecta jogadores pelo nível técnico, localização e
-                            disponibilidade. Monte sua dupla ideal ou entre em uma partida já
-                            formada.
+                            {t("players.description")}
                         </p>
 
                         <ul className="flex flex-col gap-4">
@@ -479,7 +476,7 @@ function FindPlayersSection() {
                             href="/bookings"
                             className="group mt-2 inline-flex w-fit items-center gap-2 rounded-lg border border-[#3D46FB]/35 bg-[#3D46FB]/10 px-6 py-3 text-sm font-semibold text-[#818cf8] transition-all duration-300 hover:border-[#3D46FB]/55 hover:bg-[#3D46FB]/18 active:scale-[0.98]"
                         >
-                            Explorar partidas abertas
+                            {t("players.cta")}
                             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
                         </Link>
                     </div>
@@ -520,7 +517,7 @@ function FindPlayersSection() {
 
                         <div className="mt-1 flex items-center justify-center gap-2 rounded-xl border border-dashed border-white/[0.08] py-5 text-sm text-zinc-600">
                             <Users className="h-4 w-4" />
-                            <span>+2.400 jogadores disponíveis hoje</span>
+                            <span>{t("players.count")}</span>
                         </div>
                     </div>
                 </div>
@@ -533,28 +530,29 @@ function FindPlayersSection() {
 // ACCESSIBILITY
 // ---------------------------------------------------------------------------
 function AccessibilitySection() {
+    const t = useTranslations("landing");
     const [ref, visible] = useReveal();
 
     const features = [
         {
             icon: Globe,
-            title: "Qualquer lugar",
-            text: "Disponível em todo o Brasil, com novos clubes parceiros adicionados semanalmente.",
+            title: t("access.f1Title"),
+            text: t("access.f1Text"),
         },
         {
             icon: Users,
-            title: "Qualquer nível",
-            text: "Do primeiro jogo da vida ao torneio regional — todas as pessoas são bem-vindas.",
+            title: t("access.f2Title"),
+            text: t("access.f2Text"),
         },
         {
             icon: Shield,
-            title: "Reservas seguras",
-            text: "Pagamento protegido e cancelamento gratuito até 2 horas antes da partida.",
+            title: t("access.f3Title"),
+            text: t("access.f3Text"),
         },
         {
             icon: Zap,
-            title: "Reserve em 30 s",
-            text: "Escolha quadra, horário e confirme. Sem filas, sem ligações, sem complicação.",
+            title: t("access.f4Title"),
+            text: t("access.f4Text"),
         },
     ];
 
@@ -573,16 +571,15 @@ function AccessibilitySection() {
                     <div className="mb-4 flex items-center justify-center gap-3">
                         <span aria-hidden="true" className="h-px w-8 bg-[#3D46FB]" />
                         <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#3D46FB]">
-                            Feito para todos
+                            {t("access.badge")}
                         </span>
                         <span aria-hidden="true" className="h-px w-8 bg-[#3D46FB]" />
                     </div>
                     <h2 className="text-4xl font-bold leading-[1.1] tracking-tighter text-white lg:text-5xl">
-                        Acessível de verdade.
+                        {t("access.headline")}
                     </h2>
                     <p className="mx-auto mt-4 max-w-[52ch] text-base text-zinc-400">
-                        Nenhuma barreira — técnica, geográfica ou financeira — deve impedir
-                        alguém de jogar padel.
+                        {t("access.description")}
                     </p>
                 </div>
 
@@ -616,23 +613,24 @@ function AccessibilitySection() {
 // HOW IT WORKS
 // ---------------------------------------------------------------------------
 function HowItWorksSection() {
+    const t = useTranslations("landing");
     const [ref, visible] = useReveal();
 
     const steps = [
         {
-            n: "01",
-            title: "Crie sua conta",
-            text: "Cadastro rápido com Google, Apple ou e-mail. Sem formulários longos, sem burocracia.",
+            n: t("howto.s1n"),
+            title: t("howto.s1Title"),
+            text: t("howto.s1Text"),
         },
         {
-            n: "02",
-            title: "Escolha sua quadra",
-            text: "Filtre por cidade, clube, horário e tipo de partida. Veja vagas em tempo real.",
+            n: t("howto.s2n"),
+            title: t("howto.s2Title"),
+            text: t("howto.s2Text"),
         },
         {
-            n: "03",
-            title: "Jogue e conecte",
-            text: "Confirme, pague e apareça na quadra. Convide parceiros ou entre em uma partida aberta.",
+            n: t("howto.s3n"),
+            title: t("howto.s3Title"),
+            text: t("howto.s3Text"),
         },
     ];
 
@@ -651,11 +649,11 @@ function HowItWorksSection() {
                     <div className="mb-4 flex items-center gap-3">
                         <span aria-hidden="true" className="h-px w-8 bg-[#3D46FB]" />
                         <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#3D46FB]">
-                            Como funciona
+                            {t("howto.badge")}
                         </span>
                     </div>
                     <h2 className="text-4xl font-bold leading-[1.1] tracking-tighter text-white lg:text-5xl">
-                        Da ideia à quadra em 3 passos.
+                        {t("howto.headline")}
                     </h2>
                 </div>
 
@@ -691,6 +689,7 @@ function HowItWorksSection() {
 // CTA
 // ---------------------------------------------------------------------------
 function CtaSection() {
+    const t = useTranslations("landing");
     const [ref, visible] = useReveal();
 
     return (
@@ -723,11 +722,10 @@ function CtaSection() {
                     <CalendarDays className="mx-auto mb-6 h-10 w-10 text-white/50" />
 
                     <h2 className="text-4xl font-bold leading-[1.08] tracking-tighter text-white lg:text-5xl">
-                        Pronto para jogar?
+                        {t("cta.headline")}
                     </h2>
                     <p className="mx-auto mt-4 max-w-[46ch] text-base text-white/65">
-                        Junte-se a milhares de jogadores que já reservam, conectam e jogam
-                        pelo Kora.
+                        {t("cta.description")}
                     </p>
 
                     <div className="mt-10 flex flex-wrap justify-center gap-4">
@@ -735,14 +733,14 @@ function CtaSection() {
                             href="/bookings"
                             className="inline-flex items-center gap-2.5 rounded-lg bg-white px-8 py-4 text-sm font-bold text-[#3D46FB] transition-all duration-300 hover:-translate-y-[2px] hover:shadow-[0_16px_40px_rgba(0,0,0,0.3)] active:scale-[0.98]"
                         >
-                            Reservar agora
+                            {t("cta.primary")}
                             <ArrowRight className="h-4 w-4" />
                         </Link>
                         <Link
                             href="/clubs"
                             className="inline-flex items-center gap-2 rounded-lg border border-white/25 bg-white/[0.1] px-8 py-4 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/[0.18] active:scale-[0.98]"
                         >
-                            Explorar clubes
+                            {t("cta.secondary")}
                         </Link>
                     </div>
                 </div>
