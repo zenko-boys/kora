@@ -257,5 +257,109 @@
             "failedToLoad": "Erro ao carregar slots",
             "checkConnection": "Verifique sua conexão e tente novamente."
         }
+    },
+    "landing": {
+        "hero": {
+            "badge": "Plataforma de booking de padel",
+            "headline1": "O esporte que está",
+            "headline2": "dominando",
+            "headline3": "o Brasil.",
+            "description": "Reserve quadras, encontre jogadores compatíveis e descubra clubes em todo o país — direto do seu celular.",
+            "ctaPrimary": "Começar agora",
+            "ctaSecondary": "Ver clubes",
+            "socialProof": "+2.800 partidas reservadas este mês",
+            "matchCard": {
+                "label": "Próxima vaga disponível",
+                "court": "Arena Kora · Quadra 3",
+                "today": "hoje",
+                "spots": "3 de 4 · 1 vaga restante",
+                "join": "Entrar"
+            }
+        },
+        "stats": {
+            "playersValue": "47,2k",
+            "playersLabel": "jogadores ativos",
+            "courtsValue": "+312",
+            "courtsLabel": "quadras cadastradas",
+            "statesValue": "8",
+            "statesLabel": "estados cobertos"
+        },
+        "brazil": {
+            "badge": "Expansão no Brasil",
+            "badgeGrowth": "+340% em 3 anos",
+            "headline": "O padel cresce 5x mais rápido que qualquer outro esporte no país.",
+            "description": "Com mais de 2 milhões de praticantes e crescimento acelerado em São Paulo, Rio de Janeiro, Brasília e Curitiba, o padel se consolidou como o esporte de mais rápida ascensão do Brasil.",
+            "fact1": "2º esporte de raquete mais praticado no mundo",
+            "fact2": "Mais de 800 novos clubes abertos nos últimos 2 anos",
+            "fact3": "67% dos praticantes têm entre 18 e 40 anos",
+            "fact4": "Presente em todos os 26 estados brasileiros"
+        },
+        "benefits": {
+            "badge": "Por que padel",
+            "headline": "Um esporte que transforma dentro e fora da quadra.",
+            "card1Title": "Saúde cardiovascular",
+            "card1Desc": "45 minutos de padel equivalem a 8 km de corrida em impacto cardiovascular, com menor sobrecarga nas articulações.",
+            "card2Title": "Conexão social",
+            "card2Desc": "Sempre jogado em duplas. Cada partida é uma oportunidade real de conhecer pessoas novas.",
+            "card3Title": "Raciocínio estratégico",
+            "card3Desc": "Um jogo de leitura espacial, antecipação e decisões rápidas sob pressão.",
+            "card4Title": "Para todos os níveis",
+            "card4Desc": "Do iniciante ao competidor regional, o padel se adapta ao seu ritmo. A curva de aprendizado é a mais curta entre os esportes de raquete."
+        },
+        "players": {
+            "badge": "Comunidade Kora",
+            "headline": "Nunca fique sem parceiro de jogo.",
+            "description": "O Kora conecta jogadores pelo nível técnico, localização e disponibilidade. Monte sua dupla ideal ou entre em uma partida já formada.",
+            "feature1": "Filtro por nível: iniciante, intermediário e avançado",
+            "feature2": "Histórico de partidas e avaliações entre jogadores",
+            "feature3": "Notificações de vagas abertas perto de você",
+            "feature4": "Grupos e campeonatos organizados pelos clubes",
+            "cta": "Explorar partidas abertas",
+            "count": "+2.400 jogadores disponíveis hoje",
+            "p1Name": "Fernanda Queiroz",
+            "p1Level": "Avançado",
+            "p1City": "São Paulo",
+            "p1Games": "84 partidas",
+            "p2Name": "Matheus Lira",
+            "p2Level": "Intermediário",
+            "p2City": "Curitiba",
+            "p2Games": "41 partidas",
+            "p3Name": "Renata Vidal",
+            "p3Level": "Iniciante",
+            "p3City": "Rio de Janeiro",
+            "p3Games": "12 partidas"
+        },
+        "access": {
+            "badge": "Feito para todos",
+            "headline": "Acessível de verdade.",
+            "description": "Nenhuma barreira — técnica, geográfica ou financeira — deve impedir alguém de jogar padel.",
+            "f1Title": "Qualquer lugar",
+            "f1Text": "Disponível em todo o Brasil, com novos clubes parceiros adicionados semanalmente.",
+            "f2Title": "Qualquer nível",
+            "f2Text": "Do primeiro jogo da vida ao torneio regional — todas as pessoas são bem-vindas.",
+            "f3Title": "Reservas seguras",
+            "f3Text": "Pagamento protegido e cancelamento gratuito até 2 horas antes da partida.",
+            "f4Title": "Reserve em 30 s",
+            "f4Text": "Escolha quadra, horário e confirme. Sem filas, sem ligações, sem complicação."
+        },
+        "howto": {
+            "badge": "Como funciona",
+            "headline": "Da ideia à quadra em 3 passos.",
+            "s1n": "01",
+            "s1Title": "Crie sua conta",
+            "s1Text": "Cadastro rápido com Google, Apple ou e-mail. Sem formulários longos, sem burocracia.",
+            "s2n": "02",
+            "s2Title": "Escolha sua quadra",
+            "s2Text": "Filtre por cidade, clube, horário e tipo de partida. Veja vagas em tempo real.",
+            "s3n": "03",
+            "s3Title": "Jogue e conecte",
+            "s3Text": "Confirme, pague e apareça na quadra. Convide parceiros ou entre em uma partida aberta."
+        },
+        "cta": {
+            "headline": "Pronto para jogar?",
+            "description": "Junte-se a milhares de jogadores que já reservam, conectam e jogam pelo Kora.",
+            "primary": "Reservar agora",
+            "secondary": "Explorar clubes"
+        }
     }
 }
