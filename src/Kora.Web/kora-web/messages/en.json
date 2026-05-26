@@ -294,6 +294,25 @@
             "fact3": "67% of players are between 18 and 40 years old",
             "fact4": "Present in all 26 Brazilian states"
         },
+        "clubs": {
+            "badge": "Featured Clubs",
+            "headline": "Top-rated clubs across the country",
+            "description": "Verified venues, professional courts and a growing community of players at every level.",
+            "c1Name": "Arena Kora Paulista",
+            "c1Address": "São Paulo, SP",
+            "c2Name": "Padel Carioca Club",
+            "c2Address": "Rio de Janeiro, RJ",
+            "c3Name": "Studio Minas Padel",
+            "c3Address": "Belo Horizonte, MG",
+            "c4Name": "Curitiba Padel Arena",
+            "c4Address": "Curitiba, PR",
+            "c5Name": "Pampa Padel Center",
+            "c5Address": "Porto Alegre, RS",
+            "c6Name": "Bahia Padel Club",
+            "c6Address": "Salvador, BA",
+            "c7Name": "Brasília Padel Hub",
+            "c7Address": "Brasília, DF"
+        },
         "benefits": {
             "badge": "Why padel",
             "headline": "A sport that transforms you on and off the court.",

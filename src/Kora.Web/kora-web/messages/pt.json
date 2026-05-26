@@ -295,6 +295,25 @@
             "fact3": "67% dos praticantes têm entre 18 e 40 anos",
             "fact4": "Presente em todos os 26 estados brasileiros"
         },
+        "clubs": {
+            "badge": "Clubes em destaque",
+            "headline": "Os melhores clubes do país",
+            "description": "Espaços verificados, quadras profissionais e uma comunidade crescente de jogadores de todos os níveis.",
+            "c1Name": "Arena Kora Paulista",
+            "c1Address": "São Paulo, SP",
+            "c2Name": "Padel Carioca Club",
+            "c2Address": "Rio de Janeiro, RJ",
+            "c3Name": "Studio Minas Padel",
+            "c3Address": "Belo Horizonte, MG",
+            "c4Name": "Curitiba Padel Arena",
+            "c4Address": "Curitiba, PR",
+            "c5Name": "Pampa Padel Center",
+            "c5Address": "Porto Alegre, RS",
+            "c6Name": "Bahia Padel Club",
+            "c6Address": "Salvador, BA",
+            "c7Name": "Brasília Padel Hub",
+            "c7Address": "Brasília, DF"
+        },
         "benefits": {
             "badge": "Por que padel",
             "headline": "Um esporte que transforma dentro e fora da quadra.",

@@ -750,6 +750,131 @@ function CtaSection() {
 }
 
 // ---------------------------------------------------------------------------
+// CLUBS CAROUSEL
+// ---------------------------------------------------------------------------
+function ClubsCarouselSection() {
+    const t = useTranslations("landing");
+    const [paused, setPaused] = useState(false);
+    const [ref, visible] = useReveal();
+
+    const clubs = [
+        { seed: "kora-club-spo-01", name: t("clubs.c1Name"), address: t("clubs.c1Address"), rating: 4.9 },
+        { seed: "kora-club-rio-02", name: t("clubs.c2Name"), address: t("clubs.c2Address"), rating: 4.7 },
+        { seed: "kora-club-bhe-03", name: t("clubs.c3Name"), address: t("clubs.c3Address"), rating: 4.8 },
+        { seed: "kora-club-cwb-04", name: t("clubs.c4Name"), address: t("clubs.c4Address"), rating: 4.6 },
+        { seed: "kora-club-poa-05", name: t("clubs.c5Name"), address: t("clubs.c5Address"), rating: 4.9 },
+        { seed: "kora-club-ssa-06", name: t("clubs.c6Name"), address: t("clubs.c6Address"), rating: 4.7 },
+        { seed: "kora-club-bsb-07", name: t("clubs.c7Name"), address: t("clubs.c7Address"), rating: 4.5 },
+    ];
+
+    const track = [...clubs, ...clubs];
+
+    return (
+        <section ref={ref} className="overflow-hidden bg-[#0a0b10] py-28">
+            {/* Section header */}
+            <div
+                className="mx-auto mb-14 max-w-7xl px-4"
+                style={{
+                    opacity: visible ? 1 : 0,
+                    transform: visible ? "translateY(0)" : "translateY(16px)",
+                    transition:
+                        "opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1)",
+                }}
+            >
+                <div className="mb-4 flex items-center gap-3">
+                    <span aria-hidden="true" className="h-px w-8 bg-[#3D46FB]" />
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#3D46FB]">
+                        {t("clubs.badge")}
+                    </span>
+                </div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <h2 className="text-4xl font-bold leading-[1.1] tracking-tighter text-white lg:text-5xl">
+                        {t("clubs.headline")}
+                    </h2>
+                    <p className="max-w-[44ch] text-sm leading-relaxed text-zinc-400 sm:text-right">
+                        {t("clubs.description")}
+                    </p>
+                </div>
+            </div>
+
+            {/* Carousel */}
+            <div
+                className="relative"
+                onMouseEnter={() => setPaused(true)}
+                onMouseLeave={() => setPaused(false)}
+            >
+                {/* Left edge fade */}
+                <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-y-0 left-0 z-10 w-28 bg-linear-to-r from-[#0a0b10] to-transparent"
+                />
+                {/* Right edge fade */}
+                <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-y-0 right-0 z-10 w-28 bg-linear-to-l from-[#0a0b10] to-transparent"
+                />
+
+                <div
+                    className="flex gap-5 pl-6"
+                    style={{
+                        width: "max-content",
+                        animation: "kora-scroll 44s linear infinite",
+                        animationPlayState: paused ? "paused" : "running",
+                    }}
+                >
+                    {track.map((club, i) => (
+                        <article
+                            key={i}
+                            className="w-72 shrink-0 overflow-hidden rounded-2xl border border-white/6 bg-white/2.5 transition-all duration-300 hover:border-[#3D46FB]/25 hover:bg-white/4 hover:-translate-y-1.5"
+                        >
+                            {/* Club photo */}
+                            <div className="relative h-40 overflow-hidden">
+                                <img
+                                    src={`https://picsum.photos/seed/${club.seed}/288/160`}
+                                    alt={club.name}
+                                    className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                                    draggable={false}
+                                />
+                                <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent" />
+                                {/* Liquid-glass rating pill */}
+                                <div className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-lg border border-white/10 bg-black/55 px-2.5 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] backdrop-blur-md">
+                                    <Star className="h-3 w-3 fill-[#3D46FB] text-[#3D46FB]" />
+                                    <span className="text-[11px] font-bold tabular-nums text-white">
+                                        {club.rating.toFixed(1)}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Card content */}
+                            <div className="flex flex-col gap-2.5 p-4">
+                                <p className="truncate text-sm font-semibold text-white">{club.name}</p>
+                                {/* Star row */}
+                                <div className="flex items-center gap-0.5">
+                                    {[1, 2, 3, 4, 5].map((n) => (
+                                        <Star
+                                            key={n}
+                                            className={`h-3 w-3 ${n <= Math.floor(club.rating)
+                                                    ? "fill-[#3D46FB] text-[#3D46FB]"
+                                                    : "fill-zinc-800 text-zinc-800"
+                                                }`}
+                                        />
+                                    ))}
+                                </div>
+                                {/* Address */}
+                                <div className="flex items-center gap-1.5">
+                                    <MapPin className="h-3 w-3 shrink-0 text-zinc-500" />
+                                    <span className="truncate text-xs text-zinc-500">{club.address}</span>
+                                </div>
+                            </div>
+                        </article>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+}
+
+// ---------------------------------------------------------------------------
 // Root export
 // ---------------------------------------------------------------------------
 export function LandingPage() {
@@ -760,11 +885,16 @@ export function LandingPage() {
                     from { opacity: 0; transform: translateY(20px); }
                     to   { opacity: 1; transform: translateY(0);    }
                 }
+                @keyframes kora-scroll {
+                    from { transform: translateX(0); }
+                    to   { transform: translateX(-50%); }
+                }
             `}</style>
 
             <HeroSection />
             <StatsSection />
             <BrazilSection />
+            <ClubsCarouselSection />
             <BenefitsSection />
             <FindPlayersSection />
             <AccessibilitySection />
