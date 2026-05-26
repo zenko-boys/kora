@@ -15,6 +15,8 @@ import {
     Star,
     TrendingUp,
     Globe,
+    Send,
+    Clock,
 } from "lucide-react";
 import { SignInButton } from "@clerk/nextjs";
 import { Link } from "@/i18n/navigation";
@@ -854,8 +856,8 @@ function ClubsCarouselSection() {
                                         <Star
                                             key={n}
                                             className={`h-3 w-3 ${n <= Math.floor(club.rating)
-                                                    ? "fill-[#3D46FB] text-[#3D46FB]"
-                                                    : "fill-zinc-800 text-zinc-800"
+                                                ? "fill-[#3D46FB] text-[#3D46FB]"
+                                                : "fill-zinc-800 text-zinc-800"
                                                 }`}
                                         />
                                     ))}
@@ -875,6 +877,378 @@ function ClubsCarouselSection() {
 }
 
 // ---------------------------------------------------------------------------
+// CONTACT
+// ---------------------------------------------------------------------------
+function ContactSection() {
+    const t = useTranslations("landing");
+    const [ref, visible] = useReveal();
+
+    const [form, setForm] = useState({ name: "", email: "", message: "" });
+    const [agreed, setAgreed] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
+
+    function validate() {
+        const e: Record<string, string> = {};
+        if (!form.name.trim()) e.name = t("contact.errRequired");
+        if (!form.email.trim()) e.email = t("contact.errRequired");
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = t("contact.errEmail");
+        if (!form.message.trim()) e.message = t("contact.errRequired");
+        if (!agreed) e.agreed = t("contact.errConsent");
+        return e;
+    }
+
+    async function handleSubmit(ev: React.FormEvent) {
+        ev.preventDefault();
+        const errs = validate();
+        if (Object.keys(errs).length) { setErrors(errs); return; }
+        setErrors({});
+        setStatus("loading");
+        await new Promise<void>((r) => setTimeout(r, 1500));
+        setStatus("success");
+    }
+
+    const inputBase =
+        "w-full rounded-xl border bg-white/4 px-4 py-3 text-sm text-white placeholder:text-zinc-600 outline-none transition-all duration-200 focus:bg-white/6 focus:ring-1 focus:ring-[#3D46FB]/30";
+    const inputOk = "border-white/8 focus:border-[#3D46FB]/60";
+    const inputErr = "border-red-500/40 focus:border-red-500/50";
+
+    const facts = [
+        { Icon: Clock, label: t("contact.infoReplyTime"), value: t("contact.infoReplyValue") },
+        { Icon: Globe, label: t("contact.infoClubs"), value: t("contact.infoClubsValue") },
+        { Icon: Users, label: t("contact.infoPlayers"), value: t("contact.infoPlayersValue") },
+    ] as const;
+
+    return (
+        <section ref={ref} className="bg-[#0d0e14] py-28">
+            <div className="mx-auto max-w-7xl px-4">
+                <div
+                    className="grid grid-cols-1 gap-16 lg:grid-cols-[1fr_360px]"
+                    style={{
+                        opacity: visible ? 1 : 0,
+                        transform: visible ? "translateY(0)" : "translateY(20px)",
+                        transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1)",
+                    }}
+                >
+                    {/* ── LEFT: Form ── */}
+                    <div>
+                        <div className="mb-6 flex items-center gap-3">
+                            <span aria-hidden="true" className="h-px w-8 bg-[#3D46FB]" />
+                            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#3D46FB]">
+                                {t("contact.badge")}
+                            </span>
+                        </div>
+
+                        <h2 className="mb-3 text-5xl font-bold leading-[1.05] tracking-tighter text-white lg:text-6xl">
+                            {t("contact.headline")}{" "}
+                            <span className="text-[#3D46FB]">{t("contact.headlineAccent")}</span>
+                        </h2>
+                        <p className="mb-10 max-w-[52ch] text-sm leading-relaxed text-zinc-400">
+                            {t("contact.subline")}
+                        </p>
+
+                        {/* ── Success state ── */}
+                        {status === "success" ? (
+                            <div className="flex flex-col items-start gap-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-8 py-10">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20">
+                                    <Check className="h-5 w-5 text-emerald-400" />
+                                </div>
+                                <div>
+                                    <p className="text-base font-semibold text-white">{t("contact.successTitle")}</p>
+                                    <p className="mt-1 text-sm text-zinc-400">{t("contact.successBody")}</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
+                                {/* Name + Email */}
+                                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-xs font-medium text-zinc-400">{t("contact.nameLabel")}</label>
+                                        <input
+                                            type="text"
+                                            value={form.name}
+                                            onChange={(e) => setForm({ ...form, name: e.target.value })}
+                                            placeholder={t("contact.namePlaceholder")}
+                                            className={`${inputBase} ${errors.name ? inputErr : inputOk}`}
+                                        />
+                                        {errors.name && <span className="text-xs text-red-400">{errors.name}</span>}
+                                    </div>
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-xs font-medium text-zinc-400">{t("contact.emailLabel")}</label>
+                                        <input
+                                            type="email"
+                                            value={form.email}
+                                            onChange={(e) => setForm({ ...form, email: e.target.value })}
+                                            placeholder={t("contact.emailPlaceholder")}
+                                            className={`${inputBase} ${errors.email ? inputErr : inputOk}`}
+                                        />
+                                        {errors.email && <span className="text-xs text-red-400">{errors.email}</span>}
+                                    </div>
+                                </div>
+
+                                {/* Message */}
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-medium text-zinc-400">{t("contact.messageLabel")}</label>
+                                    <textarea
+                                        rows={5}
+                                        value={form.message}
+                                        onChange={(e) => setForm({ ...form, message: e.target.value })}
+                                        placeholder={t("contact.messagePlaceholder")}
+                                        className={`${inputBase} resize-none ${errors.message ? inputErr : inputOk}`}
+                                    />
+                                    {errors.message && <span className="text-xs text-red-400">{errors.message}</span>}
+                                </div>
+
+                                {/* Consent checkbox */}
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="flex cursor-pointer items-start gap-3">
+                                        <span className="relative mt-0.5 shrink-0">
+                                            <input
+                                                type="checkbox"
+                                                checked={agreed}
+                                                onChange={(e) => setAgreed(e.target.checked)}
+                                                className="sr-only"
+                                            />
+                                            <span
+                                                className={`flex h-4 w-4 items-center justify-center rounded border transition-all duration-150 ${agreed
+                                                        ? "border-[#3D46FB] bg-[#3D46FB]"
+                                                        : errors.agreed
+                                                            ? "border-red-500/50 bg-white/4"
+                                                            : "border-white/20 bg-white/4"
+                                                    }`}
+                                            >
+                                                {agreed && <Check className="h-2.5 w-2.5 text-white" />}
+                                            </span>
+                                        </span>
+                                        <span className="text-xs leading-relaxed text-zinc-400">{t("contact.consentText")}</span>
+                                    </label>
+                                    {errors.agreed && <span className="pl-7 text-xs text-red-400">{errors.agreed}</span>}
+                                </div>
+
+                                {/* Submit */}
+                                <div className="pt-1">
+                                    <button
+                                        type="submit"
+                                        disabled={status === "loading"}
+                                        className="group inline-flex items-center gap-2.5 rounded-lg bg-[#3D46FB] px-7 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#4f58fc] hover:shadow-[0_12px_35px_rgba(61,70,251,0.38)] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60"
+                                    >
+                                        {status === "loading" ? (
+                                            <>
+                                                <span
+                                                    className="inline-block h-4 w-4 rounded-full border-2 border-white/30 border-t-white"
+                                                    style={{ animation: "kora-spin 0.8s linear infinite" }}
+                                                    aria-hidden="true"
+                                                />
+                                                {t("contact.sendingLabel")}
+                                            </>
+                                        ) : (
+                                            <>
+                                                {t("contact.sendLabel")}
+                                                <Send className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+                    </div>
+
+                    {/* ── RIGHT: Info panel ── */}
+                    <div className="lg:sticky lg:top-28 lg:self-start">
+                        <div className="relative overflow-hidden rounded-2xl border border-white/6 bg-white/2.5 p-8 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+                            {/* Accent glow */}
+                            <div
+                                aria-hidden="true"
+                                className="pointer-events-none absolute -right-16 -top-16 h-52 w-52 rounded-full bg-[#3D46FB] opacity-[0.08] blur-[80px]"
+                            />
+
+                            <p className="mb-8 text-base font-semibold leading-snug text-white">
+                                Fast responses,<br />real support.
+                            </p>
+
+                            <div className="flex flex-col gap-6">
+                                {facts.map(({ Icon, label, value }) => (
+                                    <div key={label} className="flex items-center gap-4">
+                                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/6 bg-white/4">
+                                            <Icon className="h-4 w-4 text-[#3D46FB]" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-semibold text-white">{value}</p>
+                                            <p className="text-xs text-zinc-500">{label}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="mt-8 border-t border-white/6 pt-6">
+                                <p className="text-xs leading-relaxed text-zinc-600">
+                                    {t("contact.infoPrivacy")}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+// ---------------------------------------------------------------------------
+// FOOTER
+// ---------------------------------------------------------------------------
+function FooterSection() {
+    const t = useTranslations("landing");
+
+    const col1 = [
+        { label: t("footer.col1Faq"), href: "#" },
+        { label: t("footer.col1Clubs"), href: "/clubs" },
+        { label: t("footer.col1Events"), href: "#" },
+        { label: t("footer.col1Players"), href: "#" },
+        { label: t("footer.col1Rankings"), href: "#" },
+    ];
+    const col2 = [
+        { label: t("footer.col2Book"), href: "/bookings" },
+        { label: t("footer.col2HowItWorks"), href: "#" },
+        { label: t("footer.col2Pricing"), href: "#" },
+        { label: t("footer.col2App"), href: "#" },
+    ];
+    const col3 = [
+        { label: t("footer.col3About"), href: "#" },
+        { label: t("footer.col3Blog"), href: "#" },
+        { label: t("footer.col3Careers"), href: "#" },
+        { label: t("footer.col3Partners"), href: "#" },
+        { label: t("footer.col3Press"), href: "#" },
+    ];
+
+    return (
+        <footer className="border-t border-white/6 bg-[#080910]">
+            <div className="mx-auto max-w-7xl px-4 py-16">
+                <div className="grid grid-cols-1 gap-16 md:grid-cols-[auto_1fr]">
+
+                    {/* ── LEFT: Brand + social + legal ── */}
+                    <div className="flex flex-col gap-8">
+                        {/* Brand */}
+                        <div>
+                            <span className="text-xl font-bold tracking-tight text-white">Kora</span>
+                            <p className="mt-2 max-w-[26ch] text-xs leading-relaxed text-zinc-500">
+                                {t("footer.tagline")}
+                            </p>
+                        </div>
+
+                        {/* Social icons (inline SVG for brand mark accuracy) */}
+                        <div className="flex items-center gap-3">
+                            <a
+                                href="#"
+                                aria-label="Facebook"
+                                className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/6 bg-white/4 text-zinc-400 transition-all duration-200 hover:border-[#3D46FB]/30 hover:bg-[#3D46FB]/10 hover:text-white"
+                            >
+                                <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4" aria-hidden="true">
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                                </svg>
+                            </a>
+                            <a
+                                href="#"
+                                aria-label="Instagram"
+                                className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/6 bg-white/4 text-zinc-400 transition-all duration-200 hover:border-[#3D46FB]/30 hover:bg-[#3D46FB]/10 hover:text-white"
+                            >
+                                <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4" aria-hidden="true">
+                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                                </svg>
+                            </a>
+                            <a
+                                href="#"
+                                aria-label="X (Twitter)"
+                                className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/6 bg-white/4 text-zinc-400 transition-all duration-200 hover:border-[#3D46FB]/30 hover:bg-[#3D46FB]/10 hover:text-white"
+                            >
+                                <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4" aria-hidden="true">
+                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                                </svg>
+                            </a>
+                        </div>
+
+                        {/* Legal links */}
+                        <div className="flex flex-wrap items-center gap-5">
+                            <a href="#" className="text-xs text-zinc-500 transition-colors duration-200 hover:text-white">
+                                {t("footer.privacy")}
+                            </a>
+                            <a href="#" className="text-xs text-zinc-500 transition-colors duration-200 hover:text-white">
+                                {t("footer.terms")}
+                            </a>
+                        </div>
+                    </div>
+
+                    {/* ── RIGHT: Site map ── */}
+                    <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 md:justify-items-end">
+                        {/* Discover */}
+                        <div>
+                            <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                                {t("footer.col1Title")}
+                            </p>
+                            <ul className="flex flex-col gap-3">
+                                {col1.map(({ label, href }) => (
+                                    <li key={label}>
+                                        <a href={href} className="text-xs text-zinc-400 transition-colors duration-200 hover:text-white">
+                                            {label}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        {/* Product */}
+                        <div>
+                            <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                                {t("footer.col2Title")}
+                            </p>
+                            <ul className="flex flex-col gap-3">
+                                {col2.map(({ label, href }) => (
+                                    <li key={label}>
+                                        <a href={href} className="text-xs text-zinc-400 transition-colors duration-200 hover:text-white">
+                                            {label}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        {/* Company */}
+                        <div>
+                            <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                                {t("footer.col3Title")}
+                            </p>
+                            <ul className="flex flex-col gap-3">
+                                {col3.map(({ label, href }) => (
+                                    <li key={label}>
+                                        <a href={href} className="text-xs text-zinc-400 transition-colors duration-200 hover:text-white">
+                                            {label}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* ── Copyright bar ── */}
+            <div className="border-t border-white/6">
+                <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+                    <p className="text-xs text-zinc-600">{t("footer.copyright")}</p>
+                    <div className="flex items-center gap-2">
+                        <span
+                            aria-hidden="true"
+                            className="h-1.5 w-1.5 rounded-full bg-emerald-400"
+                            style={{ animation: "kora-pulse 2.5s ease-in-out infinite" }}
+                        />
+                        <span className="text-xs text-zinc-600">{t("footer.statusLabel")}</span>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    );
+}
+
+// ---------------------------------------------------------------------------
 // Root export
 // ---------------------------------------------------------------------------
 export function LandingPage() {
@@ -889,6 +1263,13 @@ export function LandingPage() {
                     from { transform: translateX(0); }
                     to   { transform: translateX(-50%); }
                 }
+                @keyframes kora-spin {
+                    to { transform: rotate(360deg); }
+                }
+                @keyframes kora-pulse {
+                    0%, 100% { opacity: 1; }
+                    50%       { opacity: 0.3; }
+                }
             `}</style>
 
             <HeroSection />
@@ -900,6 +1281,8 @@ export function LandingPage() {
             <AccessibilitySection />
             <HowItWorksSection />
             <CtaSection />
+            <ContactSection />
+            <FooterSection />
         </>
     );
 }
