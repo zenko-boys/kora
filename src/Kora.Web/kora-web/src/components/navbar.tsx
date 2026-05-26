@@ -36,6 +36,8 @@ export function Navbar() {
     const subLinkCls = "flex items-center gap-3 rounded-lg pl-9 pr-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
     const activeSubLinkCls = "flex items-center gap-3 rounded-lg pl-9 pr-3 py-2 text-sm bg-[#3D46FB]/10 text-[#3D46FB]";
 
+    if (pathname === "/landing") return null;
+
     return (
         <>
             <header className="sticky top-0 z-50 w-full border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60">

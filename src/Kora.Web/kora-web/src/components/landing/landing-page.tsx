@@ -16,6 +16,7 @@ import {
     TrendingUp,
     Globe,
 } from "lucide-react";
+import { SignInButton } from "@clerk/nextjs";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
@@ -89,13 +90,12 @@ function HeroSection() {
                     </p>
 
                     <div className="flex flex-wrap items-center gap-4">
-                        <Link
-                            href="/bookings"
-                            className="group inline-flex items-center gap-2.5 rounded-lg bg-[#3D46FB] px-7 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-[2px] hover:bg-[#4f58fc] hover:shadow-[0_12px_35px_rgba(61,70,251,0.38)] active:scale-[0.98]"
-                        >
-                            {t("hero.ctaPrimary")}
-                            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-                        </Link>
+                        <SignInButton mode="modal">
+                            <button className="group inline-flex items-center gap-2.5 rounded-lg bg-[#3D46FB] px-7 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-[2px] hover:bg-[#4f58fc] hover:shadow-[0_12px_35px_rgba(61,70,251,0.38)] active:scale-[0.98]">
+                                {t("hero.ctaLogin")}
+                                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+                            </button>
+                        </SignInButton>
                         <Link
                             href="/clubs"
                             className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-7 py-3.5 text-sm font-semibold text-white/70 transition-all duration-300 hover:border-white/20 hover:bg-white/[0.08] hover:text-white active:scale-[0.98]"
