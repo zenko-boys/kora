@@ -1011,10 +1011,10 @@ function ContactSection() {
                                             />
                                             <span
                                                 className={`flex h-4 w-4 items-center justify-center rounded border transition-all duration-150 ${agreed
-                                                        ? "border-[#3D46FB] bg-[#3D46FB]"
-                                                        : errors.agreed
-                                                            ? "border-red-500/50 bg-white/4"
-                                                            : "border-white/20 bg-white/4"
+                                                    ? "border-[#3D46FB] bg-[#3D46FB]"
+                                                    : errors.agreed
+                                                        ? "border-red-500/50 bg-white/4"
+                                                        : "border-white/20 bg-white/4"
                                                     }`}
                                             >
                                                 {agreed && <Check className="h-2.5 w-2.5 text-white" />}
@@ -1098,6 +1098,7 @@ function ContactSection() {
 // ---------------------------------------------------------------------------
 function FooterSection() {
     const t = useTranslations("landing");
+    const tc = useTranslations("cookies");
 
     const col1 = [
         { label: t("footer.col1Faq"), href: "#" },
@@ -1174,6 +1175,12 @@ function FooterSection() {
                             <a href="#" className="text-xs text-zinc-500 transition-colors duration-200 hover:text-white">
                                 {t("footer.terms")}
                             </a>
+                            <button
+                                onClick={() => window.dispatchEvent(new CustomEvent("kora:open-cookie-settings"))}
+                                className="text-xs text-zinc-500 transition-colors duration-200 hover:text-white"
+                            >
+                                {tc("modal.cookieSettings")}
+                            </button>
                         </div>
                     </div>
 
