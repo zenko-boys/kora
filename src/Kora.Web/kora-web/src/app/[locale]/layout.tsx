@@ -3,6 +3,7 @@ import { getMessages } from "next-intl/server";
 import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/navbar";
 import { Toaster } from "@/components/ui/sonner";
+import { CookieBanner } from "@/components/cookie-banner";
 
 interface LocaleLayoutProps {
     children: React.ReactNode;
@@ -19,6 +20,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
                 <Navbar />
                 <div className="flex-1">{children}</div>
                 <Toaster richColors position="bottom-right" />
+                <CookieBanner />
             </Providers>
         </NextIntlClientProvider>
     );

@@ -431,5 +431,95 @@
             "col3Partners": "Partners",
             "col3Press": "Press"
         }
+    },
+    "cookies": {
+        "banner": {
+            "headline": "We use cookies",
+            "description": "We and our partners use cookies to improve your experience, analyze traffic, and serve personalized content.",
+            "linkPrivacy": "Privacy Policy",
+            "btnAcceptAll": "Accept all",
+            "btnRejectOptional": "Reject optional",
+            "btnManage": "Manage preferences"
+        },
+        "modal": {
+            "title": "Privacy Preferences",
+            "subtitle": "Choose which cookies you allow. Preferences can be updated at any time via Cookie Settings in the footer.",
+            "btnSave": "Save preferences",
+            "btnRejectAll": "Reject all optional",
+            "cookieSettings": "Cookie Settings"
+        },
+        "categories": {
+            "necessary": {
+                "title": "Strictly Necessary",
+                "description": "These cookies are required for the platform to function and cannot be disabled. They are typically set in response to actions you take — logging in, filling forms, or setting language. You can block them via your browser, but parts of the site will not work.",
+                "alwaysActive": "Always active"
+            },
+            "functional": {
+                "title": "Functional",
+                "description": "These cookies allow the site to remember your preferences and provide enhanced, personalised features such as your UI theme or last court search filters. Disabling them may affect how some features work."
+            },
+            "analytics": {
+                "title": "Analytics",
+                "description": "These cookies help us understand how visitors interact with Kora by collecting anonymised usage data. This helps us improve the platform and measure feature performance. No personally identifiable information is collected."
+            },
+            "marketing": {
+                "title": "Marketing",
+                "description": "These cookies track your browsing activity to help advertisers show you more relevant ads on other sites. They may also limit how often you see an ad and measure campaign effectiveness. Disabling them will not reduce ad volume, only relevance."
+            }
+        },
+        "table": {
+            "name": "Cookie",
+            "provider": "Provider",
+            "purpose": "Purpose",
+            "expiry": "Expiry",
+            "showCookies": "Show cookies",
+            "hideCookies": "Hide cookies"
+        },
+        "cookieData": {
+            "n1Name": "__clerk_db_jwt",
+            "n1Provider": "Clerk",
+            "n1Purpose": "Stores the encrypted authentication session token required for secure login",
+            "n1Expiry": "Session",
+            "n2Name": "__session",
+            "n2Provider": "Clerk",
+            "n2Purpose": "Maintains user session state and identity across page loads",
+            "n2Expiry": "Session",
+            "n3Name": "NEXT_LOCALE",
+            "n3Provider": "Kora",
+            "n3Purpose": "Stores the user's preferred language (en / pt) for consistent navigation",
+            "n3Expiry": "1 year",
+            "n4Name": "__Host-csrf",
+            "n4Provider": "Next.js",
+            "n4Purpose": "Protects against cross-site request forgery (CSRF) attacks on form submissions",
+            "n4Expiry": "Session",
+            "f1Name": "kora_theme",
+            "f1Provider": "Kora",
+            "f1Purpose": "Remembers the user's preferred UI theme (dark or light mode)",
+            "f1Expiry": "1 year",
+            "f2Name": "kora_court_filters",
+            "f2Provider": "Kora",
+            "f2Purpose": "Saves the last court search filters to improve speed on return visits",
+            "f2Expiry": "30 days",
+            "a1Name": "_ga",
+            "a1Provider": "Google Analytics",
+            "a1Purpose": "Registers a unique ID used to generate anonymised statistical data about site usage",
+            "a1Expiry": "2 years",
+            "a2Name": "_ga_*",
+            "a2Provider": "Google Analytics",
+            "a2Purpose": "Persists session state and measures overall session engagement on the platform",
+            "a2Expiry": "2 years",
+            "a3Name": "_hjid",
+            "a3Provider": "Hotjar",
+            "a3Purpose": "Sets a unique user ID used for session recording and heatmap analysis",
+            "a3Expiry": "1 year",
+            "m1Name": "_fbp",
+            "m1Provider": "Meta (Facebook)",
+            "m1Purpose": "Used by Facebook to deliver targeted advertising and track ad conversion events",
+            "m1Expiry": "3 months",
+            "m2Name": "_gcl_au",
+            "m2Provider": "Google Ads",
+            "m2Purpose": "Used by Google Ads to measure and attribute conversions from advertising campaigns",
+            "m2Expiry": "3 months"
+        }
     }
 }
