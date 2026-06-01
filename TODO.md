@@ -7,11 +7,11 @@
 - [x] verificar dayuse
 - [x] description no booking
 - [x] booking private games
-- [ ] adicionar owner na api para sumir com botao delete
-- [ ] adicionar rota myrole
-- [ ] adicionar regra para deletar o booking caso seja o owner
+- ~~[ ] adicionar owner na api para sumir com botao delete~~
+- ~~[ ] adicionar rota myrole~~
+- ~~[ ] adicionar regra para deletar o booking caso seja o owner~~
 - [ ] game level no booking
-- [ ] notificacao de leave antes de 3h para iniciar o jogo
+- ~~[ ] notificacao de leave antes de 3h para iniciar o jogo~~
 
 ## UI
 - [x] botao de leave booking
@@ -29,6 +29,7 @@
 ## Infra
 - [x] criar deploy automation vercel, conectando ao projeto github
 - [x] adicionar i18n para idioma portugues
+- [x] ci para deploy no fly da api
 
 ## Ideias
 - [ ] pagamentos
