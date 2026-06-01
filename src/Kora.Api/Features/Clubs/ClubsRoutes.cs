@@ -1,5 +1,6 @@
 using Kora.Common.Endpoints;
 using Kora.Features.Clubs.CreateClub;
+using Kora.Features.Clubs.GetClubSchedule;
 using Kora.Features.Clubs.GetClubSlots;
 using Kora.Features.Clubs.UpdateClub;
 using Kora.Infrastructure.Auth;
@@ -45,5 +46,17 @@ public class ClubsRoutes : IEndpointGroup
             return Results.Ok(result);
         })
         .WithName("GetClubSlots");
+
+        group.MapGet("/{clubId:guid}/schedule", async (
+            Guid clubId,
+            DateOnly date,
+            GetClubScheduleHandler handler,
+            CancellationToken ct) =>
+        {
+            var result = await handler.Handle(clubId, date, ct);
+            return Results.Ok(result);
+        })
+        .RequireAuthorization(AuthorizationPolicies.ClubStaffOrAdmin)
+        .WithName("GetClubSchedule");
     }
 }
