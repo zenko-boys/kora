@@ -2,6 +2,7 @@ using Kora.Domain.Bookings;
 using Kora.Domain.Reservations;
 using Kora.Infrastructure.Auth;
 using Kora.Infrastructure.Data;
+using Kora.Infrastructure.Email;
 using Microsoft.EntityFrameworkCore;
 
 namespace Kora.Features.Bookings.CreateBooking.Strategies;
@@ -12,11 +13,13 @@ public class GameBookingStrategy : ICreateBookingStrategy
 
     private readonly AppDbContext _db;
     private readonly IUserContext _userContext;
+    private readonly IEmailSender _emailSender;
 
-    public GameBookingStrategy(AppDbContext db, IUserContext userContext)
+    public GameBookingStrategy(AppDbContext db, IUserContext userContext, IEmailSender emailSender)
     {
         _db = db;
         _userContext = userContext;
+        _emailSender = emailSender;
     }
 
     public async Task<CreateBookingResponse> HandleAsync(
@@ -78,6 +81,8 @@ public class GameBookingStrategy : ICreateBookingStrategy
 
         _db.Bookings.Add(booking);
         await _db.SaveChangesAsync(ct);
+
+        await _emailSender.SendAsync(BookingConfirmedEmail.Build(currentUser.Email, booking), ct);
 
         return new CreateBookingResponse(booking.Id);
     }

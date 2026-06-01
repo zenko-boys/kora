@@ -20,6 +20,15 @@ public static class OptionsExtensions
                 "Auth:Authority is required")
             .ValidateOnStart();
 
+        services
+            .AddOptions<EmailOptions>()
+            .Bind(configuration.GetSection(EmailOptions.SectionName))
+            .Validate(options => !string.IsNullOrWhiteSpace(options.ApiKey),
+                "Email:ApiKey is required")
+            .Validate(options => !string.IsNullOrWhiteSpace(options.From),
+                "Email:From is required")
+            .ValidateOnStart();
+
         return services;
     }
 }

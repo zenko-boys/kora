@@ -2,6 +2,7 @@ using Kora.Infrastructure.Auth;
 using Kora.Infrastructure.Cors;
 using Kora.Infrastructure.Data;
 using Kora.Infrastructure.Data.Seed;
+using Kora.Infrastructure.Email;
 using Kora.Infrastructure.Health;
 using Kora.Infrastructure.OpenApi;
 using Kora.Infrastructure.Versioning;
@@ -16,6 +17,7 @@ public static class DependencyInjection
         services.AddDatabase();
         services.AddKoraAuth();
         services.AddKoraCors();
+        services.AddEmail();
         services.AddApiVersioningConfiguration();
         services.AddOpenApiDocumentation();
         services.AddHealthChecksConfiguration();

@@ -2,6 +2,7 @@ using Kora.Common.Handlers;
 using Kora.Domain.Bookings;
 using Kora.Infrastructure.Auth;
 using Kora.Infrastructure.Data;
+using Kora.Infrastructure.Email;
 using Microsoft.EntityFrameworkCore;
 
 namespace Kora.Features.Bookings.JoinBooking;
@@ -10,11 +11,13 @@ public class JoinBookingHandler : IHandler
 {
     private readonly AppDbContext _db;
     private readonly IUserContext _userContext;
+    private readonly IEmailSender _emailSender;
 
-    public JoinBookingHandler(AppDbContext db, IUserContext userContext)
+    public JoinBookingHandler(AppDbContext db, IUserContext userContext, IEmailSender emailSender)
     {
         _db = db;
         _userContext = userContext;
+        _emailSender = emailSender;
     }
 
     public async Task<JoinBookingResponse> Handle(Guid bookingId, CancellationToken ct)
@@ -63,6 +66,8 @@ public class JoinBookingHandler : IHandler
         });
 
         await _db.SaveChangesAsync(ct);
+
+        await _emailSender.SendAsync(BookingConfirmedEmail.Build(currentUser.Email, booking), ct);
 
         return new JoinBookingResponse(
             booking.Id,
