@@ -1,14 +1,21 @@
+using System.Text.Encodings.Web;
+
 namespace Kora.Infrastructure.Email;
 
 public static class EmailTemplate
 {
-    public static string Wrap(string title, string bodyHtml) => $$"""
+    public static string Encode(string value) => HtmlEncoder.Default.Encode(value);
+
+    public static string Wrap(string title, string bodyHtml)
+    {
+        var encodedTitle = Encode(title);
+        return $$"""
         <!DOCTYPE html>
         <html lang="en">
         <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <title>{{title}}</title>
+          <title>{{encodedTitle}}</title>
           <style>
             body { margin: 0; padding: 0; background: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #18181b; }
             .wrapper { max-width: 560px; margin: 40px auto; background: #ffffff; border-radius: 12px; overflow: hidden; }
@@ -30,4 +37,5 @@ public static class EmailTemplate
         </body>
         </html>
         """;
+    }
 }

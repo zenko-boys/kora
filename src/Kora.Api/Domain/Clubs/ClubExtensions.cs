@@ -1,3 +1,5 @@
+using Kora.Common.Errors;
+
 namespace Kora.Domain.Clubs;
 
 public static class ClubExtensions
@@ -14,7 +16,7 @@ public static class ClubExtensions
 
         if (DateOnly.FromDateTime(localStart) != DateOnly.FromDateTime(localEnd))
         {
-            throw new InvalidOperationException("Booking cannot span days.");
+            throw new DomainException("Booking cannot span days.");
         }
 
         var startTime = TimeOnly.FromDateTime(localStart);
@@ -27,7 +29,7 @@ public static class ClubExtensions
 
         if (!fits)
         {
-            throw new InvalidOperationException("Booking is outside club operating hours.");
+            throw new DomainException("Booking is outside club operating hours.");
         }
     }
 }

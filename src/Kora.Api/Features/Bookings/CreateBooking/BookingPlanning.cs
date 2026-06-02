@@ -1,3 +1,4 @@
+using Kora.Common.Errors;
 using Kora.Domain.Clubs;
 using Kora.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +27,7 @@ public static class BookingPlanning
 
         if (club is null)
         {
-            throw new InvalidOperationException("Club not found.");
+            throw new DomainException("Club not found.");
         }
 
         var sortedSlotsUtc = request.Slots
@@ -38,7 +39,7 @@ public static class BookingPlanning
 
         if (startsAtUtc <= DateTime.UtcNow)
         {
-            throw new InvalidOperationException("Booking must start in the future.");
+            throw new DomainException("Booking must start in the future.");
         }
 
         var cellDuration = TimeSpan.FromMinutes(club.SlotCellDurationMinutes);
@@ -46,7 +47,7 @@ public static class BookingPlanning
         {
             if (sortedSlotsUtc[i] - sortedSlotsUtc[i - 1] != cellDuration)
             {
-                throw new InvalidOperationException(
+                throw new DomainException(
                     $"Slots must be consecutive and spaced {club.SlotCellDurationMinutes} minutes apart.");
             }
         }
@@ -63,12 +64,12 @@ public static class BookingPlanning
 
         if (courtIds.Count == 0)
         {
-            throw new InvalidOperationException("Club has no courts.");
+            throw new DomainException("Club has no courts.");
         }
 
         if (requiredCourts > courtIds.Count)
         {
-            throw new InvalidOperationException(
+            throw new DomainException(
                 $"Club only has {courtIds.Count} courts.");
         }
 
@@ -87,7 +88,7 @@ public static class BookingPlanning
 
         if (freeCourts.Count < requiredCourts)
         {
-            throw new InvalidOperationException(
+            throw new DomainException(
                 requiredCourts == 1
                     ? "No court is free at this time."
                     : "Not enough free courts at this time.");

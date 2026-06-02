@@ -1,3 +1,4 @@
+using Kora.Common.Errors;
 using Kora.Common.Handlers;
 using Kora.Domain.Users;
 using Kora.Infrastructure.Auth;
@@ -24,7 +25,7 @@ public class DeleteBookingHandler : IHandler
 
         if (booking is null)
         {
-            throw new InvalidOperationException("Booking not found.");
+            throw new DomainException("Booking not found.");
         }
 
         await EnsureClubStaffOrAdminAsync(booking.ClubId, ct);

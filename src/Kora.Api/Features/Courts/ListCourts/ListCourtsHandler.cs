@@ -1,3 +1,4 @@
+using Kora.Common.Errors;
 using Kora.Common.Handlers;
 using Kora.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +19,7 @@ public class ListCourtsHandler : IHandler
         var clubExists = await _db.Clubs.AnyAsync(c => c.Id == clubId, ct);
         if (!clubExists)
         {
-            throw new InvalidOperationException("Club not found.");
+            throw new DomainException("Club not found.");
         }
 
         var courts = await _db.Courts

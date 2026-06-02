@@ -1,3 +1,4 @@
+using Kora.Common.Errors;
 using Kora.Common.Handlers;
 using Kora.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,7 @@ public class GetClubSlotsHandler : IHandler
 
         if (club is null)
         {
-            throw new InvalidOperationException("Club not found.");
+            throw new DomainException("Club not found.");
         }
 
         var tz = TimeZoneInfo.FindSystemTimeZoneById(club.TimeZoneId);
@@ -30,7 +31,7 @@ public class GetClubSlotsHandler : IHandler
 
         if (date < todayLocal)
         {
-            throw new InvalidOperationException("Cannot query slots for a past date.");
+            throw new DomainException("Cannot query slots for a past date.");
         }
 
         var hours = club.OperatingHours.FirstOrDefault(h => h.DayOfWeek == date.DayOfWeek);

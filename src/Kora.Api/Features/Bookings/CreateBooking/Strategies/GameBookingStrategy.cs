@@ -1,3 +1,4 @@
+using Kora.Common.Errors;
 using Kora.Domain.Bookings;
 using Kora.Domain.Reservations;
 using Kora.Infrastructure.Auth;
@@ -32,7 +33,7 @@ public class GameBookingStrategy : ICreateBookingStrategy
         var durationMinutes = request.Slots.Length * plan.Club.SlotCellDurationMinutes;
         if (durationMinutes < plan.Club.MinimumBookingDurationMinutes)
         {
-            throw new InvalidOperationException(
+            throw new DomainException(
                 $"Booking duration must be at least {plan.Club.MinimumBookingDurationMinutes} minutes.");
         }
 
@@ -45,7 +46,7 @@ public class GameBookingStrategy : ICreateBookingStrategy
 
         if (hasConflict)
         {
-            throw new InvalidOperationException("User already has a booking during this time.");
+            throw new DomainException("User already has a booking during this time.");
         }
 
         var booking = new Booking

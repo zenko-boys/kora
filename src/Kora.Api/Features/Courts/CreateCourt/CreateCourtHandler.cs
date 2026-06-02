@@ -1,4 +1,5 @@
 using FluentValidation;
+using Kora.Common.Errors;
 using Kora.Common.Handlers;
 using Kora.Domain.Courts;
 using Kora.Infrastructure.Data;
@@ -29,7 +30,7 @@ public class CreateCourtHandler : IHandler
         var clubExists = await _db.Clubs.AnyAsync(c => c.Id == clubId, ct);
         if (!clubExists)
         {
-            throw new InvalidOperationException("Club not found.");
+            throw new DomainException("Club not found.");
         }
 
         var court = new Court

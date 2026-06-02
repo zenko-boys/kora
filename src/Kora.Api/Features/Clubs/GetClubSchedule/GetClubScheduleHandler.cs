@@ -1,3 +1,4 @@
+using Kora.Common.Errors;
 using Kora.Common.Handlers;
 using Kora.Domain.Users;
 using Kora.Infrastructure.Auth;
@@ -27,7 +28,7 @@ public class GetClubScheduleHandler : IHandler
             .FirstOrDefaultAsync(c => c.Id == clubId, ct);
 
         if (club is null)
-            throw new InvalidOperationException("Club not found.");
+            throw new DomainException("Club not found.");
 
         var tz = TimeZoneInfo.FindSystemTimeZoneById(club.TimeZoneId);
 

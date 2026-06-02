@@ -1,4 +1,5 @@
 using FluentValidation;
+using Kora.Common.Errors;
 using Kora.Common.Handlers;
 using Kora.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +30,7 @@ public class UpdateCourtHandler : IHandler
 
         if (court is null)
         {
-            throw new InvalidOperationException("Court not found.");
+            throw new DomainException("Court not found.");
         }
 
         court.Name = request.Name;

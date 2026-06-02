@@ -1,4 +1,5 @@
 using FluentValidation;
+using Kora.Common.Errors;
 using Kora.Common.Handlers;
 using Kora.Domain.Clubs;
 using Kora.Infrastructure.Data;
@@ -30,7 +31,7 @@ public class UpdateClubHandler : IHandler
 
         if (club is null)
         {
-            throw new InvalidOperationException("Club not found.");
+            throw new DomainException("Club not found.");
         }
 
         club.Name = request.Name;

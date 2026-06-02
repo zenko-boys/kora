@@ -1,3 +1,4 @@
+using Kora.Common.Errors;
 using Kora.Common.Handlers;
 using Kora.Infrastructure.Auth;
 using Kora.Infrastructure.Data;
@@ -24,17 +25,17 @@ public class LeaveBookingHandler : IHandler
 
         if (booking is null)
         {
-            throw new InvalidOperationException("Booking not found.");
+            throw new DomainException("Booking not found.");
         }
 
         if (booking.StartsAt <= DateTime.UtcNow)
         {
-            throw new InvalidOperationException("Cannot leave a booking that has already started.");
+            throw new DomainException("Cannot leave a booking that has already started.");
         }
 
         if (booking.StartsAt - DateTime.UtcNow < TimeSpan.FromHours(24))
         {
-            throw new InvalidOperationException("Cannot leave a booking less than 24 hours before it starts.");
+            throw new DomainException("Cannot leave a booking less than 24 hours before it starts.");
         }
 
         var currentUser = await _userContext.GetCurrentUserAsync(ct);
@@ -43,7 +44,7 @@ public class LeaveBookingHandler : IHandler
 
         if (participant is null)
         {
-            throw new InvalidOperationException("User is not a participant in this booking.");
+            throw new DomainException("User is not a participant in this booking.");
         }
 
         booking.Participants.Remove(participant);

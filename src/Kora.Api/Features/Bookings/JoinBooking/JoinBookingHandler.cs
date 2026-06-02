@@ -1,3 +1,4 @@
+using Kora.Common.Errors;
 using Kora.Common.Handlers;
 using Kora.Domain.Bookings;
 using Kora.Infrastructure.Auth;
@@ -28,19 +29,19 @@ public class JoinBookingHandler : IHandler
 
         if (booking is null)
         {
-            throw new InvalidOperationException("Booking not found.");
+            throw new DomainException("Booking not found.");
         }
 
         if (booking.StartsAt <= DateTime.UtcNow)
         {
-            throw new InvalidOperationException("Booking has already started.");
+            throw new DomainException("Booking has already started.");
         }
 
         var currentUser = await _userContext.GetCurrentUserAsync(ct);
 
         if (booking.Participants.Any(p => p.UserId == currentUser.Id))
         {
-            throw new InvalidOperationException("User has already joined this booking.");
+            throw new DomainException("User has already joined this booking.");
         }
 
         var hasConflict = await _db.Bookings
@@ -51,12 +52,12 @@ public class JoinBookingHandler : IHandler
 
         if (hasConflict)
         {
-            throw new InvalidOperationException("User already has a booking during this time.");
+            throw new DomainException("User already has a booking during this time.");
         }
 
         if (booking.Participants.Count >= booking.Capacity)
         {
-            throw new InvalidOperationException("Booking is full.");
+            throw new DomainException("Booking is full.");
         }
 
         booking.Participants.Add(new BookingParticipant
