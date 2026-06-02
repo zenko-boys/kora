@@ -25,7 +25,7 @@ public class LeaveBookingHandler : IHandler
 
         if (booking is null)
         {
-            throw new DomainException("Booking not found.");
+            throw new NotFoundException("Booking not found.");
         }
 
         if (booking.StartsAt <= DateTime.UtcNow)

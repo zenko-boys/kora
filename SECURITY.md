@@ -53,7 +53,7 @@ Admin role is re-evaluated on every request by comparing the JWT's `email` claim
 
 ---
 
-### [ ] Booking Existence Enumerable Before Authorization Check
+### [x] Booking Existence Enumerable Before Authorization Check
 **File:** `src/Kora.Api/Features/Bookings/DeleteBooking/DeleteBookingHandler.cs` (same pattern in `JoinBookingHandler`, `LeaveBookingHandler`)
 
 The handler fetches the booking before checking authorization. An authenticated member receives distinct error responses depending on whether a given GUID exists — leaking the existence of arbitrary bookings.

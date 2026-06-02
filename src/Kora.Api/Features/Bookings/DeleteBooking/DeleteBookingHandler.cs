@@ -25,7 +25,7 @@ public class DeleteBookingHandler : IHandler
 
         if (booking is null)
         {
-            throw new DomainException("Booking not found.");
+            throw new NotFoundException("Booking not found.");
         }
 
         await EnsureClubStaffOrAdminAsync(booking.ClubId, ct);
@@ -48,8 +48,7 @@ public class DeleteBookingHandler : IHandler
 
         if (!isStaff)
         {
-            throw new UnauthorizedAccessException(
-                "Only club staff or admins can delete bookings.");
+            throw new NotFoundException("Booking not found.");
         }
     }
 }

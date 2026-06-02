@@ -21,6 +21,7 @@ public class GlobalExceptionHandler : IExceptionHandler
         var (statusCode, problem) = exception switch
         {
             ValidationException ve => CreateValidationProblem(ve),
+            NotFoundException => CreateProblem(StatusCodes.Status404NotFound, "Not Found", exception.Message),
             DomainException => CreateProblem(StatusCodes.Status400BadRequest, "Bad Request", exception.Message),
             UnauthorizedAccessException => CreateProblem(StatusCodes.Status403Forbidden, "Forbidden", exception.Message),
             InvalidOperationException => CreateProblem(StatusCodes.Status400BadRequest, "Bad Request", "An error occurred processing your request."),
