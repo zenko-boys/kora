@@ -1,5 +1,6 @@
 using Kora.Configuration;
 using Microsoft.Extensions.Options;
+using Resend;
 
 namespace Kora.Infrastructure.Email;
 
@@ -7,13 +8,13 @@ public static class EmailExtensions
 {
     public static IServiceCollection AddEmail(this IServiceCollection services)
     {
-        services.AddHttpClient<IEmailSender, ResendEmailSender>((sp, client) =>
-        {
-            var options = sp.GetRequiredService<IOptions<EmailOptions>>().Value;
-            client.BaseAddress = new Uri("https://api.resend.com/");
-            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {options.ApiKey}");
-        });
-
+        services.AddResend(_ => { });
+        services.AddOptions<ResendClientOptions>()
+            .Configure<IOptions<EmailOptions>>((resendOpts, emailOpts) =>
+            {
+                resendOpts.ApiToken = emailOpts.Value.ApiKey;
+            });
+        services.AddScoped<IEmailSender, ResendEmailSender>();
         return services;
     }
 }

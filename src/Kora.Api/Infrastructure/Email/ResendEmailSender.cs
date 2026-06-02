@@ -1,18 +1,19 @@
-using System.Net.Http.Json;
 using Kora.Configuration;
 using Microsoft.Extensions.Options;
+using Resend;
+using ResendEmail = Resend.EmailMessage;
 
 namespace Kora.Infrastructure.Email;
 
 public class ResendEmailSender : IEmailSender
 {
-    private readonly HttpClient _http;
+    private readonly IResend _resend;
     private readonly EmailOptions _options;
     private readonly ILogger<ResendEmailSender> _logger;
 
-    public ResendEmailSender(HttpClient http, IOptions<EmailOptions> options, ILogger<ResendEmailSender> logger)
+    public ResendEmailSender(IResend resend, IOptions<EmailOptions> options, ILogger<ResendEmailSender> logger)
     {
-        _http = http;
+        _resend = resend;
         _options = options.Value;
         _logger = logger;
     }
@@ -21,17 +22,16 @@ public class ResendEmailSender : IEmailSender
     {
         try
         {
-            var payload = new
+            var resendMessage = new ResendEmail
             {
-                from = _options.From,
-                to = new[] { message.To },
-                subject = message.Subject,
-                html = message.HtmlBody,
-                text = message.TextBody
+                From = _options.From,
+                To = [message.To],
+                Subject = message.Subject,
+                HtmlBody = message.HtmlBody,
+                TextBody = message.TextBody,
             };
 
-            var response = await _http.PostAsJsonAsync("emails", payload, ct);
-            response.EnsureSuccessStatusCode();
+            await _resend.EmailSendAsync(resendMessage, ct);
         }
         catch (Exception ex)
         {
