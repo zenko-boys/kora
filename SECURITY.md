@@ -44,7 +44,7 @@ A live Resend API key is stored in `appsettings.Local.json`. If this file is eve
 
 ---
 
-### [ ] Privilege Escalation via Email Claim
+### [x] Privilege Escalation via Email Claim
 **File:** `src/Kora.Api/Infrastructure/Auth/UserContext.cs`
 
 Admin role is re-evaluated on every request by comparing the JWT's `email` claim against `Auth:AdminEmails`. Anyone who registers a Clerk account with a matching email is automatically promoted to Admin on their first request — no additional verification step.

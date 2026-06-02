@@ -75,20 +75,6 @@ public class UserContext : IUserContext
             _db.Users.Add(user);
             await _db.SaveChangesAsync(ct);
         }
-        else if (email is not null)
-        {
-            var expectedRole = _authOptions.AdminEmails
-                .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Any(a => a.Equals(email, StringComparison.OrdinalIgnoreCase))
-                    ? UserRole.Admin
-                    : UserRole.Member;
-
-            if (user.Role != expectedRole)
-            {
-                user.Role = expectedRole;
-                await _db.SaveChangesAsync(ct);
-            }
-        }
 
         _cached = user;
         _userIdHolder.UserId = user.Id;
