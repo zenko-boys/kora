@@ -21,7 +21,7 @@ public class JoinBookingHandler : IHandler
         _emailSender = emailSender;
     }
 
-    public async Task<JoinBookingResponse> Handle(Guid bookingId, CancellationToken ct)
+    public async Task<JoinBookingResponse> Handle(Guid bookingId, JoinBookingRequest request, CancellationToken ct)
     {
         var booking = await _db.Bookings
             .Include(b => b.Participants)
@@ -60,10 +60,18 @@ public class JoinBookingHandler : IHandler
             throw new DomainException("Booking is full.");
         }
 
+        if (booking.Type == BookingType.Game)
+        {
+            var teamCount = booking.Participants.Count(p => p.TeamNumber == request.TeamNumber);
+            if (teamCount >= 2)
+                throw new DomainException("That team is already full.");
+        }
+
         booking.Participants.Add(new BookingParticipant
         {
             UserId = currentUser.Id,
-            JoinedAt = DateTime.UtcNow
+            JoinedAt = DateTime.UtcNow,
+            TeamNumber = booking.Type == BookingType.Game ? request.TeamNumber : null
         });
 
         await _db.SaveChangesAsync(ct);
@@ -74,6 +82,7 @@ public class JoinBookingHandler : IHandler
             booking.Id,
             currentUser.Id,
             booking.Participants.Count,
-            booking.Capacity);
+            booking.Capacity,
+            booking.Type == BookingType.Game ? request.TeamNumber : null);
     }
 }

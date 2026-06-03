@@ -33,10 +33,12 @@ public class GlobalExceptionHandler : IExceptionHandler
             return false;
         }
 
-        _logger.LogWarning(
-            exception,
-            "Handled {ExceptionType} → {StatusCode}: {Message}",
-            exception.GetType().Name, statusCode, exception.Message);
+        if (exception is DomainException)
+            _logger.LogWarning("Handled {ExceptionType} → {StatusCode}: {Message}",
+                exception.GetType().Name, statusCode, exception.Message);
+        else
+            _logger.LogWarning(exception, "Handled {ExceptionType} → {StatusCode}: {Message}",
+                exception.GetType().Name, statusCode, exception.Message);
 
         httpContext.Response.StatusCode = statusCode;
         await httpContext.Response.WriteAsJsonAsync(problem, cancellationToken);

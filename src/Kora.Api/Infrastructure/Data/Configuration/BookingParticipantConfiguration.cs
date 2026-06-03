@@ -13,6 +13,10 @@ public class BookingParticipantConfiguration : IEntityTypeConfiguration<BookingP
         builder.Property(x => x.JoinedAt)
             .IsRequired();
 
+        builder.Property(x => x.TeamNumber)
+            .HasConversion<string>()
+            .HasMaxLength(10);
+
         builder.HasOne(x => x.User)
             .WithMany()
             .HasForeignKey(x => x.UserId)

@@ -19,7 +19,7 @@ public class ListCourtsHandler : IHandler
         var clubExists = await _db.Clubs.AnyAsync(c => c.Id == clubId, ct);
         if (!clubExists)
         {
-            throw new DomainException("Club not found.");
+            throw new NotFoundException("Club not found.");
         }
 
         var courts = await _db.Courts

@@ -50,10 +50,11 @@ public class BookingsRoutes : IEndpointGroup
 
         group.MapPost("/{bookingId:guid}/join", async (
             Guid bookingId,
+            JoinBookingRequest request,
             JoinBookingHandler handler,
             CancellationToken ct) =>
         {
-            var result = await handler.Handle(bookingId, ct);
+            var result = await handler.Handle(bookingId, request, ct);
             return Results.Ok(result);
         })
         .WithName("JoinBooking");

@@ -29,5 +29,8 @@ public record BookingInfo(
     int ParticipantsCount,
     int Capacity,
     bool IsPrivate,
-    string? Description
+    string? Description,
+    List<BookingParticipantInfo> Participants
 );
+
+public record BookingParticipantInfo(Guid UserId, TeamNumber? TeamNumber);

@@ -28,7 +28,7 @@ public class GetClubScheduleHandler : IHandler
             .FirstOrDefaultAsync(c => c.Id == clubId, ct);
 
         if (club is null)
-            throw new DomainException("Club not found.");
+            throw new NotFoundException("Club not found.");
 
         var tz = TimeZoneInfo.FindSystemTimeZoneById(club.TimeZoneId);
 
@@ -80,7 +80,10 @@ public class GetClubScheduleHandler : IHandler
                         booking.Participants.Count,
                         booking.Capacity,
                         booking.IsPrivate,
-                        booking.Description);
+                        booking.Description,
+                        booking.Participants
+                            .Select(p => new BookingParticipantInfo(p.UserId, p.TeamNumber))
+                            .ToList());
                 }
 
                 slots.Add(new ScheduleSlot(startOffset, endOffset, reservation is null, bookingInfo));

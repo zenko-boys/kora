@@ -23,7 +23,7 @@ public class GetClubSlotsHandler : IHandler
 
         if (club is null)
         {
-            throw new DomainException("Club not found.");
+            throw new NotFoundException("Club not found.");
         }
 
         var tz = TimeZoneInfo.FindSystemTimeZoneById(club.TimeZoneId);

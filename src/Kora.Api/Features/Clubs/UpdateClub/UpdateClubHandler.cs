@@ -31,7 +31,7 @@ public class UpdateClubHandler : IHandler
 
         if (club is null)
         {
-            throw new DomainException("Club not found.");
+            throw new NotFoundException("Club not found.");
         }
 
         club.Name = request.Name;

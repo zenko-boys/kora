@@ -30,7 +30,7 @@ public class UpdateCourtHandler : IHandler
 
         if (court is null)
         {
-            throw new DomainException("Court not found.");
+            throw new NotFoundException("Court not found.");
         }
 
         court.Name = request.Name;

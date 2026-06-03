@@ -39,14 +39,27 @@ public class GameBookingStrategy : ICreateBookingStrategy
 
         var currentUser = await _userContext.GetCurrentUserAsync(ct);
 
-        var hasConflict = await _db.Bookings
-            .AnyAsync(b => b.Participants.Any(p => p.UserId == currentUser.Id)
-                        && b.StartsAt < plan.EndsAtUtc
-                        && b.EndsAt > plan.StartsAtUtc, ct);
+        var isStaff = currentUser.Role == Domain.Users.UserRole.Admin
+            || await _db.ClubStaff.AnyAsync(s => s.ClubId == clubId && s.UserId == currentUser.Id, ct);
 
-        if (hasConflict)
+        List<BookingParticipant> participants = [];
+
+        if (!isStaff)
         {
-            throw new DomainException("User already has a booking during this time.");
+            var hasConflict = await _db.Bookings
+                .AnyAsync(b => b.Participants.Any(p => p.UserId == currentUser.Id)
+                            && b.StartsAt < plan.EndsAtUtc
+                            && b.EndsAt > plan.StartsAtUtc, ct);
+
+            if (hasConflict)
+                throw new DomainException("User already has a booking during this time.");
+
+            participants.Add(new BookingParticipant
+            {
+                UserId = currentUser.Id,
+                JoinedAt = DateTime.UtcNow,
+                TeamNumber = TeamNumber.Team1
+            });
         }
 
         var booking = new Booking
@@ -60,14 +73,7 @@ public class GameBookingStrategy : ICreateBookingStrategy
             IsPrivate = request.IsPrivate,
             Description = request.Description,
             CreatedAt = DateTime.UtcNow,
-            Participants =
-            {
-                new BookingParticipant
-                {
-                    UserId = currentUser.Id,
-                    JoinedAt = DateTime.UtcNow
-                }
-            },
+            Participants = participants,
             Reservations =
             {
                 new Reservation
@@ -83,7 +89,8 @@ public class GameBookingStrategy : ICreateBookingStrategy
         _db.Bookings.Add(booking);
         await _db.SaveChangesAsync(ct);
 
-        await _emailSender.SendAsync(BookingConfirmedEmail.Build(currentUser.Email, booking), ct);
+        if (!isStaff)
+            await _emailSender.SendAsync(BookingConfirmedEmail.Build(currentUser.Email, booking), ct);
 
         return new CreateBookingResponse(booking.Id);
     }

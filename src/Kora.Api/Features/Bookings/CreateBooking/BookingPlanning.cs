@@ -27,7 +27,7 @@ public static class BookingPlanning
 
         if (club is null)
         {
-            throw new DomainException("Club not found.");
+            throw new NotFoundException("Club not found.");
         }
 
         var sortedSlotsUtc = request.Slots
