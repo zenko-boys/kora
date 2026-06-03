@@ -1,6 +1,5 @@
 using Kora.Common.Errors;
 using Kora.Common.Handlers;
-using Kora.Domain.Users;
 using Kora.Infrastructure.Auth;
 using Kora.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -10,17 +9,17 @@ namespace Kora.Features.Clubs.GetClubSchedule;
 public class GetClubScheduleHandler : IHandler
 {
     private readonly AppDbContext _db;
-    private readonly IUserContext _userContext;
+    private readonly IClubAuthorizationService _clubAuth;
 
-    public GetClubScheduleHandler(AppDbContext db, IUserContext userContext)
+    public GetClubScheduleHandler(AppDbContext db, IClubAuthorizationService clubAuth)
     {
         _db = db;
-        _userContext = userContext;
+        _clubAuth = clubAuth;
     }
 
     public async Task<GetClubScheduleResponse> Handle(Guid clubId, DateOnly date, CancellationToken ct)
     {
-        await EnsureClubStaffOrAdminAsync(clubId, ct);
+        await _clubAuth.EnsureClubStaffOrAdminAsync(clubId, ct);
 
         var club = await _db.Clubs
             .Include(c => c.OperatingHours)
@@ -95,17 +94,4 @@ public class GetClubScheduleHandler : IHandler
         return new GetClubScheduleResponse(club.Id, date, club.TimeZoneId, club.SlotCellDurationMinutes, courts);
     }
 
-    private async Task EnsureClubStaffOrAdminAsync(Guid clubId, CancellationToken ct)
-    {
-        var user = await _userContext.GetCurrentUserAsync(ct);
-
-        if (user.Role == UserRole.Admin)
-            return;
-
-        var isStaff = await _db.ClubStaff
-            .AnyAsync(s => s.ClubId == clubId && s.UserId == user.Id, ct);
-
-        if (!isStaff)
-            throw new UnauthorizedAccessException("Only club staff or admins can view the schedule.");
-    }
 }

@@ -10,6 +10,9 @@ public static class CreateBookingDependencyInjection
         services.AddKeyedScoped<ICreateBookingStrategy, GameBookingStrategy>(BookingType.Game);
         services.AddKeyedScoped<ICreateBookingStrategy, DayUseBookingStrategy>(BookingType.DayUse);
 
+        services.AddScoped<Func<BookingType, ICreateBookingStrategy>>(
+            sp => type => sp.GetRequiredKeyedService<ICreateBookingStrategy>(type));
+
         return services;
     }
 }

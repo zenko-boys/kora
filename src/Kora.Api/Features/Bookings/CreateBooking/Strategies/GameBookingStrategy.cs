@@ -14,12 +14,14 @@ public class GameBookingStrategy : ICreateBookingStrategy
 
     private readonly AppDbContext _db;
     private readonly IUserContext _userContext;
+    private readonly IClubAuthorizationService _clubAuth;
     private readonly IEmailSender _emailSender;
 
-    public GameBookingStrategy(AppDbContext db, IUserContext userContext, IEmailSender emailSender)
+    public GameBookingStrategy(AppDbContext db, IUserContext userContext, IClubAuthorizationService clubAuth, IEmailSender emailSender)
     {
         _db = db;
         _userContext = userContext;
+        _clubAuth = clubAuth;
         _emailSender = emailSender;
     }
 
@@ -39,8 +41,7 @@ public class GameBookingStrategy : ICreateBookingStrategy
 
         var currentUser = await _userContext.GetCurrentUserAsync(ct);
 
-        var isStaff = currentUser.Role == Domain.Users.UserRole.Admin
-            || await _db.ClubStaff.AnyAsync(s => s.ClubId == clubId && s.UserId == currentUser.Id, ct);
+        var isStaff = await _clubAuth.IsClubStaffOrAdminAsync(clubId, ct);
 
         List<BookingParticipant> participants = [];
 

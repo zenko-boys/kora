@@ -1,21 +1,19 @@
 using Kora.Domain.Bookings;
 using Kora.Domain.Reservations;
-using Kora.Domain.Users;
 using Kora.Infrastructure.Auth;
 using Kora.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace Kora.Features.Bookings.CreateBooking.Strategies;
 
 public class DayUseBookingStrategy : ICreateBookingStrategy
 {
     private readonly AppDbContext _db;
-    private readonly IUserContext _userContext;
+    private readonly IClubAuthorizationService _clubAuth;
 
-    public DayUseBookingStrategy(AppDbContext db, IUserContext userContext)
+    public DayUseBookingStrategy(AppDbContext db, IClubAuthorizationService clubAuth)
     {
         _db = db;
-        _userContext = userContext;
+        _clubAuth = clubAuth;
     }
 
     public async Task<CreateBookingResponse> HandleAsync(
@@ -23,7 +21,7 @@ public class DayUseBookingStrategy : ICreateBookingStrategy
         CreateBookingRequest request,
         CancellationToken ct)
     {
-        await EnsureClubStaffOrAdminAsync(clubId, ct);
+        await _clubAuth.EnsureClubStaffOrAdminAsync(clubId, ct);
 
         var plan = await BookingPlanning.PrepareAsync(
             _db, clubId, request, requiredCourts: request.CourtsToOccupy!.Value, ct);
@@ -55,22 +53,5 @@ public class DayUseBookingStrategy : ICreateBookingStrategy
         return new CreateBookingResponse(booking.Id);
     }
 
-    private async Task EnsureClubStaffOrAdminAsync(Guid clubId, CancellationToken ct)
-    {
-        var user = await _userContext.GetCurrentUserAsync(ct);
 
-        if (user.Role == UserRole.Admin)
-        {
-            return;
-        }
-
-        var isStaff = await _db.ClubStaff
-            .AnyAsync(s => s.ClubId == clubId && s.UserId == user.Id, ct);
-
-        if (!isStaff)
-        {
-            throw new UnauthorizedAccessException(
-                "Only club staff or admins can create DayUse bookings.");
-        }
-    }
 }

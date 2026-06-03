@@ -14,6 +14,7 @@ public static class AuthExtensions
         services.AddHttpContextAccessor();
         services.AddScoped<CurrentUserIdHolder>();
         services.AddScoped<IUserContext, UserContext>();
+        services.AddScoped<IClubAuthorizationService, ClubAuthorizationService>();
         services.AddScoped<IAuthorizationHandler, AdminOnlyHandler>();
         services.AddScoped<IAuthorizationHandler, ClubStaffOrAdminHandler>();
 

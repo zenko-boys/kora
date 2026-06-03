@@ -1,18 +1,19 @@
 using FluentValidation;
 using Kora.Common.Handlers;
+using Kora.Domain.Bookings;
 
 namespace Kora.Features.Bookings.CreateBooking;
 
 public class CreateBookingHandler : IHandler
 {
-    private readonly IServiceProvider _sp;
+    private readonly Func<BookingType, ICreateBookingStrategy> _strategyFactory;
     private readonly IValidator<CreateBookingRequest> _validator;
 
     public CreateBookingHandler(
-        IServiceProvider sp,
+        Func<BookingType, ICreateBookingStrategy> strategyFactory,
         IValidator<CreateBookingRequest> validator)
     {
-        _sp = sp;
+        _strategyFactory = strategyFactory;
         _validator = validator;
     }
 
@@ -22,7 +23,7 @@ public class CreateBookingHandler : IHandler
     {
         await _validator.ValidateAndThrowAsync(request, ct);
 
-        var strategy = _sp.GetRequiredKeyedService<ICreateBookingStrategy>(request.Type);
+        var strategy = _strategyFactory(request.Type);
         return await strategy.HandleAsync(request.ClubId, request, ct);
     }
 }
