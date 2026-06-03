@@ -33,7 +33,15 @@
 
 ## Ideias
 - [ ] pagamentos
+- [ ] historico de pagamentos, administracao financas
 - [ ] rankings de clubes
 - [ ] rankings de usuarios
 - [ ] level de usuario
 - [ ] evento
+- [ ] outros esportes
+- [ ] visao do clube em forma de agenda
+
+<img width="595" height="407" alt="image" src="https://github.com/user-attachments/assets/da0bebed-94a2-418b-accc-263a2ef5a6b7" />
+
+<img width="569" height="419" alt="image" src="https://github.com/user-attachments/assets/8ae6bbef-ce55-496a-9579-c16511720121" />
+
