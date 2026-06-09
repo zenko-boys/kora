@@ -1,16 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
 import moment from "moment-timezone";
-import { ArrowLeft, Clock, LayoutGrid } from "lucide-react";
+import { ArrowLeft, Clock, LayoutGrid, Users } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { createApiClient } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { ClubSlotInfo, CourtSummary } from "@/lib/types";
+import type { ScheduleSlot, CourtSchedule } from "@/lib/types";
 
 interface SlotsClientProps {
     clubId: string;
@@ -27,7 +27,7 @@ function fmtTime(iso: string) {
     return moment.parseZone(iso).format("HH:mm");
 }
 
-function isSlotPast(slot: ClubSlotInfo, tzId: string): boolean {
+function isSlotPast(slot: ScheduleSlot, tzId: string): boolean {
     return moment.parseZone(slot.startTime).isBefore(moment.tz(tzId));
 }
 
@@ -102,62 +102,35 @@ function WeekPicker({
     );
 }
 
-// ─── Court Slots Panel ───────────────────────────────────────────────────────
+// ─── Court Schedule Panel ────────────────────────────────────────────────────
 
-function CourtSlotsPanel({
+function CourtSchedulePanel({
     court,
-    clubId,
-    date,
-    clubTzId,
+    tzId,
 }: {
-    court: CourtSummary;
-    clubId: string;
-    date: string;
-    clubTzId: string;
+    court: CourtSchedule;
+    tzId: string;
 }) {
-    const { getToken } = useAuth();
     const t = useTranslations("manage");
-    const api = createApiClient(async (opts) => getToken(opts));
-
-    const { data, isLoading, isError } = useQuery({
-        queryKey: ["court-slots", clubId, court.id, date],
-        queryFn: () => api.getCourtSlots(clubId, court.id, date),
-        enabled: !!date,
-        staleTime: 0,
-    });
-
-    const slots = data?.slots ?? [];
-    const tzId = data?.timeZoneId ?? clubTzId;
 
     return (
         <Card className="overflow-hidden border-border">
             <CardHeader className="border-b border-border bg-muted/30 px-5 py-3">
                 <CardTitle className="flex items-center gap-2 text-sm font-semibold text-foreground">
                     <LayoutGrid className="h-4 w-4 text-[#3D46FB]" />
-                    {court.name}
+                    {court.courtName}
                 </CardTitle>
             </CardHeader>
             <CardContent className="p-4">
-                {isLoading ? (
-                    <div className="grid grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] gap-2">
-                        {Array.from({ length: 8 }).map((_, i) => (
-                            <Skeleton key={i} className="h-10 rounded-md" />
-                        ))}
-                    </div>
-                ) : isError ? (
-                    <p className="py-4 text-center text-xs text-destructive">
-                        {t("slots.failedToLoad")}
-                    </p>
-                ) : slots.length === 0 ? (
+                {court.slots.length === 0 ? (
                     <p className="py-4 text-center text-xs text-muted-foreground">
                         {t("slots.noSlots")}
                     </p>
                 ) : (
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] gap-2">
-                        {slots.map((slot) => {
+                        {court.slots.map((slot) => {
                             const past = isSlotPast(slot, tzId);
-                            const available = !past && slot.availableCourts > 0;
-                            const occupied = !past && slot.availableCourts === 0;
+                            const available = !past && slot.available;
                             return (
                                 <div
                                     key={slot.startTime}
@@ -180,6 +153,14 @@ function CourtSlotsPanel({
                                                 ? t("slots.available")
                                                 : t("slots.occupied")}
                                     </span>
+                                    {!past && !available && slot.booking && (
+                                        <span className="mt-1 flex items-center gap-1 text-[10px] opacity-80">
+                                            <Users className="h-2.5 w-2.5" />
+                                            {slot.booking.participantsCount}/{slot.booking.capacity}
+                                            {" · "}
+                                            {slot.booking.type}
+                                        </span>
+                                    )}
                                 </div>
                             );
                         })}
@@ -207,12 +188,15 @@ export function SlotsClient({
     const today = moment.tz(timeZoneId).format("YYYY-MM-DD");
     const [date, setDate] = useState(today);
 
-    const { data: courtsData, isLoading: courtsLoading } = useQuery({
-        queryKey: ["courts", clubId],
-        queryFn: () => api.getCourts(clubId),
+    const { data, isLoading, isError } = useQuery({
+        queryKey: ["club-schedule", clubId, date],
+        queryFn: () => api.getClubSchedule(clubId, date),
+        enabled: !!date,
+        staleTime: 0,
     });
-    const courts: CourtSummary[] = courtsData?.courts ?? [];
 
+    const courts = data?.courts ?? [];
+    const tzId = data?.timeZoneId ?? timeZoneId;
     const tzBadge = moment.tz(timeZoneId).format("[UTC]Z") + " · " + timeZoneId;
 
     return (
@@ -252,11 +236,15 @@ export function SlotsClient({
             </div>
 
             {/* Courts grid */}
-            {courtsLoading ? (
+            {isLoading ? (
                 <div className="space-y-4">
                     {[1, 2, 3].map((i) => (
                         <Skeleton key={i} className="h-40 w-full rounded-xl" />
                     ))}
+                </div>
+            ) : isError ? (
+                <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
+                    <p className="text-sm text-destructive">{t("slots.failedToLoad")}</p>
                 </div>
             ) : courts.length === 0 ? (
                 <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
@@ -268,12 +256,10 @@ export function SlotsClient({
             ) : (
                 <div className="space-y-4">
                     {courts.map((court) => (
-                        <CourtSlotsPanel
-                            key={court.id}
+                        <CourtSchedulePanel
+                            key={court.courtId}
                             court={court}
-                            clubId={clubId}
-                            date={date}
-                            clubTzId={timeZoneId}
+                            tzId={tzId}
                         />
                     ))}
                 </div>
