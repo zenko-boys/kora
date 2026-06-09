@@ -205,3 +205,41 @@ export interface GetClubSlotsResponse {
     minimumBookingDurationMinutes: number;
     slots: ClubSlotInfo[];
 }
+
+// ---- Club Schedule (staff view) ----
+
+export interface ScheduleBookingParticipant {
+    userId: string;
+    teamNumber: number | null;
+}
+
+export interface ScheduleBookingInfo {
+    bookingId: string;
+    type: BookingType;
+    participantsCount: number;
+    capacity: number;
+    isPrivate: boolean;
+    description: string | null;
+    participants: ScheduleBookingParticipant[];
+}
+
+export interface ScheduleSlot {
+    startTime: string; // ISO 8601 with club timezone offset
+    endTime: string;
+    available: boolean;
+    booking: ScheduleBookingInfo | null;
+}
+
+export interface CourtSchedule {
+    courtId: string;
+    courtName: string;
+    slots: ScheduleSlot[];
+}
+
+export interface GetClubScheduleResponse {
+    clubId: string;
+    date: string;
+    timeZoneId: string;
+    slotCellDurationMinutes: number;
+    courts: CourtSchedule[];
+}

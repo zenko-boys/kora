@@ -16,6 +16,7 @@ import type {
     UpdateCourtRequest,
     UpdateCourtResponse,
     GetClubSlotsResponse,
+    GetClubScheduleResponse,
     PlayerStatsResponse,
     UpcomingGamesResponse,
     FeedResponse,
@@ -240,6 +241,22 @@ export function createApiClient(getToken: GetToken) {
             }
             return apiFetch<GetClubSlotsResponse>(
                 `/clubs/${clubId}/courts/${courtId}/slots?date=${date}`,
+                getToken
+            );
+        },
+
+        getClubSchedule: (clubId: string, date: string): Promise<GetClubScheduleResponse> => {
+            if (USE_MOCK) {
+                return Promise.resolve({
+                    clubId,
+                    date,
+                    timeZoneId: "UTC",
+                    slotCellDurationMinutes: 60,
+                    courts: [],
+                });
+            }
+            return apiFetch<GetClubScheduleResponse>(
+                `/clubs/${clubId}/schedule?date=${date}`,
                 getToken
             );
         },

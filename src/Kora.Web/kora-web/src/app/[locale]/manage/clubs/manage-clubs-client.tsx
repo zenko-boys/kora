@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueries } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
 import { Building2, ChevronRight, CalendarDays, Clock } from "lucide-react";
@@ -25,6 +25,19 @@ export function ManageClubsClient() {
     const managedClubs: MyClubSummary[] = (data?.clubs ?? []).filter((c) =>
         MANAGEMENT_ROLES.includes(c.role)
     );
+
+    const courtsQueries = useQueries({
+        queries: managedClubs.map((club) => ({
+            queryKey: ["courts", club.clubId],
+            queryFn: () => api.getCourts(club.clubId),
+            enabled: managedClubs.length > 0,
+        })),
+    });
+
+    const courtsCounts: Record<string, number> = {};
+    managedClubs.forEach((club, i) => {
+        courtsCounts[club.clubId] = courtsQueries[i]?.data?.courts.length ?? 0;
+    });
 
     if (isLoading) {
         return (
@@ -62,7 +75,7 @@ export function ManageClubsClient() {
                                 </Badge>
                             </div>
                             <p className="mt-0.5 text-xs text-muted-foreground">
-                                {t("clubs.courtsCount", { count: club.courtsCount ?? 0 })}
+                                {t("clubs.courtsCount", { count: courtsCounts[club.clubId] ?? 0 })}
                                 {" · "}
                                 {club.timeZoneId}
                             </p>
