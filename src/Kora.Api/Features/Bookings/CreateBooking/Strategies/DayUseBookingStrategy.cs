@@ -1,3 +1,4 @@
+using Kora.Common.Errors;
 using Kora.Domain.Bookings;
 using Kora.Domain.Reservations;
 using Kora.Infrastructure.Auth;
@@ -26,6 +27,13 @@ public class DayUseBookingStrategy : ICreateBookingStrategy
         var plan = await BookingPlanning.PrepareAsync(
             _db, clubId, request, requiredCourts: request.CourtsToOccupy!.Value, ct);
 
+        var guests = (request.Guests ?? [])
+            .Select(g => new BookingGuest { Id = Guid.NewGuid(), Name = g.Name, Email = g.Email, Team = g.Team })
+            .ToList();
+
+        if (guests.Count > request.Capacity!.Value)
+            throw new DomainException($"Too many guests. This booking has a capacity of {request.Capacity.Value}.");
+
         var booking = new Booking
         {
             Id = Guid.NewGuid(),
@@ -36,6 +44,7 @@ public class DayUseBookingStrategy : ICreateBookingStrategy
             Capacity = request.Capacity!.Value,
             Description = request.Description,
             CreatedAt = DateTime.UtcNow,
+            Guests = guests,
             Reservations = plan.FreeCourtIds
                 .Select(courtId => new Reservation
                 {
@@ -52,6 +61,4 @@ public class DayUseBookingStrategy : ICreateBookingStrategy
 
         return new CreateBookingResponse(booking.Id);
     }
-
-
 }

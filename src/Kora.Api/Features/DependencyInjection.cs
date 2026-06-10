@@ -1,6 +1,5 @@
 using System.Reflection;
 using FluentValidation;
-using Kora.Common.Endpoints;
 using Kora.Common.Handlers;
 using Kora.Features.Bookings.CreateBooking;
 
@@ -12,7 +11,6 @@ public static class DependencyInjection
         this IServiceCollection services,
         Assembly assembly)
     {
-        services.AddEndpoints(assembly);
         services.AddHandlers(assembly);
         services.AddValidatorsFromAssembly(assembly);
 

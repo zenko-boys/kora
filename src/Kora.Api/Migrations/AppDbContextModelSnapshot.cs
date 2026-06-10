@@ -17,7 +17,7 @@ namespace Kora.Api.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.8")
+                .HasAnnotation("ProductVersion", "10.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -72,6 +72,35 @@ namespace Kora.Api.Migrations
                     b.ToTable("Bookings");
                 });
 
+            modelBuilder.Entity("Kora.Domain.Bookings.BookingGuest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Team")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
+
+                    b.ToTable("BookingGuests");
+                });
+
             modelBuilder.Entity("Kora.Domain.Bookings.BookingParticipant", b =>
                 {
                     b.Property<Guid>("BookingId")
@@ -83,7 +112,7 @@ namespace Kora.Api.Migrations
                     b.Property<DateTime>("JoinedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("TeamNumber")
+                    b.Property<string>("Team")
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
@@ -237,6 +266,46 @@ namespace Kora.Api.Migrations
                     b.ToTable("Courts");
                 });
 
+            modelBuilder.Entity("Kora.Domain.Courts.CourtBlock", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CourtId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("EndsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<DateTime>("StartsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourtId");
+
+                    b.HasIndex("CourtId", "StartsAt", "EndsAt");
+
+                    b.ToTable("CourtBlocks");
+                });
+
             modelBuilder.Entity("Kora.Domain.Reservations.Reservation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -319,6 +388,15 @@ namespace Kora.Api.Migrations
                     b.Navigation("Club");
                 });
 
+            modelBuilder.Entity("Kora.Domain.Bookings.BookingGuest", b =>
+                {
+                    b.HasOne("Kora.Domain.Bookings.Booking", null)
+                        .WithMany("Guests")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Kora.Domain.Bookings.BookingParticipant", b =>
                 {
                     b.HasOne("Kora.Domain.Bookings.Booking", null)
@@ -377,6 +455,17 @@ namespace Kora.Api.Migrations
                     b.Navigation("Club");
                 });
 
+            modelBuilder.Entity("Kora.Domain.Courts.CourtBlock", b =>
+                {
+                    b.HasOne("Kora.Domain.Courts.Court", "Court")
+                        .WithMany("Blocks")
+                        .HasForeignKey("CourtId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Court");
+                });
+
             modelBuilder.Entity("Kora.Domain.Reservations.Reservation", b =>
                 {
                     b.HasOne("Kora.Domain.Bookings.Booking", "Booking")
@@ -398,6 +487,8 @@ namespace Kora.Api.Migrations
 
             modelBuilder.Entity("Kora.Domain.Bookings.Booking", b =>
                 {
+                    b.Navigation("Guests");
+
                     b.Navigation("Participants");
 
                     b.Navigation("Reservations");
@@ -416,6 +507,8 @@ namespace Kora.Api.Migrations
 
             modelBuilder.Entity("Kora.Domain.Courts.Court", b =>
                 {
+                    b.Navigation("Blocks");
+
                     b.Navigation("Reservations");
                 });
 #pragma warning restore 612, 618

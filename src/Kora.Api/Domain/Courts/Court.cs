@@ -19,4 +19,6 @@ public class Court : IAuditable
     public Club? Club { get; set; }
 
     public List<Reservation> Reservations { get; set; } = [];
+
+    public List<CourtBlock> Blocks { get; set; } = [];
 }

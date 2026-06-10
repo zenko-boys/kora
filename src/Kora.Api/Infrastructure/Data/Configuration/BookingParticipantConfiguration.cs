@@ -13,7 +13,7 @@ public class BookingParticipantConfiguration : IEntityTypeConfiguration<BookingP
         builder.Property(x => x.JoinedAt)
             .IsRequired();
 
-        builder.Property(x => x.TeamNumber)
+        builder.Property(x => x.Team)
             .HasConversion<string>()
             .HasMaxLength(10);
 

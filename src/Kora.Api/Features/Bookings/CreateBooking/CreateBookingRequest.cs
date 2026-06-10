@@ -2,6 +2,8 @@ using Kora.Domain.Bookings;
 
 namespace Kora.Features.Bookings.CreateBooking;
 
+public record GuestInput(string Name, string? Email, Team? Team);
+
 public record CreateBookingRequest(
     Guid ClubId,
     BookingType Type,
@@ -9,5 +11,7 @@ public record CreateBookingRequest(
     int? CourtsToOccupy,
     int? Capacity,
     bool IsPrivate,
-    string? Description
+    string? Description,
+    Guid? CourtId,
+    GuestInput[]? Guests
 );

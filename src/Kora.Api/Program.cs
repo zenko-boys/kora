@@ -1,6 +1,5 @@
 using System.Reflection;
 using Kora.Common;
-using Kora.Common.Endpoints;
 using Kora.Configuration;
 using Kora.Features;
 using Kora.Infrastructure;
@@ -39,6 +38,6 @@ var app = builder.Build();
 
 await app.UseInfrastructure();
 
-app.MapEndpoints();
+app.MapControllers();
 
 app.Run();

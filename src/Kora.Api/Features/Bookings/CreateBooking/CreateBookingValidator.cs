@@ -18,6 +18,13 @@ public class CreateBookingValidator : AbstractValidator<CreateBookingRequest>
             .Must(d => d != default)
             .WithMessage("Each slot must be a valid date/time with an offset, e.g. '2026-05-18T22:00:00-03:00'.");
 
+        RuleForEach(x => x.Guests)
+            .ChildRules(guest =>
+            {
+                guest.RuleFor(g => g.Name).NotEmpty().MaximumLength(100);
+                guest.RuleFor(g => g.Email).MaximumLength(200).EmailAddress().When(g => g.Email is not null);
+            });
+
         When(x => x.Type == BookingType.DayUse, () =>
         {
             RuleFor(x => x.CourtsToOccupy)
@@ -29,6 +36,13 @@ public class CreateBookingValidator : AbstractValidator<CreateBookingRequest>
                 .NotNull()
                 .GreaterThan(0)
                 .WithMessage("capacity is required and must be > 0 for DayUse bookings.");
+
+            When(x => x.CourtId.HasValue, () =>
+            {
+                RuleFor(x => x.CourtsToOccupy)
+                    .Equal(1)
+                    .WithMessage("courtId can only be specified when courtsToOccupy is 1.");
+            });
         });
     }
 }

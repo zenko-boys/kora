@@ -67,13 +67,18 @@ public static class BookingPlanning
             throw new DomainException("Club has no courts.");
         }
 
+        if (request.CourtId.HasValue && !courtIds.Contains(request.CourtId.Value))
+        {
+            throw new NotFoundException("Court not found in this club.");
+        }
+
         if (requiredCourts > courtIds.Count)
         {
             throw new DomainException(
                 $"Club only has {courtIds.Count} courts.");
         }
 
-        var busyCourtIds = await db.Reservations
+        var bookedCourtIds = await db.Reservations
             .Where(r => courtIds.Contains(r.CourtId)
                      && r.StartsAt < endsAtUtc
                      && r.EndsAt > startsAtUtc)
@@ -81,10 +86,32 @@ public static class BookingPlanning
             .Distinct()
             .ToListAsync(ct);
 
-        var freeCourts = courtIds
-            .Except(busyCourtIds)
-            .Take(requiredCourts)
-            .ToList();
+        var blockedCourtIds = await db.CourtBlocks
+            .Where(b => courtIds.Contains(b.CourtId)
+                     && b.StartsAt < endsAtUtc
+                     && b.EndsAt > startsAtUtc)
+            .Select(b => b.CourtId)
+            .Distinct()
+            .ToListAsync(ct);
+
+        var busyCourtIds = bookedCourtIds.Union(blockedCourtIds).ToList();
+
+        if (request.CourtId.HasValue && busyCourtIds.Contains(request.CourtId.Value))
+        {
+            throw new DomainException("The requested court is already booked or blocked at this time.");
+        }
+
+        var freeCourts = request.CourtId.HasValue
+            ? courtIds
+                .Where(id => id != request.CourtId.Value)
+                .Except(busyCourtIds)
+                .Take(requiredCourts - 1)
+                .Prepend(request.CourtId.Value)
+                .ToList()
+            : courtIds
+                .Except(busyCourtIds)
+                .Take(requiredCourts)
+                .ToList();
 
         if (freeCourts.Count < requiredCourts)
         {

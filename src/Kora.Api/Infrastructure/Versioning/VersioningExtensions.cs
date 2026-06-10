@@ -1,5 +1,4 @@
 using Asp.Versioning;
-using Asp.Versioning.Builder;
 
 namespace Kora.Infrastructure.Versioning;
 
@@ -14,6 +13,7 @@ public static class VersioningExtensions
             options.ReportApiVersions = true;
             options.ApiVersionReader = new UrlSegmentApiVersionReader();
         })
+        .AddMvc()
         .AddApiExplorer(options =>
         {
             options.GroupNameFormat = "'v'VVV";
@@ -21,15 +21,5 @@ public static class VersioningExtensions
         });
 
         return services;
-    }
-
-    public static RouteGroupBuilder MapApiVersion(this WebApplication app, int version)
-    {
-        var versionSet = app.NewApiVersionSet()
-            .HasApiVersion(new ApiVersion(version, 0))
-            .Build();
-
-        return app.MapGroup("/api/v{version:apiVersion}")
-            .WithApiVersionSet(versionSet);
     }
 }

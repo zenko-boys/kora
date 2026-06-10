@@ -7,8 +7,8 @@ public class JoinBookingValidator : AbstractValidator<JoinBookingRequest>
 {
     public JoinBookingValidator()
     {
-        RuleFor(x => x.TeamNumber)
-            .Must(t => t == TeamNumber.Team1 || t == TeamNumber.Team2)
-            .WithMessage("TeamNumber must be 1 (Team1) or 2 (Team2).");
+        RuleFor(x => x.Team)
+            .Must(t => t == Team.TeamA || t == Team.TeamB)
+            .WithMessage("Team must be TeamA or TeamB.");
     }
 }

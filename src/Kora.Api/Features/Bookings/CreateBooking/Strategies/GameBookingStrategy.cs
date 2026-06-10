@@ -59,9 +59,17 @@ public class GameBookingStrategy : ICreateBookingStrategy
             {
                 UserId = currentUser.Id,
                 JoinedAt = DateTime.UtcNow,
-                TeamNumber = TeamNumber.Team1
+                Team = Team.TeamA
             });
         }
+
+        var guests = (request.Guests ?? [])
+            .Select(g => new BookingGuest { Id = Guid.NewGuid(), Name = g.Name, Email = g.Email, Team = g.Team })
+            .ToList();
+
+        var totalOccupants = participants.Count + guests.Count;
+        if (totalOccupants > GameCapacity)
+            throw new DomainException($"Too many participants. Game bookings allow up to {GameCapacity} players.");
 
         var booking = new Booking
         {
@@ -75,6 +83,7 @@ public class GameBookingStrategy : ICreateBookingStrategy
             Description = request.Description,
             CreatedAt = DateTime.UtcNow,
             Participants = participants,
+            Guests = guests,
             Reservations =
             {
                 new Reservation

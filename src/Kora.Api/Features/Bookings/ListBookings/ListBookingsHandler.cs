@@ -48,11 +48,11 @@ public class ListBookingsHandler : IHandler
 
         if (open == true)
         {
-            query = query.Where(b => b.Participants.Count < b.Capacity);
+            query = query.Where(b => b.Participants.Count + b.Guests.Count < b.Capacity);
         }
         else if (open == false)
         {
-            query = query.Where(b => b.Participants.Count >= b.Capacity);
+            query = query.Where(b => b.Participants.Count + b.Guests.Count >= b.Capacity);
         }
 
         var raw = await query
@@ -69,7 +69,7 @@ public class ListBookingsHandler : IHandler
                 b.IsPrivate,
                 b.StartsAt,
                 b.EndsAt,
-                ParticipantsCount = b.Participants.Count,
+                OccupantsCount = b.Participants.Count + b.Guests.Count,
                 b.Capacity,
                 AmIIn = b.Participants.Any(p => p.UserId == currentUser.Id)
             })
@@ -83,8 +83,8 @@ public class ListBookingsHandler : IHandler
             return new BookingSummary(
                 b.Id, b.ClubId, b.ClubName, b.ClubTimeZoneId, b.CourtName,
                 b.Type, b.IsPrivate, startsAt, endsAt,
-                b.ParticipantsCount, b.Capacity,
-                b.Capacity - b.ParticipantsCount, b.AmIIn);
+                b.OccupantsCount, b.Capacity,
+                b.Capacity - b.OccupantsCount, b.AmIIn);
         }).ToList();
 
         return new ListBookingsResponse(bookings);

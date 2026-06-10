@@ -2,4 +2,4 @@ using Kora.Domain.Bookings;
 
 namespace Kora.Features.Bookings.JoinBooking;
 
-public record JoinBookingRequest(TeamNumber TeamNumber);
+public record JoinBookingRequest(Team Team);

@@ -171,7 +171,7 @@ export function createApiClient(getToken: GetToken) {
 
         createClub: (body: CreateClubRequest): Promise<CreateClubResponse> => {
             if (USE_MOCK) return Promise.resolve({ id: crypto.randomUUID() });
-            return apiFetch<CreateClubResponse>("/clubs", getToken, {
+            return apiFetch<CreateClubResponse>("/management/clubs", getToken, {
                 method: "POST",
                 body: JSON.stringify(body),
             });
@@ -179,7 +179,7 @@ export function createApiClient(getToken: GetToken) {
 
         updateClub: (clubId: string, body: UpdateClubRequest): Promise<UpdateClubResponse> => {
             if (USE_MOCK) return Promise.resolve({ id: clubId });
-            return apiFetch<UpdateClubResponse>(`/clubs/${clubId}`, getToken, {
+            return apiFetch<UpdateClubResponse>(`/management/clubs/${clubId}`, getToken, {
                 method: "PUT",
                 body: JSON.stringify(body),
             });
@@ -192,7 +192,7 @@ export function createApiClient(getToken: GetToken) {
 
         createCourt: (clubId: string, body: CreateCourtRequest): Promise<CreateCourtResponse> => {
             if (USE_MOCK) return Promise.resolve({ id: crypto.randomUUID() });
-            return apiFetch<CreateCourtResponse>(`/clubs/${clubId}/courts`, getToken, {
+            return apiFetch<CreateCourtResponse>(`/management/clubs/${clubId}/courts`, getToken, {
                 method: "POST",
                 body: JSON.stringify(body),
             });
@@ -205,7 +205,7 @@ export function createApiClient(getToken: GetToken) {
         ): Promise<UpdateCourtResponse> => {
             if (USE_MOCK) return Promise.resolve({ id: courtId, name: body.name });
             return apiFetch<UpdateCourtResponse>(
-                `/clubs/${clubId}/courts/${courtId}`,
+                `/management/clubs/${clubId}/courts/${courtId}`,
                 getToken,
                 { method: "PUT", body: JSON.stringify(body) }
             );

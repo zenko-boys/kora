@@ -7,7 +7,6 @@ public static class OpenApiExtensions
     public static IServiceCollection AddOpenApiDocumentation(
         this IServiceCollection services)
     {
-        services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>
         {
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

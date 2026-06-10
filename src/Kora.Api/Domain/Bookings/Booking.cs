@@ -31,4 +31,6 @@ public class Booking : IAuditable
     public List<Reservation> Reservations { get; set; } = [];
 
     public List<BookingParticipant> Participants { get; set; } = [];
+
+    public List<BookingGuest> Guests { get; set; } = [];
 }

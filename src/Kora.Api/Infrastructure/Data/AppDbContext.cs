@@ -7,6 +7,7 @@ using Kora.Domain.Reservations;
 using Kora.Domain.Users;
 using Kora.Infrastructure.Auth;
 
+
 namespace Kora.Infrastructure.Data;
 
 public class AppDbContext : DbContext
@@ -20,6 +21,8 @@ public class AppDbContext : DbContext
     public DbSet<Reservation> Reservations => Set<Reservation>();
     public DbSet<Booking> Bookings => Set<Booking>();
     public DbSet<BookingParticipant> BookingParticipants => Set<BookingParticipant>();
+    public DbSet<BookingGuest> BookingGuests => Set<BookingGuest>();
+    public DbSet<CourtBlock> CourtBlocks => Set<CourtBlock>();
     public DbSet<User> Users => Set<User>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options, CurrentUserIdHolder userIdHolder)
