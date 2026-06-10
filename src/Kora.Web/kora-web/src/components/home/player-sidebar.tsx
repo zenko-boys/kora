@@ -61,10 +61,10 @@ export function PlayerSidebar({ stats, upcomingGames }: PlayerSidebarProps) {
                     <img
                         src={user.imageUrl}
                         alt={user.fullName ?? "Avatar"}
-                        className="h-14 w-14 rounded-full object-cover ring-2 ring-[#93C5FD]/30"
+                        className="h-14 w-14 rounded-full object-cover ring-2 ring-[#8CC63F]/30"
                     />
                 ) : (
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted text-xl font-bold text-muted-foreground ring-2 ring-[#93C5FD]/30">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted text-xl font-bold text-muted-foreground ring-2 ring-[#8CC63F]/30">
                         {user?.firstName?.[0] ?? "?"}
                     </div>
                 )}
@@ -88,7 +88,7 @@ export function PlayerSidebar({ stats, upcomingGames }: PlayerSidebarProps) {
                 </div>
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
                     <div
-                        className="h-full rounded-full bg-[#93C5FD] transition-all"
+                        className="h-full rounded-full bg-[#8CC63F] transition-all"
                         style={{ width: `${progressPct}%` }}
                     />
                 </div>
@@ -175,7 +175,7 @@ export function PlayerSidebar({ stats, upcomingGames }: PlayerSidebarProps) {
                 )}
                 <Link
                     href={`/${locale}/bookings`}
-                    className="flex items-center gap-1 text-xs text-[#93C5FD] hover:underline"
+                    className="flex items-center gap-1 text-xs text-[#8CC63F] hover:underline"
                 >
                     Ver todos os bookings <ArrowRight className="h-3 w-3" />
                 </Link>

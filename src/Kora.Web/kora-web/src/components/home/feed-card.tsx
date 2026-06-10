@@ -67,7 +67,7 @@ export function FeedCard({ item }: { item: FeedItem }) {
                         href={item.linkUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-[#93C5FD] hover:underline"
+                        className="inline-flex items-center gap-1 text-xs text-[#8CC63F] hover:underline"
                     >
                         Ver mais <ExternalLink className="h-3 w-3" />
                     </a>

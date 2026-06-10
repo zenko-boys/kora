@@ -56,7 +56,7 @@ function WeekPicker({
             <button
                 type="button"
                 onClick={() => setWeekStart((w) => w.clone().subtract(7, "days"))}
-                className="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:border-[#3D46FB]/50 hover:text-foreground"
+                className="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:border-[#8CC63F]/50 hover:text-foreground"
             >
                 ‹
             </button>
@@ -75,12 +75,12 @@ function WeekPicker({
                             className={[
                                 "flex w-11 flex-col items-center rounded-lg border py-1.5 text-xs transition-colors",
                                 isSelected
-                                    ? "border-[#3D46FB] bg-[#3D46FB] text-white"
+                                    ? "border-[#8CC63F] bg-[#8CC63F] text-[#0D1B2A]"
                                     : isToday
-                                        ? "border-[#3D46FB]/40 text-foreground hover:border-[#3D46FB] hover:bg-[#3D46FB]/5"
+                                        ? "border-[#8CC63F]/40 text-foreground hover:border-[#8CC63F] hover:bg-[#8CC63F]/5"
                                         : isPast
                                             ? "cursor-not-allowed border-border text-muted-foreground/40"
-                                            : "border-border text-muted-foreground hover:border-[#3D46FB]/40 hover:text-foreground",
+                                            : "border-border text-muted-foreground hover:border-[#8CC63F]/40 hover:text-foreground",
                             ].join(" ")}
                         >
                             <span className="text-[10px] font-medium uppercase opacity-60">
@@ -94,7 +94,7 @@ function WeekPicker({
             <button
                 type="button"
                 onClick={() => setWeekStart((w) => w.clone().add(7, "days"))}
-                className="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:border-[#3D46FB]/50 hover:text-foreground"
+                className="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:border-[#8CC63F]/50 hover:text-foreground"
             >
                 ›
             </button>
@@ -117,7 +117,7 @@ function CourtSchedulePanel({
         <Card className="overflow-hidden border-border">
             <CardHeader className="border-b border-border bg-muted/30 px-5 py-3">
                 <CardTitle className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                    <LayoutGrid className="h-4 w-4 text-[#3D46FB]" />
+                    <LayoutGrid className="h-4 w-4 text-[#8CC63F]" />
                     {court.courtName}
                 </CardTitle>
             </CardHeader>

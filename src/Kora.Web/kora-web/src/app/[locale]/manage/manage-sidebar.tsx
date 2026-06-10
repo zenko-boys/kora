@@ -24,7 +24,7 @@ export function ManageSidebar({ overviewLabel, clubsLabel, bookingsLabel }: Mana
         const isActive =
             href === "/manage" ? pathname === "/manage" : pathname.startsWith(href);
         return `flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${isActive
-            ? "bg-[#3D46FB]/10 text-[#3D46FB]"
+            ? "bg-[#8CC63F]/10 text-[#8CC63F]"
             : "text-muted-foreground hover:bg-accent hover:text-foreground"
             }`;
     }

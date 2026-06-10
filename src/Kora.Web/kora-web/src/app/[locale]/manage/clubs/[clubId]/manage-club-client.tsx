@@ -111,7 +111,7 @@ export function ManageClubClient({ clubId }: Props) {
                         {editingName ? (
                             <>
                                 <input
-                                    className="flex-1 rounded-md border border-border bg-background px-3 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#3D46FB]/50"
+                                    className="flex-1 rounded-md border border-border bg-background px-3 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#8CC63F]/50"
                                     value={clubName}
                                     onChange={(e) => setClubName(e.target.value)}
                                     onKeyDown={(e) => {
@@ -194,7 +194,7 @@ export function ManageClubClient({ clubId }: Props) {
                             {editingCourtId === court.id ? (
                                 <>
                                     <input
-                                        className="flex-1 rounded-md border border-border bg-background px-2 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#3D46FB]/50"
+                                        className="flex-1 rounded-md border border-border bg-background px-2 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#8CC63F]/50"
                                         value={editingCourtName}
                                         onChange={(e) => setEditingCourtName(e.target.value)}
                                         onKeyDown={(e) => {
@@ -252,9 +252,9 @@ export function ManageClubClient({ clubId }: Props) {
 
                     {/* Add court inline form */}
                     {addingCourt && (
-                        <div className="flex items-center gap-3 rounded-md border border-[#3D46FB]/40 px-3 py-2">
+                        <div className="flex items-center gap-3 rounded-md border border-[#8CC63F]/40 px-3 py-2">
                             <input
-                                className="flex-1 rounded-md border border-border bg-background px-2 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#3D46FB]/50"
+                                className="flex-1 rounded-md border border-border bg-background px-2 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-[#8CC63F]/50"
                                 placeholder={t("clubDetail.courtNamePlaceholder")}
                                 value={newCourtName}
                                 onChange={(e) => setNewCourtName(e.target.value)}

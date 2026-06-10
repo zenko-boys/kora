@@ -46,7 +46,7 @@ export function RichTextEditor({ onChange, placeholder, className }: RichTextEdi
                 className={[
                     "rounded p-1.5 transition-colors cursor-pointer",
                     active
-                        ? "bg-[#93C5FD]/20 text-[#93C5FD]"
+                        ? "bg-[#8CC63F]/20 text-[#8CC63F]"
                         : "text-muted-foreground hover:bg-muted hover:text-foreground",
                 ].join(" ")}
             >
@@ -58,7 +58,7 @@ export function RichTextEditor({ onChange, placeholder, className }: RichTextEdi
     return (
         <div
             className={[
-                "rounded-md border border-border bg-background focus-within:ring-2 focus-within:ring-[#93C5FD]/50",
+                "rounded-md border border-border bg-background focus-within:ring-2 focus-within:ring-[#8CC63F]/50",
                 className ?? "",
             ]
                 .join(" ")

@@ -84,7 +84,7 @@ export function ManageBookingsClient({ title, subtitle }: { title: string; subti
                 <Button
                     size="sm"
                     onClick={() => setShowCreate(true)}
-                    className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
+                    className="bg-[#8CC63F] text-[#0D1B2A] font-semibold hover:bg-[#7AB534]"
                 >
                     <Plus className="h-3.5 w-3.5" />
                     {t("bookings.newBooking")}
