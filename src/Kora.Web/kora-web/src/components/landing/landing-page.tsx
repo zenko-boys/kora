@@ -91,15 +91,9 @@ function LandingNavbar() {
                 {/* Logo */}
                 <Link
                     href="/"
-                    className="flex items-center gap-1.5 rounded-full px-3 py-1.5 transition-opacity duration-300 hover:opacity-70"
+                    className="flex items-center rounded-full px-3 py-1.5 transition-opacity duration-300 hover:opacity-70"
                 >
-                    <CalendarDays className="h-3.5 w-3.5 text-[#3D46FB]" />
-                    <span
-                        className="text-xs font-bold uppercase tracking-[0.16em]"
-                        style={{ color: "var(--landing-text-1)" }}
-                    >
-                        Kora
-                    </span>
+                    <img src="/logo.png" alt="Kora" className="h-6 w-auto object-contain" />
                 </Link>
 
                 {/* Desktop controls */}
@@ -129,7 +123,7 @@ function LandingNavbar() {
                         </button>
                     )}
                     <SignInButton mode="modal">
-                        <button className="flex items-center rounded-full bg-[#3D46FB] px-4 py-1.5 text-[11px] font-bold text-white transition-all duration-300 hover:bg-[#4f58fc] hover:shadow-[0_6px_20px_rgba(61,70,251,0.3)] active:scale-[0.97]">
+                        <button className="flex items-center rounded-full bg-[#8CC63F] px-4 py-1.5 text-[11px] font-bold text-[#0D1B2A] transition-all duration-300 hover:bg-[#7AB534] hover:shadow-[0_6px_20px_rgba(140,198,63,0.3)] active:scale-[0.97]">
                             {t("signIn")}
                         </button>
                     </SignInButton>
@@ -224,7 +218,7 @@ function LandingNavbar() {
                         </button>
                     )}
                     <SignInButton mode="modal">
-                        <button className="ml-auto rounded-full bg-[#3D46FB] px-6 py-3 text-sm font-bold text-white">
+                        <button className="ml-auto rounded-full bg-[#8CC63F] px-6 py-3 text-sm font-bold text-[#0D1B2A]">
                             {t("signIn")}
                         </button>
                     </SignInButton>
@@ -247,7 +241,7 @@ function HeroSection() {
             {/* Ambient glow */}
             <div
                 aria-hidden="true"
-                className="pointer-events-none absolute right-0 top-0 h-[700px] w-[700px] -translate-y-1/3 translate-x-1/4 rounded-full bg-[#3D46FB] blur-[140px]"
+                className="pointer-events-none absolute right-0 top-0 h-[700px] w-[700px] -translate-y-1/3 translate-x-1/4 rounded-full bg-[#8CC63F] blur-[140px]"
                 style={{ opacity: "var(--landing-glow-opacity)" }}
             />
 
@@ -264,12 +258,12 @@ function HeroSection() {
                     <div
                         className="flex w-fit items-center gap-2 rounded-full border px-3 py-1"
                         style={{
-                            borderColor: "rgba(61,70,251,0.3)",
-                            backgroundColor: "rgba(61,70,251,0.08)",
+                            borderColor: "rgba(140,198,63,0.3)",
+                            backgroundColor: "rgba(140,198,63,0.08)",
                         }}
                     >
-                        <span className="h-1.5 w-1.5 rounded-full bg-[#3D46FB]" />
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#3D46FB]">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#8CC63F]" />
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8CC63F]">
                             {t("hero.badge")}
                         </span>
                     </div>
@@ -280,7 +274,7 @@ function HeroSection() {
                     >
                         {t("hero.headline1")}
                         <br />
-                        <span className="text-[#818cf8]">{t("hero.headline2")}</span>
+                        <span className="text-[#8CC63F]">{t("hero.headline2")}</span>
                         <br />{t("hero.headline3")}
                     </h1>
 
@@ -295,7 +289,7 @@ function HeroSection() {
                         {/* Button-in-button CTA */}
                         <SignInButton mode="modal">
                             <button
-                                className="group inline-flex items-center gap-0 rounded-full bg-[#3D46FB] pl-6 pr-2 py-2 text-sm font-semibold text-white transition-all duration-500 hover:-translate-y-[2px] hover:bg-[#4f58fc] hover:shadow-[0_12px_35px_rgba(61,70,251,0.38)] active:scale-[0.98]"
+                                className="group inline-flex items-center gap-0 rounded-full bg-[#8CC63F] pl-6 pr-2 py-2 text-sm font-semibold text-[#0D1B2A] transition-all duration-500 hover:-translate-y-[2px] hover:bg-[#7AB534] hover:shadow-[0_12px_35px_rgba(140,198,63,0.38)] active:scale-[0.98]"
                                 style={{ transitionTimingFunction: "cubic-bezier(0.32,0.72,0,1)" }}
                             >
                                 {t("hero.ctaLogin")}
@@ -323,7 +317,7 @@ function HeroSection() {
                     <div className="flex items-center gap-3 pt-1">
                         <div className="flex" aria-label="5 estrelas">
                             {[0, 1, 2, 3, 4].map((i) => (
-                                <Star key={i} className="h-3.5 w-3.5 fill-[#3D46FB] text-[#3D46FB]" />
+                                <Star key={i} className="h-3.5 w-3.5 fill-[#8CC63F] text-[#8CC63F]" />
                             ))}
                         </div>
                         <span className="text-sm" style={{ color: "var(--landing-text-3)" }}>
@@ -389,7 +383,7 @@ function HeroSection() {
                                         <p className="text-[11px]" style={{ color: "var(--landing-text-3)" }}>
                                             {t("hero.matchCard.today")}
                                         </p>
-                                        <p className="mt-0.5 text-sm font-bold text-[#818cf8]">19:00</p>
+                                        <p className="mt-0.5 text-sm font-bold text-[#8CC63F]">19:00</p>
                                     </div>
                                 </div>
                                 <div className="mt-3 flex items-center gap-2">
@@ -407,7 +401,7 @@ function HeroSection() {
                                     <span className="text-xs" style={{ color: "var(--landing-text-3)" }}>
                                         {t("hero.matchCard.spots")}
                                     </span>
-                                    <span className="ml-auto cursor-pointer text-xs font-semibold text-[#3D46FB] transition-colors hover:text-[#818cf8]">
+                                    <span className="ml-auto cursor-pointer text-xs font-semibold text-[#8CC63F] transition-colors hover:text-[#8CC63F]">
                                         {t("hero.matchCard.join")}
                                     </span>
                                 </div>
@@ -417,7 +411,7 @@ function HeroSection() {
                     {/* Glow behind card */}
                     <div
                         aria-hidden="true"
-                        className="pointer-events-none absolute -bottom-12 left-10 right-10 h-40 rounded-full bg-[#3D46FB] blur-[60px]"
+                        className="pointer-events-none absolute -bottom-12 left-10 right-10 h-40 rounded-full bg-[#8CC63F] blur-[60px]"
                         style={{ opacity: "var(--landing-glow-opacity)" }}
                     />
                 </div>
@@ -517,9 +511,9 @@ function BrazilSection() {
                             className="absolute inset-0"
                             style={{ background: "linear-gradient(to right, transparent, var(--landing-bg-1) 100%)" }}
                         />
-                        <div className="absolute left-5 top-5 flex items-center gap-2 rounded-full border border-[#3D46FB]/30 bg-[#3D46FB]/15 px-4 py-2 backdrop-blur-sm">
-                            <TrendingUp className="h-4 w-4 text-[#818cf8]" />
-                            <span className="text-xs font-semibold text-[#818cf8]">
+                        <div className="absolute left-5 top-5 flex items-center gap-2 rounded-full border border-[#8CC63F]/30 bg-[#8CC63F]/15 px-4 py-2 backdrop-blur-sm">
+                            <TrendingUp className="h-4 w-4 text-[#8CC63F]" />
+                            <span className="text-xs font-semibold text-[#8CC63F]">
                                 {t("brazil.badgeGrowth")}
                             </span>
                         </div>
@@ -537,12 +531,12 @@ function BrazilSection() {
                         <div
                             className="flex w-fit items-center gap-2 rounded-full border px-3 py-1"
                             style={{
-                                borderColor: "rgba(61,70,251,0.3)",
-                                backgroundColor: "rgba(61,70,251,0.08)",
+                                borderColor: "rgba(140,198,63,0.3)",
+                                backgroundColor: "rgba(140,198,63,0.08)",
                             }}
                         >
-                            <span className="h-1.5 w-1.5 rounded-full bg-[#3D46FB]" />
-                            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#3D46FB]">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#8CC63F]" />
+                            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8CC63F]">
                                 {t("brazil.badge")}
                             </span>
                         </div>
@@ -561,7 +555,7 @@ function BrazilSection() {
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             {facts.map((item, i) => (
                                 <div key={i} className="flex items-start gap-3">
-                                    <item.icon className="mt-0.5 h-4 w-4 shrink-0 text-[#3D46FB]" />
+                                    <item.icon className="mt-0.5 h-4 w-4 shrink-0 text-[#8CC63F]" />
                                     <p className="text-sm leading-relaxed" style={{ color: "var(--landing-text-2)" }}>
                                         {item.text}
                                     </p>
@@ -626,12 +620,12 @@ function BenefitsSection() {
                     <div
                         className="mb-4 flex w-fit items-center gap-2 rounded-full border px-3 py-1"
                         style={{
-                            borderColor: "rgba(61,70,251,0.3)",
-                            backgroundColor: "rgba(61,70,251,0.08)",
+                            borderColor: "rgba(140,198,63,0.3)",
+                            backgroundColor: "rgba(140,198,63,0.08)",
                         }}
                     >
-                        <span className="h-1.5 w-1.5 rounded-full bg-[#3D46FB]" />
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#3D46FB]">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#8CC63F]" />
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8CC63F]">
                             {t("benefits.badge")}
                         </span>
                     </div>
@@ -671,10 +665,10 @@ function BenefitsSection() {
                                 <div
                                     className="flex h-10 w-10 items-center justify-center rounded-xl transition-colors duration-300"
                                     style={{
-                                        backgroundColor: "rgba(61,70,251,0.1)",
+                                        backgroundColor: "rgba(140,198,63,0.1)",
                                     }}
                                 >
-                                    <b.icon className="h-5 w-5 text-[#3D46FB]" />
+                                    <b.icon className="h-5 w-5 text-[#8CC63F]" />
                                 </div>
                                 <div>
                                     <h3
@@ -754,12 +748,12 @@ function FindPlayersSection() {
                         <div
                             className="flex w-fit items-center gap-2 rounded-full border px-3 py-1"
                             style={{
-                                borderColor: "rgba(61,70,251,0.3)",
-                                backgroundColor: "rgba(61,70,251,0.08)",
+                                borderColor: "rgba(140,198,63,0.3)",
+                                backgroundColor: "rgba(140,198,63,0.08)",
                             }}
                         >
-                            <span className="h-1.5 w-1.5 rounded-full bg-[#3D46FB]" />
-                            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#3D46FB]">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#8CC63F]" />
+                            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8CC63F]">
                                 {t("players.badge")}
                             </span>
                         </div>
@@ -778,7 +772,7 @@ function FindPlayersSection() {
                         <ul className="flex flex-col gap-4">
                             {features.map((item, i) => (
                                 <li key={i} className="flex items-start gap-3">
-                                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#3D46FB]" />
+                                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#8CC63F]" />
                                     <span className="text-sm leading-relaxed" style={{ color: "var(--landing-text-2)" }}>
                                         {item}
                                     </span>
@@ -788,7 +782,7 @@ function FindPlayersSection() {
 
                         <Link
                             href="/bookings"
-                            className="group mt-2 inline-flex w-fit items-center gap-2 rounded-full border border-[#3D46FB]/35 bg-[#3D46FB]/10 px-6 py-3 text-sm font-semibold text-[#818cf8] transition-all duration-300 hover:border-[#3D46FB]/55 hover:bg-[#3D46FB]/18 active:scale-[0.98]"
+                            className="group mt-2 inline-flex w-fit items-center gap-2 rounded-full border border-[#8CC63F]/35 bg-[#8CC63F]/10 px-6 py-3 text-sm font-semibold text-[#8CC63F] transition-all duration-300 hover:border-[#8CC63F]/55 hover:bg-[#8CC63F]/18 active:scale-[0.98]"
                         >
                             {t("players.cta")}
                             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
@@ -826,7 +820,7 @@ function FindPlayersSection() {
                                         {p.city} · {p.games}
                                     </p>
                                 </div>
-                                <span className="shrink-0 rounded-full border border-[#3D46FB]/30 bg-[#3D46FB]/10 px-3 py-1 text-[11px] font-medium text-[#818cf8]">
+                                <span className="shrink-0 rounded-full border border-[#8CC63F]/30 bg-[#8CC63F]/10 px-3 py-1 text-[11px] font-medium text-[#8CC63F]">
                                     {p.level}
                                 </span>
                             </div>
@@ -881,20 +875,20 @@ function AccessibilitySection() {
                     <div className="mb-4 flex items-center justify-center gap-3">
                         <span
                             aria-hidden="true"
-                            className="h-px w-8 bg-[#3D46FB]"
+                            className="h-px w-8 bg-[#8CC63F]"
                         />
                         <div
                             className="flex items-center gap-2 rounded-full border px-3 py-1"
                             style={{
-                                borderColor: "rgba(61,70,251,0.3)",
-                                backgroundColor: "rgba(61,70,251,0.08)",
+                                borderColor: "rgba(140,198,63,0.3)",
+                                backgroundColor: "rgba(140,198,63,0.08)",
                             }}
                         >
-                            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#3D46FB]">
+                            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8CC63F]">
                                 {t("access.badge")}
                             </span>
                         </div>
-                        <span aria-hidden="true" className="h-px w-8 bg-[#3D46FB]" />
+                        <span aria-hidden="true" className="h-px w-8 bg-[#8CC63F]" />
                     </div>
                     <h2
                         className="text-4xl font-bold leading-[1.1] tracking-tighter lg:text-5xl"
@@ -922,7 +916,7 @@ function AccessibilitySection() {
                                 borderTop: "1px solid var(--landing-divider)",
                             }}
                         >
-                            <f.icon className="h-6 w-6 text-[#3D46FB]" />
+                            <f.icon className="h-6 w-6 text-[#8CC63F]" />
                             <div>
                                 <h3
                                     className="mb-2 text-sm font-semibold"
@@ -973,12 +967,12 @@ function HowItWorksSection() {
                     <div
                         className="mb-4 flex w-fit items-center gap-2 rounded-full border px-3 py-1"
                         style={{
-                            borderColor: "rgba(61,70,251,0.3)",
-                            backgroundColor: "rgba(61,70,251,0.08)",
+                            borderColor: "rgba(140,198,63,0.3)",
+                            backgroundColor: "rgba(140,198,63,0.08)",
                         }}
                     >
-                        <span className="h-1.5 w-1.5 rounded-full bg-[#3D46FB]" />
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#3D46FB]">
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#8CC63F]" />
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8CC63F]">
                             {t("howto.badge")}
                         </span>
                     </div>
@@ -1004,7 +998,7 @@ function HowItWorksSection() {
                         >
                             <span
                                 className="font-mono text-5xl font-bold leading-none tracking-tighter"
-                                style={{ color: "rgba(61,70,251,0.2)" }}
+                                style={{ color: "rgba(140,198,63,0.2)" }}
                             >
                                 {s.n}
                             </span>
@@ -1042,7 +1036,7 @@ function CtaSection() {
         >
             <div className="mx-auto max-w-7xl px-4">
                 <div
-                    className="relative overflow-hidden rounded-3xl bg-[#3D46FB] p-12 text-center md:p-20"
+                    className="relative overflow-hidden rounded-3xl bg-[#8CC63F] p-12 text-center md:p-20"
                     style={{
                         opacity: visible ? 1 : 0,
                         transform: visible ? "translateY(0)" : "translateY(24px)",
@@ -1076,12 +1070,12 @@ function CtaSection() {
                         {/* Button-in-button primary CTA */}
                         <Link
                             href="/bookings"
-                            className="group inline-flex items-center gap-0 rounded-full bg-white pl-8 pr-2 py-2 text-sm font-bold text-[#3D46FB] transition-all duration-500 hover:-translate-y-[2px] hover:shadow-[0_16px_40px_rgba(0,0,0,0.3)] active:scale-[0.98]"
+                            className="group inline-flex items-center gap-0 rounded-full bg-white pl-8 pr-2 py-2 text-sm font-bold text-[#8CC63F] transition-all duration-500 hover:-translate-y-[2px] hover:shadow-[0_16px_40px_rgba(0,0,0,0.3)] active:scale-[0.98]"
                             style={{ transitionTimingFunction: "cubic-bezier(0.32,0.72,0,1)" }}
                         >
                             {t("cta.primary")}
                             <span
-                                className="ml-3 flex h-8 w-8 items-center justify-center rounded-full bg-[#3D46FB]/10 transition-all duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105"
+                                className="ml-3 flex h-8 w-8 items-center justify-center rounded-full bg-[#8CC63F]/10 transition-all duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105"
                                 style={{ transitionTimingFunction: "cubic-bezier(0.32,0.72,0,1)" }}
                             >
                                 <ArrowRight className="h-3.5 w-3.5" />
@@ -1138,12 +1132,12 @@ function ClubsCarouselSection() {
                 <div
                     className="mb-4 flex w-fit items-center gap-2 rounded-full border px-3 py-1"
                     style={{
-                        borderColor: "rgba(61,70,251,0.3)",
-                        backgroundColor: "rgba(61,70,251,0.08)",
+                        borderColor: "rgba(140,198,63,0.3)",
+                        backgroundColor: "rgba(140,198,63,0.08)",
                     }}
                 >
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#3D46FB]" />
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#3D46FB]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#8CC63F]" />
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8CC63F]">
                         {t("clubs.badge")}
                     </span>
                 </div>
@@ -1218,7 +1212,7 @@ function ClubsCarouselSection() {
                                         boxShadow: "inset 0 1px 0 rgba(255,255,255,0.1)",
                                     }}
                                 >
-                                    <Star className="h-3 w-3 fill-[#3D46FB] text-[#3D46FB]" />
+                                    <Star className="h-3 w-3 fill-[#8CC63F] text-[#8CC63F]" />
                                     <span className="text-[11px] font-bold tabular-nums text-white">
                                         {club.rating.toFixed(1)}
                                     </span>
@@ -1235,7 +1229,7 @@ function ClubsCarouselSection() {
                                     {[1, 2, 3, 4, 5].map((n) => (
                                         <Star
                                             key={n}
-                                            className={"h-3 w-3 " + (n <= Math.floor(club.rating) ? "fill-[#3D46FB] text-[#3D46FB]" : "fill-current opacity-15 text-[#3D46FB]")}
+                                            className={"h-3 w-3 " + (n <= Math.floor(club.rating) ? "fill-[#8CC63F] text-[#8CC63F]" : "fill-current opacity-15 text-[#8CC63F]")}
                                         />
                                     ))}
                                 </div>
@@ -1299,7 +1293,7 @@ function ContactSection() {
         borderColor: "rgba(239,68,68,0.4)",
         color: "var(--landing-text-1)",
     };
-    const inputBase = "kora-input w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all duration-200 focus:ring-1 focus:ring-[#3D46FB]/30";
+    const inputBase = "kora-input w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all duration-200 focus:ring-1 focus:ring-[#8CC63F]/30";
 
     const facts = [
         { Icon: Clock, label: t("contact.infoReplyTime"), value: t("contact.infoReplyValue") },
@@ -1327,12 +1321,12 @@ function ContactSection() {
                         <div
                             className="mb-4 flex w-fit items-center gap-2 rounded-full border px-3 py-1"
                             style={{
-                                borderColor: "rgba(61,70,251,0.3)",
-                                backgroundColor: "rgba(61,70,251,0.08)",
+                                borderColor: "rgba(140,198,63,0.3)",
+                                backgroundColor: "rgba(140,198,63,0.08)",
                             }}
                         >
-                            <span className="h-1.5 w-1.5 rounded-full bg-[#3D46FB]" />
-                            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#3D46FB]">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#8CC63F]" />
+                            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8CC63F]">
                                 {t("contact.badge")}
                             </span>
                         </div>
@@ -1342,7 +1336,7 @@ function ContactSection() {
                             style={{ color: "var(--landing-text-1)" }}
                         >
                             {t("contact.headline")}{" "}
-                            <span className="text-[#3D46FB]">{t("contact.headlineAccent")}</span>
+                            <span className="text-[#8CC63F]">{t("contact.headlineAccent")}</span>
                         </h2>
                         <p
                             className="mb-10 max-w-[52ch] text-sm leading-relaxed"
@@ -1435,11 +1429,11 @@ function ContactSection() {
                                                 className="flex h-4 w-4 items-center justify-center rounded border transition-all duration-150"
                                                 style={{
                                                     borderColor: agreed
-                                                        ? "#3D46FB"
+                                                        ? "#8CC63F"
                                                         : errors.agreed
                                                             ? "rgba(239,68,68,0.5)"
                                                             : "var(--landing-card-border)",
-                                                    backgroundColor: agreed ? "#3D46FB" : "var(--landing-input-bg)",
+                                                    backgroundColor: agreed ? "#8CC63F" : "var(--landing-input-bg)",
                                                 }}
                                             >
                                                 {agreed && <Check className="h-2.5 w-2.5 text-white" />}
@@ -1458,7 +1452,7 @@ function ContactSection() {
                                     <button
                                         type="submit"
                                         disabled={status === "loading"}
-                                        className="group inline-flex items-center gap-2.5 rounded-full bg-[#3D46FB] px-7 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#4f58fc] hover:shadow-[0_12px_35px_rgba(61,70,251,0.38)] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60"
+                                        className="group inline-flex items-center gap-2.5 rounded-full bg-[#8CC63F] px-7 py-3.5 text-sm font-semibold text-[#0D1B2A] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#7AB534] hover:shadow-[0_12px_35px_rgba(140,198,63,0.38)] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60"
                                     >
                                         {status === "loading" ? (
                                             <>
@@ -1501,7 +1495,7 @@ function ContactSection() {
                             >
                                 <div
                                     aria-hidden="true"
-                                    className="pointer-events-none absolute -right-16 -top-16 h-52 w-52 rounded-full bg-[#3D46FB] blur-[80px]"
+                                    className="pointer-events-none absolute -right-16 -top-16 h-52 w-52 rounded-full bg-[#8CC63F] blur-[80px]"
                                     style={{ opacity: "var(--landing-glow-opacity)" }}
                                 />
 
@@ -1519,7 +1513,7 @@ function ContactSection() {
                                                     backgroundColor: "var(--landing-card-bg)",
                                                 }}
                                             >
-                                                <Icon className="h-4 w-4 text-[#3D46FB]" />
+                                                <Icon className="h-4 w-4 text-[#8CC63F]" />
                                             </div>
                                             <div>
                                                 <p className="text-sm font-semibold" style={{ color: "var(--landing-text-1)" }}>
@@ -1610,7 +1604,7 @@ function FooterSection() {
                                     key={label}
                                     href="#"
                                     aria-label={label}
-                                    className="flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-200 hover:border-[#3D46FB]/30 hover:bg-[#3D46FB]/10"
+                                    className="flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-200 hover:border-[#8CC63F]/30 hover:bg-[#8CC63F]/10"
                                     style={{
                                         border: "1px solid var(--landing-card-border)",
                                         backgroundColor: "var(--landing-card-bg)",
@@ -1657,7 +1651,7 @@ function FooterSection() {
                                         <li key={label}>
                                             <a
                                                 href={href}
-                                                className="text-xs transition-colors duration-200 hover:text-[#3D46FB]"
+                                                className="text-xs transition-colors duration-200 hover:text-[#8CC63F]"
                                                 style={{ color: "var(--landing-text-2)" }}
                                             >
                                                 {label}

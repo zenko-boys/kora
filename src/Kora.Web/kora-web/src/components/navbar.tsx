@@ -1,7 +1,7 @@
 "use client";
 
 import { UserButton, SignInButton, useAuth } from "@clerk/nextjs";
-import { CalendarDays, Sun, Moon, Languages, House, Menu, X, LayoutDashboard, Building2, ChevronDown } from "lucide-react";
+import { Sun, Moon, Languages, House, Menu, X, LayoutDashboard, Building2, CalendarDays, ChevronDown } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
@@ -31,10 +31,10 @@ export function Navbar() {
         router.replace(pathname, { locale: next });
     }
 
+    const activeNavLinkCls = "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium bg-[#8CC63F]/10 text-[#8CC63F]";
     const navLinkCls = "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
-    const activeNavLinkCls = "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium bg-[#3D46FB]/10 text-[#3D46FB]";
     const subLinkCls = "flex items-center gap-3 rounded-lg pl-9 pr-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
-    const activeSubLinkCls = "flex items-center gap-3 rounded-lg pl-9 pr-3 py-2 text-sm bg-[#3D46FB]/10 text-[#3D46FB]";
+    const activeSubLinkCls = "flex items-center gap-3 rounded-lg pl-9 pr-3 py-2 text-sm bg-[#8CC63F]/10 text-[#8CC63F]";
 
     if (pathname === "/landing") return null;
 
@@ -43,9 +43,8 @@ export function Navbar() {
             <header className="sticky top-0 z-50 w-full border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
                     {/* Logo */}
-                    <Link href="/bookings" className="flex items-center gap-2 font-bold tracking-widest text-foreground">
-                        <CalendarDays className="h-5 w-5 text-[#3D46FB]" />
-                        <span className="text-sm uppercase">Kora</span>
+                    <Link href="/bookings" className="flex items-center gap-2">
+                        <img src="/logo.png" alt="Kora" className="h-7 w-auto object-contain" />
                     </Link>
 
                     {/* Desktop nav links */}
@@ -101,7 +100,7 @@ export function Navbar() {
                             <UserButton />
                         ) : (
                             <SignInButton mode="modal">
-                                <button className="rounded-md bg-[#3D46FB] px-4 py-1.5 text-sm font-semibold text-white transition-opacity hover:opacity-90">
+                                <button className="rounded-md bg-[#8CC63F] px-4 py-1.5 text-sm font-semibold text-[#0D1B2A] transition-all hover:bg-[#7AB534] active:scale-[0.98]">
                                     {t("signIn")}
                                 </button>
                             </SignInButton>
@@ -131,11 +130,10 @@ export function Navbar() {
                         <div className="mb-4 flex items-center justify-between">
                             <Link
                                 href="/bookings"
-                                className="flex items-center gap-2 font-bold tracking-widest text-foreground"
+                                className="flex items-center gap-2"
                                 onClick={() => setMenuOpen(false)}
                             >
-                                <CalendarDays className="h-5 w-5 text-[#3D46FB]" />
-                                <span className="text-sm uppercase">Kora</span>
+                                <img src="/logo.png" alt="Kora" className="h-7 w-auto object-contain" />
                             </Link>
                             <button
                                 onClick={() => setMenuOpen(false)}

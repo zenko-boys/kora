@@ -176,7 +176,7 @@ export function CookieBanner() {
                                     fill="none"
                                     stroke="currentColor"
                                     strokeWidth={1.5}
-                                    className="mt-0.5 h-5 w-5 shrink-0 text-[#3D46FB]"
+                                    className="mt-0.5 h-5 w-5 shrink-0 text-[#8CC63F]"
                                     aria-hidden="true"
                                 >
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Z" />
@@ -190,7 +190,7 @@ export function CookieBanner() {
                                     <p className="text-sm font-semibold text-white">{t("banner.headline")}</p>
                                     <p className="mt-0.5 text-xs leading-relaxed text-zinc-400">
                                         {t("banner.description")}{" "}
-                                        <a href="#" className="text-[#3D46FB] underline-offset-2 hover:underline">
+                                        <a href="#" className="text-[#8CC63F] underline-offset-2 hover:underline">
                                             {t("banner.linkPrivacy")}
                                         </a>
                                     </p>
@@ -213,7 +213,7 @@ export function CookieBanner() {
                                 </button>
                                 <button
                                     onClick={acceptAll}
-                                    className="rounded-lg bg-[#3D46FB] px-4 py-2 text-xs font-semibold text-white transition-all duration-200 hover:bg-[#4f58fc] active:scale-[0.98]"
+                                    className="rounded-lg bg-[#8CC63F] px-4 py-2 text-xs font-semibold text-[#0D1B2A] transition-all duration-200 hover:bg-[#7AB534] active:scale-[0.98]"
                                 >
                                     {t("banner.btnAcceptAll")}
                                 </button>
@@ -359,7 +359,7 @@ export function CookieBanner() {
                             </button>
                             <button
                                 onClick={() => persist(draft)}
-                                className="inline-flex items-center gap-2 rounded-lg bg-[#3D46FB] px-5 py-2.5 text-xs font-semibold text-white transition-all duration-200 hover:bg-[#4f58fc] active:scale-[0.98]"
+                                className="inline-flex items-center gap-2 rounded-lg bg-[#8CC63F] px-5 py-2.5 text-xs font-semibold text-[#0D1B2A] transition-all duration-200 hover:bg-[#7AB534] active:scale-[0.98]"
                             >
                                 <Check className="h-3 w-3" />
                                 {t("modal.btnSave")}

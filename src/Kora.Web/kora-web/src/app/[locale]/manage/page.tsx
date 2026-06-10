@@ -48,9 +48,9 @@ export default async function ManagePage() {
             <div className="grid gap-3 sm:grid-cols-2">
                 <Link
                     href="/manage/clubs"
-                    className="flex items-center gap-3 rounded-xl border border-border bg-card p-5 transition-colors hover:border-[#3D46FB]/50 hover:bg-accent"
+                    className="flex items-center gap-3 rounded-xl border border-border bg-card p-5 transition-colors hover:border-[#8CC63F]/50 hover:bg-accent"
                 >
-                    <Building2 className="h-8 w-8 text-[#3D46FB]" />
+                    <Building2 className="h-8 w-8 text-[#8CC63F]" />
                     <div>
                         <p className="font-semibold text-foreground">{t("clubs.title")}</p>
                         <p className="text-xs text-muted-foreground">{t("clubs.subtitle")}</p>
@@ -58,9 +58,9 @@ export default async function ManagePage() {
                 </Link>
                 <Link
                     href="/manage/bookings"
-                    className="flex items-center gap-3 rounded-xl border border-border bg-card p-5 transition-colors hover:border-[#3D46FB]/50 hover:bg-accent"
+                    className="flex items-center gap-3 rounded-xl border border-border bg-card p-5 transition-colors hover:border-[#8CC63F]/50 hover:bg-accent"
                 >
-                    <CalendarDays className="h-8 w-8 text-[#3D46FB]" />
+                    <CalendarDays className="h-8 w-8 text-[#8CC63F]" />
                     <div>
                         <p className="font-semibold text-foreground">{t("bookings.title")}</p>
                         <p className="text-xs text-muted-foreground">{t("bookings.subtitle")}</p>

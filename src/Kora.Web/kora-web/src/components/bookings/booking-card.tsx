@@ -46,8 +46,8 @@ function formatDate(isoString: string, locale: string) {
 }
 
 const TYPE_COLORS = {
-    Game: "bg-[#3D46FB]/20 text-[#818cf8] border-[#3D46FB]/30",
-    DayUse: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+    Game: "bg-[#8CC63F]/20 text-[#8CC63F] border-[#8CC63F]/30",
+    DayUse: "bg-[#8CC63F]/20 text-[#8CC63F] border-[#8CC63F]/30",
 } as const;
 
 export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, onDelete, isDeleting, isManageView = false }: BookingCardProps) {
@@ -79,7 +79,7 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
     const overflowCount = capacity > MAX_AVATARS ? capacity - MAX_AVATARS : 0;
 
     return (
-        <Card className="flex flex-col overflow-hidden border-border transition-all hover:shadow-md">
+        <Card className="flex flex-col overflow-hidden border border-[#1E2F40] transition-all hover:border-[#2A3B4C] hover:shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
             <CardHeader className="px-5 pb-3 pt-5">
                 <div className="flex items-start justify-between gap-2">
                     {/* Club + court */}
@@ -154,7 +154,7 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
                                 if (isCurrentUser) {
                                     return (
                                         <Tooltip key={i}>
-                                            <TooltipTrigger render={<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#3D46FB]/20 text-[10px] font-bold text-[#818cf8] ring-2 ring-card" />}>
+                                            <TooltipTrigger render={<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#8CC63F]/20 text-[10px] font-bold text-[#0D1B2A] ring-2 ring-card" />}>
                                                 {userInitials}
                                             </TooltipTrigger>
                                             <TooltipContent>{user?.fullName ?? user?.firstName}</TooltipContent>
@@ -176,7 +176,7 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
                     {isFull ? (
                         <span className="text-xs font-semibold text-destructive">{t("full")}</span>
                     ) : (
-                        <span className="text-xs font-semibold text-emerald-500">{t("openSpots", { count: spotsOpen })}</span>
+                        <span className="text-xs font-semibold text-[#8CC63F]">{t("openSpots", { count: spotsOpen })}</span>
                     )}
                 </div>
 
@@ -185,7 +185,7 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
                     <div className="flex items-center justify-between gap-2 pt-1">
                         {amIIn ? (
                             <>
-                                <div className="flex items-center gap-1.5 text-sm font-medium text-emerald-500">
+                                <div className="flex items-center gap-1.5 text-sm font-medium text-[#8CC63F]">
                                     <CheckCircle2 className="h-4 w-4" />
                                     {t("youreIn")}
                                 </div>
@@ -209,7 +209,7 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
                                 <Button
                                     onClick={() => setConfirmOpen(true)}
                                     disabled={isJoining}
-                                    className="w-full bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90 disabled:opacity-60"
+                                    className="w-full bg-[#8CC63F] text-[#0D1B2A] font-semibold hover:bg-[#7AB534] disabled:opacity-60"
                                 >
                                     {isJoining ? t("joining") : t("join")}
                                 </Button>
@@ -229,7 +229,7 @@ export function BookingCard({ booking, onJoin, isJoining, onLeave, isLeaving, on
                                                     setConfirmOpen(false);
                                                     onJoin(bookingId);
                                                 }}
-                                                className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
+                                                className="bg-[#8CC63F] text-[#0D1B2A] font-semibold hover:bg-[#7AB534]"
                                             >
                                                 {t("joinConfirm.confirm")}
                                             </Button>

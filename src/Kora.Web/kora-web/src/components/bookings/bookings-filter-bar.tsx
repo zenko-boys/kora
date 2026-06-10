@@ -38,10 +38,10 @@ export function BookingsFilterBar({ filters, onChange }: BookingsFilterBarProps)
                 <ToggleGroupItem value="all" className="h-6 rounded px-2.5 text-xs aria-pressed:bg-foreground/10 aria-pressed:text-foreground">
                     {t("allTypes")}
                 </ToggleGroupItem>
-                <ToggleGroupItem value="Game" className="h-6 rounded px-2.5 text-xs aria-pressed:bg-[#3D46FB]/20 aria-pressed:text-[#818cf8]">
+                <ToggleGroupItem value="Game" className="h-6 rounded px-2.5 text-xs aria-pressed:bg-[#8CC63F]/20 aria-pressed:text-[#8CC63F]">
                     {t("game")}
                 </ToggleGroupItem>
-                <ToggleGroupItem value="DayUse" className="h-6 rounded px-2.5 text-xs aria-pressed:bg-emerald-500/20 aria-pressed:text-emerald-400">
+                <ToggleGroupItem value="DayUse" className="h-6 rounded px-2.5 text-xs aria-pressed:bg-[#8CC63F]/20 aria-pressed:text-[#8CC63F]">
                     {t("dayUse")}
                 </ToggleGroupItem>
             </ToggleGroup>
@@ -52,7 +52,7 @@ export function BookingsFilterBar({ filters, onChange }: BookingsFilterBarProps)
                     id="open-spots"
                     checked={!!filters.open}
                     onCheckedChange={handleOpenChange}
-                    className="data-[state=checked]:bg-[#3D46FB]"
+                    className="data-[state=checked]:bg-[#8CC63F]"
                 />
                 <Label
                     htmlFor="open-spots"

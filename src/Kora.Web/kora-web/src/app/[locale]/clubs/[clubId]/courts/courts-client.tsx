@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { CourtSummary } from "@/lib/types";
 
 function inputCls(extra?: string) {
-    return `w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#3D46FB]/50 ${extra ?? ""}`;
+    return `w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#8CC63F]/50 ${extra ?? ""}`;
 }
 
 // ---- Create Court Form ----
@@ -48,7 +48,7 @@ function CreateCourtForm({ clubId, onSuccess, onCancel }: CreateCourtFormProps) 
     return (
         <form
             onSubmit={(e) => { e.preventDefault(); mutation.mutate(); }}
-            className="space-y-4 rounded-xl border border-[#3D46FB]/30 bg-[#3D46FB]/5 p-5"
+            className="space-y-4 rounded-xl border border-[#8CC63F]/30 bg-[#8CC63F]/5 p-5"
         >
             <h3 className="text-sm font-semibold text-foreground">{t("form.title")}</h3>
             <div className="flex items-end gap-2">
@@ -67,7 +67,7 @@ function CreateCourtForm({ clubId, onSuccess, onCancel }: CreateCourtFormProps) 
                     type="submit"
                     size="sm"
                     disabled={mutation.isPending}
-                    className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
+                    className="bg-[#8CC63F] text-[#0D1B2A] font-semibold hover:bg-[#7AB534]"
                 >
                     <Check className="h-3.5 w-3.5" />
                     {mutation.isPending ? t("form.creating") : t("form.create")}
@@ -110,7 +110,7 @@ function CourtRow({ court, clubId }: CourtRowProps) {
     return (
         <Card className="border-border transition-all hover:shadow-sm">
             <CardContent className="flex items-center gap-4 px-5 py-4">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#3D46FB]/10 text-[#818cf8]">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#8CC63F]/10 text-[#8CC63F]">
                     <LayoutGrid className="h-4 w-4" />
                 </div>
 
@@ -131,7 +131,7 @@ function CourtRow({ court, clubId }: CourtRowProps) {
                             type="submit"
                             size="sm"
                             disabled={mutation.isPending}
-                            className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
+                            className="bg-[#8CC63F] text-[#0D1B2A] font-semibold hover:bg-[#7AB534]"
                         >
                             {mutation.isPending ? t("editForm.saving") : t("editForm.save")}
                         </Button>
@@ -201,7 +201,7 @@ export function CourtsClient({ clubId }: CourtsClientProps) {
                     <Button
                         size="sm"
                         onClick={() => setShowCreate(true)}
-                        className="bg-[#3D46FB] text-white hover:bg-[#3D46FB]/90"
+                        className="bg-[#8CC63F] text-[#0D1B2A] font-semibold hover:bg-[#7AB534]"
                     >
                         <Plus className="h-3.5 w-3.5" />
                         {t("newCourt")}
