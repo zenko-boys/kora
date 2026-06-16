@@ -35,7 +35,7 @@ export default async function ManageLayout({ children, params }: ManageLayoutPro
                 <ManageSidebar
                     overviewLabel={t("page.title")}
                     clubsLabel={t("clubs.title")}
-                    bookingsLabel={t("bookings.title")}
+                    calendarLabel={t("calendar.title")}
                 />
                 <main className="min-w-0 flex-1">{children}</main>
             </div>

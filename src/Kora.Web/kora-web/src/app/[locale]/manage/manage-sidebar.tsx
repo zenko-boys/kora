@@ -1,13 +1,13 @@
 "use client";
 
 import { useLinkStatus } from "next/link";
-import { LayoutDashboard, Building2, CalendarDays, Loader2 } from "lucide-react";
+import { LayoutDashboard, Building2, Loader2, CalendarDays } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 
 interface ManageSidebarProps {
     overviewLabel: string;
     clubsLabel: string;
-    bookingsLabel: string;
+    calendarLabel: string;
 }
 
 function NavLinkPending() {
@@ -17,7 +17,7 @@ function NavLinkPending() {
     ) : null;
 }
 
-export function ManageSidebar({ overviewLabel, clubsLabel, bookingsLabel }: ManageSidebarProps) {
+export function ManageSidebar({ overviewLabel, clubsLabel, calendarLabel }: ManageSidebarProps) {
     const pathname = usePathname();
 
     function linkCls(href: string) {
@@ -42,9 +42,9 @@ export function ManageSidebar({ overviewLabel, clubsLabel, bookingsLabel }: Mana
                     {clubsLabel}
                     <NavLinkPending />
                 </Link>
-                <Link href="/manage/bookings" className={linkCls("/manage/bookings")}>
+                <Link href="/manage/calendar" className={linkCls("/manage/calendar")}>
                     <CalendarDays className="h-4 w-4" />
-                    {bookingsLabel}
+                    {calendarLabel}
                     <NavLinkPending />
                 </Link>
             </nav>
