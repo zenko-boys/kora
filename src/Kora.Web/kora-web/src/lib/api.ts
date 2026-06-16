@@ -267,7 +267,7 @@ export function createApiClient(getToken: GetToken) {
                 });
             }
             return apiFetch<GetClubScheduleResponse>(
-                `/clubs/${clubId}/schedule?date=${date}`,
+                `/management/clubs/${clubId}/slots?date=${date}`,
                 getToken
             );
         },
