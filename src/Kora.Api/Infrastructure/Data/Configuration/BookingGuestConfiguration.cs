@@ -21,6 +21,8 @@ public class BookingGuestConfiguration : IEntityTypeConfiguration<BookingGuest>
             .HasConversion<string>()
             .HasMaxLength(10);
 
+        builder.Property(x => x.PositionInTeam);
+
         builder.HasIndex(x => x.BookingId);
     }
 }

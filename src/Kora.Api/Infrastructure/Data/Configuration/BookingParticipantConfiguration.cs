@@ -17,6 +17,8 @@ public class BookingParticipantConfiguration : IEntityTypeConfiguration<BookingP
             .HasConversion<string>()
             .HasMaxLength(10);
 
+        builder.Property(x => x.PositionInTeam);
+
         builder.HasOne(x => x.User)
             .WithMany()
             .HasForeignKey(x => x.UserId)

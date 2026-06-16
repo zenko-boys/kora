@@ -2,7 +2,7 @@ using Kora.Domain.Bookings;
 
 namespace Kora.Features.Bookings.CreateBooking;
 
-public record GuestInput(string Name, string? Email, Team? Team);
+public record GuestInput(string Name, string? Email, Team? Team, int? PositionInTeam);
 
 public record CreateBookingRequest(
     Guid ClubId,

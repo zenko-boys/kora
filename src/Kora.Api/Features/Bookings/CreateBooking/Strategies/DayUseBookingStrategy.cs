@@ -28,7 +28,7 @@ public class DayUseBookingStrategy : ICreateBookingStrategy
             _db, clubId, request, requiredCourts: request.CourtsToOccupy!.Value, ct);
 
         var guests = (request.Guests ?? [])
-            .Select(g => new BookingGuest { Id = Guid.NewGuid(), Name = g.Name, Email = g.Email, Team = g.Team })
+            .Select(g => new BookingGuest { Id = Guid.NewGuid(), Name = g.Name, Email = g.Email, Team = g.Team, PositionInTeam = g.PositionInTeam })
             .ToList();
 
         if (guests.Count > request.Capacity!.Value)

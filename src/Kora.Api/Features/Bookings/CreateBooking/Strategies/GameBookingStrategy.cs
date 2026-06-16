@@ -59,12 +59,13 @@ public class GameBookingStrategy : ICreateBookingStrategy
             {
                 UserId = currentUser.Id,
                 JoinedAt = DateTime.UtcNow,
-                Team = Team.TeamA
+                Team = Team.TeamA,
+                PositionInTeam = 1
             });
         }
 
         var guests = (request.Guests ?? [])
-            .Select(g => new BookingGuest { Id = Guid.NewGuid(), Name = g.Name, Email = g.Email, Team = g.Team })
+            .Select(g => new BookingGuest { Id = Guid.NewGuid(), Name = g.Name, Email = g.Email, Team = g.Team, PositionInTeam = g.PositionInTeam })
             .ToList();
 
         var totalOccupants = participants.Count + guests.Count;

@@ -7,4 +7,5 @@ public class BookingGuest
     public string Name { get; set; } = string.Empty;
     public string? Email { get; set; }
     public Team? Team { get; set; }
+    public int? PositionInTeam { get; set; }
 }

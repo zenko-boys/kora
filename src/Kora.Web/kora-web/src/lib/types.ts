@@ -41,6 +41,8 @@ export interface JoinBookingResponse {
     userId: string;
     participantsCount: number;
     capacity: number;
+    team: "TeamA" | "TeamB" | null;
+    positionInTeam: number | null;
 }
 
 export interface CreateBookingResponse {

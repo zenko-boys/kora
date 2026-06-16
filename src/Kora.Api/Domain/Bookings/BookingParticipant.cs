@@ -8,6 +8,7 @@ public class BookingParticipant
     public Guid UserId { get; set; }
     public DateTime JoinedAt { get; set; }
     public Team? Team { get; set; }
+    public int? PositionInTeam { get; set; }
 
     public User? User { get; set; }
 }

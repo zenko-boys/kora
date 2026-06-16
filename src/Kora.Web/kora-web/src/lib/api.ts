@@ -88,7 +88,10 @@ export function createApiClient(getToken: GetToken) {
             );
         },
 
-        joinBooking: async (bookingId: string): Promise<JoinBookingResponse> => {
+        joinBooking: async (
+            bookingId: string,
+            slot?: { team: "TeamA" | "TeamB"; positionInTeam: number }
+        ): Promise<JoinBookingResponse> => {
             if (USE_MOCK) {
                 await new Promise((r) => setTimeout(r, 400));
                 const booking = MOCK_BOOKINGS.bookings.find((b) => b.bookingId === bookingId);
@@ -101,12 +104,20 @@ export function createApiClient(getToken: GetToken) {
                     userId: "mock-user",
                     participantsCount: booking.participantsCount,
                     capacity: booking.capacity,
+                    team: slot?.team ?? null,
+                    positionInTeam: slot?.positionInTeam ?? null,
                 };
             }
             return apiFetch<JoinBookingResponse>(
                 `/bookings/${bookingId}/join`,
                 getToken,
-                { method: "POST" }
+                {
+                    method: "POST",
+                    body: JSON.stringify({
+                        team: slot?.team ?? null,
+                        positionInTeam: slot?.positionInTeam ?? null,
+                    }),
+                }
             );
         },
 

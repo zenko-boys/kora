@@ -7,5 +7,6 @@ public record JoinBookingResponse(
     Guid UserId,
     int ParticipantsCount,
     int Capacity,
-    Team? Team
+    Team? Team,
+    int? PositionInTeam
 );
