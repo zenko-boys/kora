@@ -12,6 +12,7 @@
 - ~~[ ] adicionar regra para deletar o booking caso seja o owner~~
 - [ ] game level no booking
 - ~~[ ] notificacao de leave antes de 3h para iniciar o jogo~~
+- [ ] rota de usuarios com busca
 
 ## UI
 - [x] botao de leave booking
