@@ -57,6 +57,7 @@
             "join": "Join Booking",
             "joining": "Joining…",
             "deleteBooking": "Delete booking",
+            "selectSpot": "Select a spot above to join",
             "joinConfirm": {
                 "title": "Join this booking?",
                 "description": "You are about to join this booking. Do you want to continue?",

@@ -57,6 +57,7 @@
             "join": "Entrar na Reserva",
             "joining": "Entrando…",
             "deleteBooking": "Excluir reserva",
+            "selectSpot": "Selecione uma posição acima para entrar",
             "joinConfirm": {
                 "title": "Entrar nesta reserva?",
                 "description": "Você está prestes a entrar nesta reserva. Deseja continuar?",

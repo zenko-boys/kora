@@ -16,6 +16,8 @@ public static class DependencyInjection
 
         services.AddFluentValidationAutoValidation();
 
+        services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
+
         services.AddControllers()
             .AddJsonOptions(options =>
             {

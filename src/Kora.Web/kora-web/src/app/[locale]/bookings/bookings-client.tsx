@@ -31,9 +31,9 @@ export function BookingsClient({ title, subtitle }: { title: string; subtitle: s
     });
 
     const joinMutation = useMutation({
-        mutationFn: (bookingId: string) => {
+        mutationFn: ({ bookingId, slot }: { bookingId: string; slot?: { team: "TeamA" | "TeamB"; positionInTeam: number } }) => {
             setJoiningId(bookingId);
-            return api.joinBooking(bookingId);
+            return api.joinBooking(bookingId, slot);
         },
         onSuccess: (result) => {
             toast.success(t("toast.joined"), {
@@ -127,7 +127,7 @@ export function BookingsClient({ title, subtitle }: { title: string; subtitle: s
                         <BookingCard
                             key={booking.bookingId}
                             booking={booking}
-                            onJoin={(id) => joinMutation.mutate(id)}
+                            onJoin={(id, slot) => joinMutation.mutate({ bookingId: id, slot })}
                             isJoining={joiningId === booking.bookingId && joinMutation.isPending}
                             onLeave={(id) => leaveMutation.mutate(id)}
                             isLeaving={leavingId === booking.bookingId && leaveMutation.isPending}
