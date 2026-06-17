@@ -264,6 +264,8 @@
             "newBooking": "Nova Reserva",
             "confirm": "Confirmar reserva",
             "cancel": "Cancelar",
+            "club": "Clube",
+            "selectClub": "Selecionar clube...",
             "court": "Quadra",
             "selectCourt": "Selecionar quadra...",
             "noCourtFound": "Nenhuma quadra encontrada.",

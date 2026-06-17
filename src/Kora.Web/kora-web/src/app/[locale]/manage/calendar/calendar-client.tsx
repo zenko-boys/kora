@@ -33,8 +33,14 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@clerk/nextjs";
+import { createApiClient } from "@/lib/api";
+import type { CourtSummary } from "@/lib/types";
+import { MANAGEMENT_ROLES } from "@/lib/constants";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -451,20 +457,40 @@ function NewBookingDialog({
   currentDate: Date;
 }) {
   const t = useTranslations("manage");
-  const [courtId, setCourtId] = useState(
-    selection[0]?.courtId ?? COURTS[0].id
-  );
+  const { getToken } = useAuth();
+  const api = createApiClient(async (opts) => getToken(opts));
+
+  const [clubId, setClubId] = useState("");
+  const [courtId, setCourtId] = useState("");
   const [bookingDate, setBookingDate] = useState(currentDate);
   const [bookingType, setBookingType] = useState("game");
-  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
 
-  // Re-initialise form whenever the dialog opens
+  // Clubs — fetched once and cached; filtered to management roles
+  const { data: clubsData } = useQuery({
+    queryKey: ["my-clubs"],
+    queryFn: () => api.getMyClubs(),
+  });
+  const managedClubs = (clubsData?.clubs ?? []).filter((c) =>
+    MANAGEMENT_ROLES.includes(c.role)
+  );
+
+  // Courts — only fetched after a club is chosen
+  const { data: courtsData, isLoading: courtsLoading } = useQuery({
+    queryKey: ["courts", clubId],
+    queryFn: () => api.getCourts(clubId),
+    enabled: !!clubId,
+  });
+  const availableCourts: CourtSummary[] = courtsData?.courts ?? [];
+
+  // Reset form whenever the dialog opens
   useEffect(() => {
     if (open) {
-      setCourtId(selection[0]?.courtId ?? COURTS[0].id);
+      setClubId("");
+      setCourtId("");
       setBookingDate(currentDate);
       setBookingType("game");
-      setCalendarOpen(false);
+      setDatePickerOpen(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -487,17 +513,50 @@ function NewBookingDialog({
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Court */}
+          {/* Club */}
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium text-muted-foreground">
+              {t("calendar.club")}
+            </Label>
+            <Select
+              value={clubId}
+              onValueChange={(v) => {
+                setClubId(v ?? "");
+                setCourtId("");
+              }}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={t("calendar.selectClub")} />
+              </SelectTrigger>
+              <SelectContent>
+                {managedClubs.map((c) => (
+                  <SelectItem key={c.clubId} value={c.clubId}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Court — loads from API once a club is chosen */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-muted-foreground">
               {t("calendar.court")}
             </Label>
-            <Select value={courtId} onValueChange={setCourtId}>
+            <Select
+              value={courtId}
+              onValueChange={(v) => setCourtId(v ?? "")}
+              disabled={!clubId || courtsLoading}
+            >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder={t("calendar.selectCourt")} />
+                <SelectValue
+                  placeholder={
+                    courtsLoading ? "..." : t("calendar.selectCourt")
+                  }
+                />
               </SelectTrigger>
               <SelectContent>
-                {COURTS.map((c) => (
+                {availableCourts.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.name}
                   </SelectItem>
@@ -506,33 +565,29 @@ function NewBookingDialog({
             </Select>
           </div>
 
-          {/* Date — inline calendar toggle avoids portal-in-portal z-index issues */}
+          {/* Date — floating Popover */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-muted-foreground">
               {t("calendar.date")}
             </Label>
-            <button
-              type="button"
-              onClick={() => setCalendarOpen((v) => !v)}
-              className="flex w-full items-center gap-2 rounded-lg border border-input bg-transparent px-2.5 py-2 text-left text-sm transition-colors hover:bg-accent"
-            >
-              <CalendarDays className="h-4 w-4 shrink-0 text-muted-foreground" />
-              {format(bookingDate, "PPP")}
-            </button>
-            {calendarOpen && (
-              <div className="rounded-lg border border-slate-100 shadow-sm">
+            <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+              <PopoverTrigger className="flex w-full items-center gap-2 rounded-lg border border-input bg-transparent px-2.5 py-2 text-left text-sm transition-colors hover:bg-accent">
+                <CalendarDays className="h-4 w-4 shrink-0 text-muted-foreground" />
+                {format(bookingDate, "PPP")}
+              </PopoverTrigger>
+              <PopoverContent side="bottom" align="start" className="w-auto p-0">
                 <Calendar
                   mode="single"
                   selected={bookingDate}
                   onSelect={(d) => {
                     if (d) {
                       setBookingDate(d);
-                      setCalendarOpen(false);
+                      setDatePickerOpen(false);
                     }
                   }}
                 />
-              </div>
-            )}
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Start time + Duration */}
@@ -560,7 +615,7 @@ function NewBookingDialog({
             <Label className="text-xs font-medium text-muted-foreground">
               {t("calendar.type")}
             </Label>
-            <Select value={bookingType} onValueChange={setBookingType}>
+            <Select value={bookingType} onValueChange={(v) => setBookingType(v ?? "game")}>
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>

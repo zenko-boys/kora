@@ -263,6 +263,8 @@
             "newBooking": "New Booking",
             "confirm": "Confirm booking",
             "cancel": "Cancel",
+            "club": "Club",
+            "selectClub": "Select a club...",
             "court": "Court",
             "selectCourt": "Select a court...",
             "noCourtFound": "No court found.",
