@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import {
   format,
   addDays,
@@ -11,7 +11,7 @@ import {
 } from "date-fns";
 import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
-import { COURTS, MOCK_BOOKINGS, SLOT_HEIGHT, SLOTS, START_HOUR } from "./constants";
+import { COURTS, SLOT_HEIGHT, SLOTS, START_HOUR } from "./constants";
 import { timeToSlotIndex, formatSlotTime } from "./helpers";
 import { NewBookingDialog } from "./NewBookingDialog";
 import { TeamCardDialog } from "./TeamCardDialog";
@@ -33,18 +33,29 @@ export function CalendarClient({
   const [showNewBooking, setShowNewBooking] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
+  const gridContainerRef = useRef<HTMLDivElement>(null);
+  const [slotHeight, setSlotHeight] = useState(SLOT_HEIGHT);
+
+  useEffect(() => {
+    const el = gridContainerRef.current;
+    if (!el) return;
+    const compute = () => {
+      const header = el.querySelector<HTMLElement>("[data-header]");
+      const headerH = header?.offsetHeight ?? 40;
+      setSlotHeight(Math.max(20, Math.floor((el.clientHeight - headerH) / SLOTS)));
+    };
+    compute();
+    const ro = new ResizeObserver(compute);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
   const weekLabel = `${format(weekStart, "MMM d")} – ${format(weekEnd, "d, yyyy")}`;
   const dayLabel = format(selectedDate, "EEEE, MMM d, yyyy");
 
-  const dayBookings = useMemo(
-    () =>
-      MOCK_BOOKINGS.filter((b) =>
-        isSameDay(new Date(b.startTime), selectedDate)
-      ),
-    [selectedDate]
-  );
+  const dayBookings = useMemo<Booking[]>(() => [], []);
 
   const selection = useMemo<SlotKey[]>(() => {
     if (!selectionStart || !selectionEnd) return [];
@@ -158,8 +169,8 @@ export function CalendarClient({
 
       {/* Calendar grid */}
       <div
-        className="flex-1 overflow-auto rounded-xl border border-slate-200 bg-white"
-        style={{ maxHeight: "calc(100vh - 264px)" }}
+        ref={gridContainerRef}
+        className="flex-1 overflow-x-auto overflow-y-hidden rounded-xl border border-slate-200 bg-white"
       >
         <div
           style={{
@@ -168,7 +179,7 @@ export function CalendarClient({
             minWidth: `${72 + COURTS.length * 128}px`,
           }}
         >
-          <div className="sticky left-0 top-0 z-25 border-b border-slate-200 bg-white" />
+          <div data-header className="sticky left-0 top-0 z-25 border-b border-slate-200 bg-white" />
 
           {COURTS.map((court) => (
             <div
@@ -189,7 +200,7 @@ export function CalendarClient({
               <React.Fragment key={slotIndex}>
                 <div
                   className="sticky left-0 z-15 border-b border-slate-100 bg-white pr-3 pt-1 text-right"
-                  style={{ height: SLOT_HEIGHT }}
+                  style={{ height: slotHeight }}
                 >
                   {!half && (
                     <span className="text-[11px] leading-none text-slate-400">
@@ -226,7 +237,7 @@ export function CalendarClient({
                       ]
                         .filter(Boolean)
                         .join(" ")}
-                      style={{ height: SLOT_HEIGHT }}
+                      style={{ height: slotHeight }}
                       onMouseDown={
                         isOccupied
                           ? undefined
@@ -260,7 +271,7 @@ export function CalendarClient({
                               ].join(" ")}
                               style={{
                                 top: 2,
-                                height: spanSlots * SLOT_HEIGHT - 4,
+                                height: spanSlots * slotHeight - 4,
                                 zIndex: 10,
                               }}
                             >

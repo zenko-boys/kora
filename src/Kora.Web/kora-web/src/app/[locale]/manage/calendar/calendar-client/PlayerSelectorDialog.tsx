@@ -9,12 +9,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { MOCK_PLAYERS } from "./constants";
 
 export function PlayerSelectorDialog({
   open,
   onOpenChange,
   onSelect,
+  players,
   titleLabel,
   searchLabel,
   guestLabel,
@@ -22,6 +22,7 @@ export function PlayerSelectorDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelect: (name: string) => void;
+  players: string[];
   titleLabel: string;
   searchLabel: string;
   guestLabel: string;
@@ -29,10 +30,10 @@ export function PlayerSelectorDialog({
   const [search, setSearch] = useState("");
   const filtered = useMemo(
     () =>
-      MOCK_PLAYERS.filter((p) =>
+      players.filter((p) =>
         p.toLowerCase().includes(search.toLowerCase())
       ),
-    [search]
+    [search, players]
   );
 
   function handleSelect(name: string) {

@@ -140,6 +140,7 @@ export function TeamCardDialog({
           }
         }}
         onSelect={handlePlayerSelect}
+        players={[]}
         titleLabel={t("calendar.selectPlayer")}
         searchLabel={t("calendar.searchPlayers")}
         guestLabel={t("calendar.guest")}
