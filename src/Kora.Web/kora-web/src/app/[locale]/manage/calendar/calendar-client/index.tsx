@@ -1,21 +1,31 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import {
-  format,
-  addDays,
-  subDays,
-  startOfWeek,
-  endOfWeek,
-  isSameDay,
-} from "date-fns";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
+import { format, addDays, subDays, startOfWeek, endOfWeek } from "date-fns";
 import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
-import { COURTS, SLOT_HEIGHT, SLOTS, START_HOUR } from "./constants";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@clerk/nextjs";
+import { createApiClient } from "@/lib/api";
+import { MANAGEMENT_ROLES } from "@/lib/constants";
+import type { CourtSummary, ClubSlotInfo } from "@/lib/types";
+import { SLOT_HEIGHT, SLOTS, START_HOUR } from "./constants";
 import { timeToSlotIndex, formatSlotTime } from "./helpers";
-import { NewBookingDialog } from "./NewBookingDialog";
-import { TeamCardDialog } from "./TeamCardDialog";
-import type { Booking, SlotKey } from "./types";
+import { BookingPanel, type BookingFormData } from "./BookingPanel";
+import type { SlotKey } from "./types";
 
 export function CalendarClient({
   title,
@@ -25,37 +35,71 @@ export function CalendarClient({
   subtitle: string;
 }) {
   const t = useTranslations("manage");
+  const { getToken } = useAuth();
+  const api = useMemo(
+    () => createApiClient(async (opts) => getToken(opts)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
 
+  // ── Date ──────────────────────────────────────────────────────────────────────
   const [selectedDate, setSelectedDate] = useState(() => new Date());
-  const [selectionStart, setSelectionStart] = useState<SlotKey | null>(null);
-  const [selectionEnd, setSelectionEnd] = useState<SlotKey | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [showNewBooking, setShowNewBooking] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-
-  const gridContainerRef = useRef<HTMLDivElement>(null);
-  const [slotHeight, setSlotHeight] = useState(SLOT_HEIGHT);
-
-  useEffect(() => {
-    const el = gridContainerRef.current;
-    if (!el) return;
-    const compute = () => {
-      const header = el.querySelector<HTMLElement>("[data-header]");
-      const headerH = header?.offsetHeight ?? 40;
-      setSlotHeight(Math.max(20, Math.floor((el.clientHeight - headerH) / SLOTS)));
-    };
-    compute();
-    const ro = new ResizeObserver(compute);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
   const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
   const weekLabel = `${format(weekStart, "MMM d")} – ${format(weekEnd, "d, yyyy")}`;
   const dayLabel = format(selectedDate, "EEEE, MMM d, yyyy");
+  const dateStr = format(selectedDate, "yyyy-MM-dd");
 
-  const dayBookings = useMemo<Booking[]>(() => [], []);
+  // ── Club ──────────────────────────────────────────────────────────────────────
+  const [selectedClubId, setSelectedClubId] = useState("");
+
+  const { data: clubsData } = useQuery({
+    queryKey: ["my-clubs"],
+    queryFn: () => api.getMyClubs(),
+  });
+  const managedClubs = (clubsData?.clubs ?? []).filter((c) =>
+    MANAGEMENT_ROLES.includes(c.role)
+  );
+
+  // ── Courts ────────────────────────────────────────────────────────────────────
+  const { data: courtsData, isLoading: courtsLoading } = useQuery({
+    queryKey: ["courts", selectedClubId],
+    queryFn: () => api.getCourts(selectedClubId),
+    enabled: !!selectedClubId,
+  });
+  const courts: CourtSummary[] = courtsData?.courts ?? [];
+
+  // ── Slots ─────────────────────────────────────────────────────────────────────
+  const { data: slotsData, isLoading: slotsLoading } = useQuery({
+    queryKey: ["club-slots", selectedClubId, dateStr],
+    queryFn: () => api.getClubSlots(selectedClubId, dateStr),
+    enabled: !!selectedClubId,
+  });
+
+  const isLoading = courtsLoading || slotsLoading;
+
+  const scheduleStartHour = useMemo(() => {
+    const first = slotsData?.slots[0];
+    if (!first) return START_HOUR;
+    return new Date(first.startTime).getHours();
+  }, [slotsData]);
+
+  const scheduleSlotCount = slotsData?.slots.length ?? SLOTS;
+
+  // slotIndex → ClubSlotInfo (club-wide, same for every court column)
+  const slotMap = useMemo(() => {
+    const map = new Map<number, ClubSlotInfo>();
+    for (const slot of slotsData?.slots ?? []) {
+      map.set(timeToSlotIndex(slot.startTime, scheduleStartHour), slot);
+    }
+    return map;
+  }, [slotsData, scheduleStartHour]);
+
+  // ── Selection ─────────────────────────────────────────────────────────────────
+  const [selectionStart, setSelectionStart] = useState<SlotKey | null>(null);
+  const [selectionEnd, setSelectionEnd] = useState<SlotKey | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [showBookingPanel, setShowBookingPanel] = useState(false);
 
   const selection = useMemo<SlotKey[]>(() => {
     if (!selectionStart || !selectionEnd) return [];
@@ -82,7 +126,7 @@ export function CalendarClient({
         selectionEnd &&
         selectionStart.courtId === selectionEnd.courtId
       ) {
-        setShowNewBooking(true);
+        setShowBookingPanel(true);
       }
     };
     document.addEventListener("mouseup", handler);
@@ -95,6 +139,7 @@ export function CalendarClient({
       setSelectionStart({ courtId, slotIndex });
       setSelectionEnd({ courtId, slotIndex });
       setIsDragging(true);
+      setShowBookingPanel(false);
     },
     []
   );
@@ -116,19 +161,70 @@ export function CalendarClient({
     [selection]
   );
 
-  function handleNewBookingClose() {
-    setShowNewBooking(false);
+  function handleBookingPanelClose() {
+    setShowBookingPanel(false);
     clearSelection();
   }
 
+  function handleBookingConfirm(_data: BookingFormData) {
+    // TODO: call api.createBooking
+    handleBookingPanelClose();
+  }
+
+  // ── Dynamic slot height ───────────────────────────────────────────────────────
+  const gridContainerRef = useRef<HTMLDivElement>(null);
+  const [slotHeight, setSlotHeight] = useState(SLOT_HEIGHT);
+
+  const computeSlotHeight = useCallback(() => {
+    const el = gridContainerRef.current;
+    if (!el) return;
+    const header = el.querySelector<HTMLElement>("[data-header]");
+    const headerH = header?.offsetHeight ?? 40;
+    setSlotHeight(
+      Math.max(20, Math.floor((el.clientHeight - headerH) / scheduleSlotCount))
+    );
+  }, [scheduleSlotCount]);
+
+  useEffect(() => {
+    computeSlotHeight();
+    const el = gridContainerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(computeSlotHeight);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [computeSlotHeight]);
+
+  // ── Render ────────────────────────────────────────────────────────────────────
   return (
-    <div className="flex h-full flex-col space-y-5">
-      {/* Page header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          {title}
-        </h1>
-        <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>
+    <div className="flex h-full flex-col space-y-4">
+      {/* Page header + club selector */}
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            {title}
+          </h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>
+        </div>
+
+        <Select
+          value={selectedClubId}
+          onValueChange={(v) => {
+            setSelectedClubId(v ?? "");
+            clearSelection();
+            setShowBookingPanel(false);
+          }}
+        >
+          <SelectTrigger className="w-52">
+            <SelectValue placeholder={t("calendar.selectClub")} />
+          </SelectTrigger>
+          <SelectContent>
+            {managedClubs.map((c) => (
+              <SelectItem key={c.clubId} value={c.clubId}>
+                {c.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Date navigation */}
@@ -167,170 +263,139 @@ export function CalendarClient({
         </button>
       </div>
 
-      {/* Calendar grid */}
-      <div
-        ref={gridContainerRef}
-        className="flex-1 overflow-x-auto overflow-y-hidden rounded-xl border border-slate-200 bg-white"
-      >
+      {/* Calendar + booking panel */}
+      <div className="flex min-h-0 flex-1 gap-4">
+        {/* Grid container */}
         <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: `72px repeat(${COURTS.length}, minmax(128px, 1fr))`,
-            minWidth: `${72 + COURTS.length * 128}px`,
-          }}
+          ref={gridContainerRef}
+          className="flex-1 overflow-x-auto overflow-y-hidden rounded-xl border border-slate-200 bg-white"
         >
-          <div data-header className="sticky left-0 top-0 z-25 border-b border-slate-200 bg-white" />
-
-          {COURTS.map((court) => (
-            <div
-              key={court.id}
-              className="sticky top-0 z-20 border-b border-l border-slate-200 bg-white px-3 py-3 text-center"
-            >
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                {court.name}
-              </span>
+          {/* No club selected */}
+          {!selectedClubId && (
+            <div className="flex h-full flex-col items-center justify-center gap-2 text-slate-400">
+              <CalendarDays className="h-8 w-8" />
+              <p className="text-sm">{t("calendar.selectClubToView")}</p>
             </div>
-          ))}
+          )}
 
-          {Array.from({ length: SLOTS }, (_, slotIndex) => {
-            const hour = START_HOUR + Math.floor(slotIndex / 2);
-            const half = slotIndex % 2 === 1;
+          {/* Loading */}
+          {selectedClubId && isLoading && (
+            <div className="flex h-full items-center justify-center">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-200 border-t-[#8CC63F]" />
+            </div>
+          )}
 
-            return (
-              <React.Fragment key={slotIndex}>
+          {/* No courts */}
+          {selectedClubId && !isLoading && courts.length === 0 && (
+            <div className="flex h-full flex-col items-center justify-center gap-2 text-slate-400">
+              <CalendarDays className="h-8 w-8" />
+              <p className="text-sm">{t("calendar.noBookings")}</p>
+            </div>
+          )}
+
+          {/* Grid */}
+          {courts.length > 0 && (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: `72px repeat(${courts.length}, minmax(128px, 1fr))`,
+                minWidth: `${72 + courts.length * 128}px`,
+              }}
+            >
+              {/* Corner */}
+              <div
+                data-header
+                className="sticky left-0 top-0 z-25 border-b border-slate-200 bg-white"
+              />
+
+              {/* Court headers */}
+              {courts.map((court) => (
                 <div
-                  className="sticky left-0 z-15 border-b border-slate-100 bg-white pr-3 pt-1 text-right"
-                  style={{ height: slotHeight }}
+                  key={court.id}
+                  className="sticky top-0 z-20 border-b border-l border-slate-200 bg-white px-3 py-3 text-center"
                 >
-                  {!half && (
-                    <span className="text-[11px] leading-none text-slate-400">
-                      {formatSlotTime(hour, false)}
-                    </span>
-                  )}
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    {court.name}
+                  </span>
                 </div>
+              ))}
 
-                {COURTS.map((court) => {
-                  const booking = dayBookings.find(
-                    (b) =>
-                      b.courtId === court.id &&
-                      timeToSlotIndex(b.startTime) === slotIndex
-                  );
-                  const isOccupied = dayBookings.some((b) => {
-                    if (b.courtId !== court.id) return false;
-                    const s = timeToSlotIndex(b.startTime);
-                    const e = timeToSlotIndex(b.endTime);
-                    return slotIndex >= s && slotIndex < e;
-                  });
-                  const selected = isSlotSelected(court.id, slotIndex);
+              {/* Time rows */}
+              {Array.from({ length: scheduleSlotCount }, (_, slotIndex) => {
+                const hour = scheduleStartHour + Math.floor(slotIndex / 2);
+                const half = slotIndex % 2 === 1;
+                const slotInfo = slotMap.get(slotIndex);
+                const isOccupied = slotInfo ? !slotInfo.available : false;
+                const isOutsideHours = !slotInfo;
 
-                  return (
+                return (
+                  <React.Fragment key={slotIndex}>
+                    {/* Time label */}
                     <div
-                      key={`${court.id}-${slotIndex}`}
-                      className={[
-                        "relative select-none border-b border-l border-slate-100 transition-colors",
-                        !isOccupied && "cursor-pointer",
-                        selected
-                          ? "bg-[#8CC63F]/20 ring-1 ring-inset ring-[#8CC63F]/50"
-                          : !isOccupied
-                            ? "hover:bg-[#8CC63F]/10"
-                            : "",
-                      ]
-                        .filter(Boolean)
-                        .join(" ")}
+                      className="sticky left-0 z-15 border-b border-slate-100 bg-white pr-3 pt-1 text-right"
                       style={{ height: slotHeight }}
-                      onMouseDown={
-                        isOccupied
-                          ? undefined
-                          : (e) => handleCellMouseDown(court.id, slotIndex, e)
-                      }
-                      onMouseEnter={() =>
-                        handleCellMouseEnter(court.id, slotIndex)
-                      }
                     >
-                      {booking &&
-                        (() => {
-                          const startIdx = timeToSlotIndex(booking.startTime);
-                          const endIdx = timeToSlotIndex(booking.endTime);
-                          const spanSlots = endIdx - startIdx;
-                          const confirmed = booking.status === "confirmed";
-                          const lead = booking.teamA[0]?.name ?? "";
-
-                          return (
-                            <button
-                              type="button"
-                              onMouseDown={(e) => e.stopPropagation()}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setSelectedBooking(booking);
-                              }}
-                              className={[
-                                "absolute inset-x-1 rounded-lg border px-2 py-1.5 text-left transition-opacity hover:opacity-80 active:scale-[0.98]",
-                                confirmed
-                                  ? "border-green-300 bg-green-100"
-                                  : "border-yellow-300 bg-yellow-100",
-                              ].join(" ")}
-                              style={{
-                                top: 2,
-                                height: spanSlots * slotHeight - 4,
-                                zIndex: 10,
-                              }}
-                            >
-                              <span
-                                className={[
-                                  "block truncate text-[11px] font-semibold leading-tight",
-                                  confirmed ? "text-green-800" : "text-yellow-800",
-                                ].join(" ")}
-                              >
-                                {lead.split(" ")[0] || "—"}
-                              </span>
-                              {spanSlots > 1 && (
-                                <span
-                                  className={[
-                                    "block text-[10px] leading-tight",
-                                    confirmed
-                                      ? "text-green-600"
-                                      : "text-yellow-600",
-                                  ].join(" ")}
-                                >
-                                  {format(
-                                    new Date(booking.startTime),
-                                    "h:mm a"
-                                  )}{" "}
-                                  –{" "}
-                                  {format(new Date(booking.endTime), "h:mm a")}
-                                </span>
-                              )}
-                            </button>
-                          );
-                        })()}
+                      {!half && (
+                        <span className="text-[11px] leading-none text-slate-400">
+                          {formatSlotTime(hour, false)}
+                        </span>
+                      )}
                     </div>
-                  );
-                })}
-              </React.Fragment>
-            );
-          })}
+
+                    {/* Court cells */}
+                    {courts.map((court) => {
+                      const selected = isSlotSelected(court.id, slotIndex);
+
+                      return (
+                        <div
+                          key={`${court.id}-${slotIndex}`}
+                          className={[
+                            "relative select-none border-b border-l border-slate-100 transition-colors",
+                            isOutsideHours
+                              ? "bg-slate-50/60"
+                              : isOccupied
+                                ? "bg-slate-100/80"
+                                : "cursor-pointer",
+                            selected
+                              ? "bg-[#8CC63F]/20 ring-1 ring-inset ring-[#8CC63F]/50"
+                              : !isOccupied && !isOutsideHours
+                                ? "hover:bg-[#8CC63F]/10"
+                                : "",
+                          ]
+                            .filter(Boolean)
+                            .join(" ")}
+                          style={{ height: slotHeight }}
+                          onMouseDown={
+                            isOccupied || isOutsideHours
+                              ? undefined
+                              : (e) =>
+                                  handleCellMouseDown(court.id, slotIndex, e)
+                          }
+                          onMouseEnter={() =>
+                            handleCellMouseEnter(court.id, slotIndex)
+                          }
+                        />
+                      );
+                    })}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          )}
         </div>
+
+        {/* Booking panel */}
+        {showBookingPanel && (
+          <BookingPanel
+            selection={selection}
+            courts={courts}
+            selectedDate={selectedDate}
+            startHour={scheduleStartHour}
+            onClose={handleBookingPanelClose}
+            onConfirm={handleBookingConfirm}
+          />
+        )}
       </div>
-
-      {/* Empty state */}
-      {dayBookings.length === 0 && (
-        <div className="flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50 px-4 py-3">
-          <CalendarDays className="h-4 w-4 shrink-0 text-slate-400" />
-          <p className="text-sm text-slate-500">{t("calendar.noBookings")}</p>
-        </div>
-      )}
-
-      {/* Dialogs */}
-      <NewBookingDialog
-        open={showNewBooking}
-        onClose={handleNewBookingClose}
-        selection={selection}
-        currentDate={selectedDate}
-      />
-      <TeamCardDialog
-        booking={selectedBooking}
-        onClose={() => setSelectedBooking(null)}
-      />
     </div>
   );
 }

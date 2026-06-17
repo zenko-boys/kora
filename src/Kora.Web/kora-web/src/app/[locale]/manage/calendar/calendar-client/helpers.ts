@@ -1,8 +1,8 @@
 import { START_HOUR } from "./constants";
 
-export function timeToSlotIndex(isoStr: string): number {
+export function timeToSlotIndex(isoStr: string, startHour = START_HOUR): number {
   const d = new Date(isoStr);
-  return (d.getHours() - START_HOUR) * 2 + Math.floor(d.getMinutes() / 30);
+  return (d.getHours() - startHour) * 2 + Math.floor(d.getMinutes() / 30);
 }
 
 export function formatSlotTime(hour: number, half: boolean): string {
