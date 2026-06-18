@@ -4,6 +4,7 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
+import { useDateLocale } from "@/lib/useDateLocale";
 import type { SlotKey, TeamSlot } from "./types";
 
 type CourtOption = { id: string; name: string };
@@ -56,6 +57,7 @@ export function BookingPanel({
   isPending?: boolean;
 }) {
   const t = useTranslations("manage");
+  const dateLocale = useDateLocale();
 
   // slots[0,1] = Team A positions 1,2 — slots[2,3] = Team B positions 1,2
   const [slots, setSlots] = useState<[TeamSlot, TeamSlot, TeamSlot, TeamSlot]>(
@@ -108,9 +110,9 @@ export function BookingPanel({
               {court?.name ?? "—"}
             </p>
             <p className="text-xs text-slate-400">
-              {format(selectedDate, "EEE, MMM d")}
+              {format(selectedDate, "EEE, d MMM", { locale: dateLocale })}
               {" · "}
-              {formatSlotTime(sh, shHalf)} – {formatSlotTime(eh, ehHalf)}
+              {formatSlotTime(sh, shHalf, dateLocale)} – {formatSlotTime(eh, ehHalf, dateLocale)}
             </p>
           </div>
           <button

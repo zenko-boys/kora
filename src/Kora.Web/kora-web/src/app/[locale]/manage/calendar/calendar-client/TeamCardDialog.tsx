@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { useTranslations } from "next-intl";
+import { useDateLocale } from "@/lib/useDateLocale";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ export function TeamCardDialog({
   onClose: () => void;
 }) {
   const t = useTranslations("manage");
+  const dateLocale = useDateLocale();
   const [teams, setTeams] = useState<[TeamSlot, TeamSlot, TeamSlot, TeamSlot]>(
     [null, null, null, null]
   );
@@ -72,11 +74,11 @@ export function TeamCardDialog({
             <DialogTitle>{court?.name ?? ""}</DialogTitle>
             {booking && (
               <p className="mt-0.5 text-xs text-slate-500">
-                {format(new Date(booking.startTime), "EEE, MMM d")}
+                {format(new Date(booking.startTime), "EEE, d MMM", { locale: dateLocale })}
                 {" · "}
-                {format(new Date(booking.startTime), "h:mm a")}
+                {format(new Date(booking.startTime), "p", { locale: dateLocale })}
                 {" – "}
-                {format(new Date(booking.endTime), "h:mm a")}
+                {format(new Date(booking.endTime), "p", { locale: dateLocale })}
                 {" · "}
                 <span
                   className={

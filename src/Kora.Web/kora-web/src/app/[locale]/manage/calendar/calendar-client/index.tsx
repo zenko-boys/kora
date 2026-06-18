@@ -21,6 +21,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { createApiClient } from "@/lib/api";
 import { MANAGEMENT_ROLES } from "@/lib/constants";
+import { useDateLocale } from "@/lib/useDateLocale";
 import type {
   CourtSchedule,
   ScheduleSlot,
@@ -42,6 +43,7 @@ export function CalendarClient({
   subtitle: string;
 }) {
   const t = useTranslations("manage");
+  const dateLocale = useDateLocale();
   const { getToken } = useAuth();
   const api = useMemo(
     () => createApiClient(async (opts) => getToken(opts)),
@@ -53,8 +55,8 @@ export function CalendarClient({
   const [selectedDate, setSelectedDate] = useState(() => new Date());
   const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 1 });
-  const weekLabel = `${format(weekStart, "MMM d")} – ${format(weekEnd, "d, yyyy")}`;
-  const dayLabel = format(selectedDate, "EEEE, MMM d, yyyy");
+  const weekLabel = `${format(weekStart, "d MMM", { locale: dateLocale })} – ${format(weekEnd, "d MMM yyyy", { locale: dateLocale })}`;
+  const dayLabel = format(selectedDate, "EEEE, d MMM yyyy", { locale: dateLocale });
   const dateStr = format(selectedDate, "yyyy-MM-dd");
 
   // ── Club ──────────────────────────────────────────────────────────────────────
@@ -442,17 +444,17 @@ export function CalendarClient({
 
                 return (
                   <React.Fragment key={slotIndex}>
-                    {/* Time label */}
-                    <div
-                      className="sticky left-0 z-15 border-b border-slate-100 bg-white pr-3 pt-1 text-right"
-                      style={{ height: slotHeight }}
-                    >
-                      {!half && (
+                    {/* Time label — rendered only on full hours, spans 2 slot rows */}
+                    {!half && (
+                      <div
+                        className="sticky left-0 z-15 border-b border-slate-200 bg-white pr-3 pt-2 text-right"
+                        style={{ height: slotHeight * 2, gridRow: "span 2" }}
+                      >
                         <span className="text-[11px] leading-none text-slate-400">
-                          {formatSlotTime(hour, false)}
+                          {formatSlotTime(hour, false, dateLocale)}
                         </span>
-                      )}
-                    </div>
+                      </div>
+                    )}
 
                     {/* Court cells */}
                     {courts.map((court) => {
@@ -525,6 +527,7 @@ export function CalendarClient({
                                 endSlot={endSlot}
                                 span={span}
                                 slotHeight={slotHeight}
+                                locale={dateLocale}
                                 onClick={() =>
                                   setViewingBooking({
                                     booking,
@@ -553,6 +556,7 @@ export function CalendarClient({
             courtName={viewingBooking.courtName}
             startSlot={viewingBooking.startSlot}
             endSlot={viewingBooking.endSlot}
+            locale={dateLocale}
             onClose={() => setViewingBooking(null)}
           />
         ) : showBookingPanel ? (

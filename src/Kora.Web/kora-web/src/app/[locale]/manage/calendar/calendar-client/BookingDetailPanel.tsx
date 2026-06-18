@@ -1,6 +1,6 @@
 "use client";
 
-import { format } from "date-fns";
+import { format, type Locale } from "date-fns";
 import { X, UserRound } from "lucide-react";
 import type { ScheduleBookingInfo, ScheduleSlot } from "@/lib/types";
 
@@ -9,6 +9,7 @@ interface BookingDetailPanelProps {
   courtName: string;
   startSlot: ScheduleSlot;
   endSlot: ScheduleSlot;
+  locale?: Locale;
   onClose: () => void;
 }
 
@@ -60,12 +61,13 @@ export function BookingDetailPanel({
   courtName,
   startSlot,
   endSlot,
+  locale,
   onClose,
 }: BookingDetailPanelProps) {
   const teamA = booking.participants.filter((p) => p.team === "TeamA");
   const teamB = booking.participants.filter((p) => p.team === "TeamB");
-  const startFmt = format(new Date(startSlot.startTime), "h:mm a");
-  const endFmt = format(new Date(endSlot.endTime), "h:mm a");
+  const startFmt = format(new Date(startSlot.startTime), "p", { locale });
+  const endFmt = format(new Date(endSlot.endTime), "p", { locale });
 
   return (
     <div className="flex w-80 shrink-0 flex-col rounded-xl border border-slate-200 bg-white">
