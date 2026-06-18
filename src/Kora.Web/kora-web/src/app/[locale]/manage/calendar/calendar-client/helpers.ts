@@ -1,3 +1,5 @@
+import { format, setHours, setMinutes, startOfDay } from "date-fns";
+import type { Locale } from "date-fns";
 import { START_HOUR } from "./constants";
 
 export function timeToSlotIndex(isoStr: string, startHour = START_HOUR): number {
@@ -5,9 +7,7 @@ export function timeToSlotIndex(isoStr: string, startHour = START_HOUR): number 
   return (d.getHours() - startHour) * 2 + Math.floor(d.getMinutes() / 30);
 }
 
-export function formatSlotTime(hour: number, half: boolean): string {
-  const m = half ? 30 : 0;
-  const h12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-  const period = hour < 12 ? "AM" : "PM";
-  return `${h12}:${m === 0 ? "00" : "30"} ${period}`;
+export function formatSlotTime(hour: number, half: boolean, locale?: Locale): string {
+  const d = setMinutes(setHours(startOfDay(new Date()), hour), half ? 30 : 0);
+  return format(d, "p", { locale });
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { useTranslations } from "next-intl";
+import { useDateLocale } from "@/lib/useDateLocale";
 import { CalendarDays } from "lucide-react";
 import {
   Dialog,
@@ -43,6 +44,7 @@ export function NewBookingDialog({
   currentDate: Date;
 }) {
   const t = useTranslations("manage");
+  const dateLocale = useDateLocale();
   const { getToken } = useAuth();
   const api = createApiClient(async (opts) => getToken(opts));
 
@@ -153,7 +155,7 @@ export function NewBookingDialog({
             <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
               <PopoverTrigger className="flex w-full items-center gap-2 rounded-lg border border-input bg-transparent px-2.5 py-2 text-left text-sm transition-colors hover:bg-accent">
                 <CalendarDays className="h-4 w-4 shrink-0 text-muted-foreground" />
-                {format(bookingDate, "PPP")}
+                {format(bookingDate, "PPP", { locale: dateLocale })}
               </PopoverTrigger>
               <PopoverContent side="bottom" align="start" className="w-auto p-0">
                 <Calendar
