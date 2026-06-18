@@ -44,6 +44,7 @@ export function BookingPanel({
   startHour = START_HOUR,
   onClose,
   onConfirm,
+  isPending = false,
 }: {
   selection: SlotKey[];
   courts: CourtSummary[];
@@ -51,6 +52,7 @@ export function BookingPanel({
   startHour?: number;
   onClose: () => void;
   onConfirm: (data: BookingFormData) => void;
+  isPending?: boolean;
 }) {
   const t = useTranslations("manage");
 
@@ -171,6 +173,7 @@ export function BookingPanel({
           </button>
           <button
             type="button"
+            disabled={isPending}
             onClick={() =>
               onConfirm({
                 courtId,
@@ -179,9 +182,16 @@ export function BookingPanel({
                 teamB: [slots[2], slots[3]],
               })
             }
-            className="flex-1 rounded-lg bg-[#8CC63F] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#7AB534]"
+            className="flex-1 rounded-lg bg-[#8CC63F] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#7AB534] disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {t("calendar.confirm")}
+            {isPending ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                {t("calendar.confirm")}
+              </span>
+            ) : (
+              t("calendar.confirm")
+            )}
           </button>
         </div>
       </div>

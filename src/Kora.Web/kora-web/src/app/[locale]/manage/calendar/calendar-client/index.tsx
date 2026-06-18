@@ -17,11 +17,11 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { createApiClient } from "@/lib/api";
 import { MANAGEMENT_ROLES } from "@/lib/constants";
-import type { CourtSummary, ClubSlotInfo } from "@/lib/types";
+import type { CourtSummary, ClubSlotInfo, BookingTeam } from "@/lib/types";
 import { SLOT_HEIGHT, SLOTS, START_HOUR } from "./constants";
 import { timeToSlotIndex, formatSlotTime } from "./helpers";
 import { BookingPanel, type BookingFormData } from "./BookingPanel";
@@ -161,14 +161,54 @@ export function CalendarClient({
     [selection]
   );
 
+  const queryClient = useQueryClient();
+
+  const { mutate: submitBooking, isPending: isCreating } = useMutation({
+    mutationFn: (data: BookingFormData) => {
+      const slots = data.slotKeys
+        .map((key) => slotMap.get(key.slotIndex)?.startTime)
+        .filter((s): s is string => !!s);
+
+      const teamEntries: [typeof data.teamA[number], BookingTeam, number][] = [
+        [data.teamA[0], "TeamA", 0],
+        [data.teamA[1], "TeamA", 1],
+        [data.teamB[0], "TeamB", 0],
+        [data.teamB[1], "TeamB", 1],
+      ];
+
+      const guests = teamEntries
+        .filter(([slot]) => !!slot)
+        .map(([slot, team, positionInTeam]) => ({
+          name: slot!.name,
+          email: "guilherme.or2013@gmail.com",
+          team,
+          positionInTeam,
+        }));
+
+      return api.createBooking(selectedClubId, {
+        type: "Game",
+        slots,
+        courtId: data.courtId,
+        courtsToOccupy: 1,
+        isPrivate: false,
+        guests,
+      });
+    },
+    onSuccess: () => {
+      handleBookingPanelClose();
+      queryClient.invalidateQueries({
+        queryKey: ["club-slots", selectedClubId, dateStr],
+      });
+    },
+  });
+
   function handleBookingPanelClose() {
     setShowBookingPanel(false);
     clearSelection();
   }
 
-  function handleBookingConfirm(_data: BookingFormData) {
-    // TODO: call api.createBooking
-    handleBookingPanelClose();
+  function handleBookingConfirm(data: BookingFormData) {
+    submitBooking(data);
   }
 
   // ── Dynamic slot height ───────────────────────────────────────────────────────
@@ -393,6 +433,7 @@ export function CalendarClient({
             startHour={scheduleStartHour}
             onClose={handleBookingPanelClose}
             onConfirm={handleBookingConfirm}
+            isPending={isCreating}
           />
         )}
       </div>

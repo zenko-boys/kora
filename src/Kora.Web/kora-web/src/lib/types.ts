@@ -28,12 +28,24 @@ export interface BookingsFilter {
     toUtc?: string;
 }
 
+export type BookingTeam = "TeamA" | "TeamB";
+
+export interface BookingGuestRequest {
+    name: string;
+    email: string;
+    team: BookingTeam;
+    positionInTeam: number;
+}
+
 export interface CreateBookingRequest {
     type: BookingType;
     slots: string[];
+    courtId?: string;
     courtsToOccupy?: number;
     capacity?: number;
+    isPrivate?: boolean;
     description?: string;
+    guests?: BookingGuestRequest[];
 }
 
 export interface JoinBookingResponse {
