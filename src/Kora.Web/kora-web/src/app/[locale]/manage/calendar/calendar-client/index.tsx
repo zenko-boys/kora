@@ -442,17 +442,17 @@ export function CalendarClient({
 
                 return (
                   <React.Fragment key={slotIndex}>
-                    {/* Time label */}
-                    <div
-                      className="sticky left-0 z-15 border-b border-slate-100 bg-white pr-3 pt-1 text-right"
-                      style={{ height: slotHeight }}
-                    >
-                      {!half && (
+                    {/* Time label — rendered only on full hours, spans 2 slot rows */}
+                    {!half && (
+                      <div
+                        className="sticky left-0 z-15 border-b border-slate-200 bg-white pr-3 pt-2 text-right"
+                        style={{ height: slotHeight * 2, gridRow: "span 2" }}
+                      >
                         <span className="text-[11px] leading-none text-slate-400">
                           {formatSlotTime(hour, false)}
                         </span>
-                      )}
-                    </div>
+                      </div>
+                    )}
 
                     {/* Court cells */}
                     {courts.map((court) => {
