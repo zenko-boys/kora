@@ -224,7 +224,7 @@ export interface GetClubSlotsResponse {
 
 export interface ScheduleBookingParticipant {
     userId: string;
-    teamNumber: number | null;
+    team: "TeamA" | "TeamB" | null;
 }
 
 export interface ScheduleBookingInfo {

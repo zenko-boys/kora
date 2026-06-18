@@ -21,10 +21,17 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { createApiClient } from "@/lib/api";
 import { MANAGEMENT_ROLES } from "@/lib/constants";
-import type { CourtSummary, ClubSlotInfo, BookingTeam } from "@/lib/types";
+import type {
+  CourtSchedule,
+  ScheduleSlot,
+  ScheduleBookingInfo,
+  BookingTeam,
+} from "@/lib/types";
 import { SLOT_HEIGHT, SLOTS, START_HOUR } from "./constants";
 import { timeToSlotIndex, formatSlotTime } from "./helpers";
 import { BookingPanel, type BookingFormData } from "./BookingPanel";
+import { SlotBookingCard } from "./SlotBookingCard";
+import { BookingDetailPanel } from "./BookingDetailPanel";
 import type { SlotKey } from "./types";
 
 export function CalendarClient({
@@ -61,45 +68,105 @@ export function CalendarClient({
     MANAGEMENT_ROLES.includes(c.role)
   );
 
-  // ── Courts ────────────────────────────────────────────────────────────────────
-  const { data: courtsData, isLoading: courtsLoading } = useQuery({
-    queryKey: ["courts", selectedClubId],
-    queryFn: () => api.getCourts(selectedClubId),
+  // ── Schedule ──────────────────────────────────────────────────────────────────
+  const { data: scheduleData, isLoading } = useQuery({
+    queryKey: ["club-schedule", selectedClubId, dateStr],
+    queryFn: () => api.getClubSchedule(selectedClubId, dateStr),
     enabled: !!selectedClubId,
   });
-  const courts: CourtSummary[] = courtsData?.courts ?? [];
-
-  // ── Slots ─────────────────────────────────────────────────────────────────────
-  const { data: slotsData, isLoading: slotsLoading } = useQuery({
-    queryKey: ["club-slots", selectedClubId, dateStr],
-    queryFn: () => api.getClubSlots(selectedClubId, dateStr),
-    enabled: !!selectedClubId,
-  });
-
-  const isLoading = courtsLoading || slotsLoading;
+  const courts: CourtSchedule[] = scheduleData?.courts ?? [];
 
   const scheduleStartHour = useMemo(() => {
-    const first = slotsData?.slots[0];
-    if (!first) return START_HOUR;
-    return new Date(first.startTime).getHours();
-  }, [slotsData]);
+    const firstSlot = courts[0]?.slots[0];
+    if (!firstSlot) return START_HOUR;
+    return new Date(firstSlot.startTime).getHours();
+  }, [courts]);
 
-  const scheduleSlotCount = slotsData?.slots.length ?? SLOTS;
+  const scheduleSlotCount = courts[0]?.slots.length ?? SLOTS;
 
-  // slotIndex → ClubSlotInfo (club-wide, same for every court column)
-  const slotMap = useMemo(() => {
-    const map = new Map<number, ClubSlotInfo>();
-    for (const slot of slotsData?.slots ?? []) {
-      map.set(timeToSlotIndex(slot.startTime, scheduleStartHour), slot);
+  // courtId → (slotIndex → ScheduleSlot)
+  const scheduleMap = useMemo(() => {
+    const map = new Map<string, Map<number, ScheduleSlot>>();
+    for (const court of courts) {
+      const courtMap = new Map<number, ScheduleSlot>();
+      for (const slot of court.slots) {
+        courtMap.set(timeToSlotIndex(slot.startTime, scheduleStartHour), slot);
+      }
+      map.set(court.courtId, courtMap);
     }
     return map;
-  }, [slotsData, scheduleStartHour]);
+  }, [courts, scheduleStartHour]);
+
+  // slotIndex → startTime ISO string (from first court; all courts share same times)
+  const slotTimeMap = useMemo(() => {
+    const map = new Map<number, string>();
+    for (const slot of courts[0]?.slots ?? []) {
+      map.set(timeToSlotIndex(slot.startTime, scheduleStartHour), slot.startTime);
+    }
+    return map;
+  }, [courts, scheduleStartHour]);
+
+  // Tracks "courtId:slotIndex" keys that are the first slot of a booking span
+  const bookingStartSet = useMemo(() => {
+    const set = new Set<string>();
+    for (const court of courts) {
+      let prevId: string | null = null;
+      for (const slot of court.slots) {
+        const idx = timeToSlotIndex(slot.startTime, scheduleStartHour);
+        if (slot.booking && slot.booking.bookingId !== prevId) {
+          set.add(`${court.courtId}:${idx}`);
+        }
+        prevId = slot.booking?.bookingId ?? null;
+      }
+    }
+    return set;
+  }, [courts, scheduleStartHour]);
+
+  function getBookingSpan(
+    courtId: string,
+    startIdx: number,
+    bookingId: string
+  ): number {
+    const courtMap = scheduleMap.get(courtId);
+    if (!courtMap) return 1;
+    let span = 0;
+    let idx = startIdx;
+    while (courtMap.get(idx)?.booking?.bookingId === bookingId) {
+      span++;
+      idx++;
+    }
+    return span || 1;
+  }
+
+  function getBookingEndSlot(
+    courtId: string,
+    startIdx: number,
+    bookingId: string
+  ): ScheduleSlot | null {
+    const courtMap = scheduleMap.get(courtId);
+    if (!courtMap) return null;
+    let endSlot: ScheduleSlot | null = null;
+    let idx = startIdx;
+    while (true) {
+      const s = courtMap.get(idx);
+      if (!s || s.booking?.bookingId !== bookingId) break;
+      endSlot = s;
+      idx++;
+    }
+    return endSlot;
+  }
 
   // ── Selection ─────────────────────────────────────────────────────────────────
   const [selectionStart, setSelectionStart] = useState<SlotKey | null>(null);
   const [selectionEnd, setSelectionEnd] = useState<SlotKey | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [showBookingPanel, setShowBookingPanel] = useState(false);
+  const [viewingBooking, setViewingBooking] = useState<{
+    booking: ScheduleBookingInfo;
+    courtName: string;
+    startSlot: ScheduleSlot;
+    endSlot: ScheduleSlot;
+  } | null>(null);
 
   const selection = useMemo<SlotKey[]>(() => {
     if (!selectionStart || !selectionEnd) return [];
@@ -140,6 +207,7 @@ export function CalendarClient({
       setSelectionEnd({ courtId, slotIndex });
       setIsDragging(true);
       setShowBookingPanel(false);
+      setViewingBooking(null);
     },
     []
   );
@@ -166,10 +234,14 @@ export function CalendarClient({
   const { mutate: submitBooking, isPending: isCreating } = useMutation({
     mutationFn: (data: BookingFormData) => {
       const slots = data.slotKeys
-        .map((key) => slotMap.get(key.slotIndex)?.startTime)
+        .map((key) => slotTimeMap.get(key.slotIndex))
         .filter((s): s is string => !!s);
 
-      const teamEntries: [typeof data.teamA[number], BookingTeam, number][] = [
+      const teamEntries: [
+        (typeof data.teamA)[number],
+        BookingTeam,
+        number,
+      ][] = [
         [data.teamA[0], "TeamA", 0],
         [data.teamA[1], "TeamA", 1],
         [data.teamB[0], "TeamB", 0],
@@ -197,7 +269,7 @@ export function CalendarClient({
     onSuccess: () => {
       handleBookingPanelClose();
       queryClient.invalidateQueries({
-        queryKey: ["club-slots", selectedClubId, dateStr],
+        queryKey: ["club-schedule", selectedClubId, dateStr],
       });
     },
   });
@@ -252,6 +324,7 @@ export function CalendarClient({
             setSelectedClubId(v ?? "");
             clearSelection();
             setShowBookingPanel(false);
+            setViewingBooking(null);
           }}
         >
           <SelectTrigger className="w-52">
@@ -303,7 +376,7 @@ export function CalendarClient({
         </button>
       </div>
 
-      {/* Calendar + booking panel */}
+      {/* Calendar + right panel */}
       <div className="flex min-h-0 flex-1 gap-4">
         {/* Grid container */}
         <div
@@ -351,22 +424,21 @@ export function CalendarClient({
               {/* Court headers */}
               {courts.map((court) => (
                 <div
-                  key={court.id}
+                  key={court.courtId}
+                  data-header
                   className="sticky top-0 z-20 border-b border-l border-slate-200 bg-white px-3 py-3 text-center"
                 >
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    {court.name}
+                    {court.courtName}
                   </span>
                 </div>
               ))}
 
               {/* Time rows */}
               {Array.from({ length: scheduleSlotCount }, (_, slotIndex) => {
-                const hour = scheduleStartHour + Math.floor(slotIndex / 2);
+                const hour =
+                  scheduleStartHour + Math.floor(slotIndex / 2);
                 const half = slotIndex % 2 === 1;
-                const slotInfo = slotMap.get(slotIndex);
-                const isOccupied = slotInfo ? !slotInfo.available : false;
-                const isOutsideHours = !slotInfo;
 
                 return (
                   <React.Fragment key={slotIndex}>
@@ -384,21 +456,32 @@ export function CalendarClient({
 
                     {/* Court cells */}
                     {courts.map((court) => {
-                      const selected = isSlotSelected(court.id, slotIndex);
+                      const slotInfo = scheduleMap
+                        .get(court.courtId)
+                        ?.get(slotIndex);
+                      const isOutsideHours = !slotInfo;
+                      const isBooked = !!slotInfo?.booking;
+                      const isBookingStart = bookingStartSet.has(
+                        `${court.courtId}:${slotIndex}`
+                      );
+                      const selected = isSlotSelected(
+                        court.courtId,
+                        slotIndex
+                      );
 
                       return (
                         <div
-                          key={`${court.id}-${slotIndex}`}
+                          key={`${court.courtId}-${slotIndex}`}
                           className={[
                             "relative select-none border-b border-l border-slate-100 transition-colors",
                             isOutsideHours
                               ? "bg-slate-50/60"
-                              : isOccupied
-                                ? "bg-slate-100/80"
+                              : isBooked
+                                ? "bg-rose-50"
                                 : "cursor-pointer",
                             selected
                               ? "bg-[#8CC63F]/20 ring-1 ring-inset ring-[#8CC63F]/50"
-                              : !isOccupied && !isOutsideHours
+                              : !isBooked && !isOutsideHours
                                 ? "hover:bg-[#8CC63F]/10"
                                 : "",
                           ]
@@ -406,15 +489,54 @@ export function CalendarClient({
                             .join(" ")}
                           style={{ height: slotHeight }}
                           onMouseDown={
-                            isOccupied || isOutsideHours
+                            isBooked || isOutsideHours
                               ? undefined
                               : (e) =>
-                                  handleCellMouseDown(court.id, slotIndex, e)
+                                  handleCellMouseDown(
+                                    court.courtId,
+                                    slotIndex,
+                                    e
+                                  )
                           }
                           onMouseEnter={() =>
-                            handleCellMouseEnter(court.id, slotIndex)
+                            handleCellMouseEnter(court.courtId, slotIndex)
                           }
-                        />
+                        >
+                          {(() => {
+                            if (!isBookingStart || !slotInfo?.booking)
+                              return null;
+                            const booking = slotInfo.booking;
+                            const span = getBookingSpan(
+                              court.courtId,
+                              slotIndex,
+                              booking.bookingId
+                            );
+                            const endSlot = getBookingEndSlot(
+                              court.courtId,
+                              slotIndex,
+                              booking.bookingId
+                            );
+                            if (!endSlot) return null;
+                            return (
+                              <SlotBookingCard
+                                booking={booking}
+                                courtName={court.courtName}
+                                startSlot={slotInfo}
+                                endSlot={endSlot}
+                                span={span}
+                                slotHeight={slotHeight}
+                                onClick={() =>
+                                  setViewingBooking({
+                                    booking,
+                                    courtName: court.courtName,
+                                    startSlot: slotInfo,
+                                    endSlot,
+                                  })
+                                }
+                              />
+                            );
+                          })()}
+                        </div>
                       );
                     })}
                   </React.Fragment>
@@ -424,18 +546,29 @@ export function CalendarClient({
           )}
         </div>
 
-        {/* Booking panel */}
-        {showBookingPanel && (
+        {/* Right panel: detail view or booking creation */}
+        {viewingBooking ? (
+          <BookingDetailPanel
+            booking={viewingBooking.booking}
+            courtName={viewingBooking.courtName}
+            startSlot={viewingBooking.startSlot}
+            endSlot={viewingBooking.endSlot}
+            onClose={() => setViewingBooking(null)}
+          />
+        ) : showBookingPanel ? (
           <BookingPanel
             selection={selection}
-            courts={courts}
+            courts={courts.map((c) => ({
+              id: c.courtId,
+              name: c.courtName,
+            }))}
             selectedDate={selectedDate}
             startHour={scheduleStartHour}
             onClose={handleBookingPanelClose}
             onConfirm={handleBookingConfirm}
             isPending={isCreating}
           />
-        )}
+        ) : null}
       </div>
     </div>
   );

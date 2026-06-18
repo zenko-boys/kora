@@ -4,8 +4,9 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
-import type { CourtSummary } from "@/lib/types";
 import type { SlotKey, TeamSlot } from "./types";
+
+type CourtOption = { id: string; name: string };
 import { START_HOUR } from "./constants";
 import { formatSlotTime } from "./helpers";
 import { AvatarSlot } from "./AvatarSlot";
@@ -47,7 +48,7 @@ export function BookingPanel({
   isPending = false,
 }: {
   selection: SlotKey[];
-  courts: CourtSummary[];
+  courts: CourtOption[];
   selectedDate: Date;
   startHour?: number;
   onClose: () => void;
