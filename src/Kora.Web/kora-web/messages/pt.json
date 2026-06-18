@@ -283,7 +283,8 @@
             "noBookings": "Nenhuma reserva para este dia. Clique num slot para criar.",
             "teamA": "Time A",
             "teamB": "Time B",
-            "addPlayer": "Adicionar jogador"
+            "addPlayer": "Adicionar jogador",
+            "selectClubToView": "Selecione um clube para visualizar o calendário"
         }
     },
     "landing": {
