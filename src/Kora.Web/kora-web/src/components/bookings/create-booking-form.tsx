@@ -440,9 +440,6 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                             ].join(" ")}
                                         >
                                             {formatSlotTime(slot.startTime)}&nbsp;–&nbsp;{formatSlotTime(slot.endTime)}
-                                            {available && !isSelected && (
-                                                <span className="ml-1 text-muted-foreground">({slot.availableCourts})</span>
-                                            )}
                                         </button>
                                     );
                                 })}
