@@ -22,6 +22,11 @@ import { useAuth } from "@clerk/nextjs";
 import { createApiClient } from "@/lib/api";
 import { MANAGEMENT_ROLES } from "@/lib/constants";
 import { useDateLocale } from "@/lib/useDateLocale";
+import { useIsMobile } from "@/lib/useIsMobile";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 import type {
   CourtSchedule,
   ScheduleSlot,
@@ -44,6 +49,7 @@ export function CalendarClient({
 }) {
   const t = useTranslations("manage");
   const dateLocale = useDateLocale();
+  const isMobile = useIsMobile();
   const { getToken } = useAuth();
   const api = useMemo(
     () => createApiClient(async (opts) => getToken(opts)),
@@ -163,6 +169,12 @@ export function CalendarClient({
   const [selectionEnd, setSelectionEnd] = useState<SlotKey | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [showBookingPanel, setShowBookingPanel] = useState(false);
+
+  // Refs so imperative touch handlers can read current state without stale closures
+  const isDraggingRef = useRef(false);
+  const selectionStartRef = useRef<SlotKey | null>(null);
+  useEffect(() => { isDraggingRef.current = isDragging; }, [isDragging]);
+  useEffect(() => { selectionStartRef.current = selectionStart; }, [selectionStart]);
   const [viewingBooking, setViewingBooking] = useState<{
     booking: ScheduleBookingInfo;
     courtName: string;
@@ -199,7 +211,11 @@ export function CalendarClient({
       }
     };
     document.addEventListener("mouseup", handler);
-    return () => document.removeEventListener("mouseup", handler);
+    document.addEventListener("touchend", handler);
+    return () => {
+      document.removeEventListener("mouseup", handler);
+      document.removeEventListener("touchend", handler);
+    };
   }, [isDragging, selectionStart, selectionEnd]);
 
   const handleCellMouseDown = useCallback(
@@ -307,6 +323,51 @@ export function CalendarClient({
     ro.observe(el);
     return () => ro.disconnect();
   }, [computeSlotHeight]);
+
+  // Touch start/move — non-passive so we can preventDefault and block scroll
+  useEffect(() => {
+    const el = gridContainerRef.current;
+    if (!el) return;
+
+    function onTouchStart(e: TouchEvent) {
+      const touch = e.touches[0];
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      const cell = target?.closest("[data-slot-index]") as HTMLElement | null;
+      if (!cell) return;
+      const courtId = cell.getAttribute("data-court-id");
+      const slotIndex = Number(cell.getAttribute("data-slot-index"));
+      if (!courtId || isNaN(slotIndex)) return;
+      e.preventDefault();
+      setSelectionStart({ courtId, slotIndex });
+      setSelectionEnd({ courtId, slotIndex });
+      setIsDragging(true);
+      setShowBookingPanel(false);
+      setViewingBooking(null);
+    }
+
+    function onTouchMove(e: TouchEvent) {
+      if (!isDraggingRef.current || !selectionStartRef.current) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      const cell = target?.closest("[data-slot-index]") as HTMLElement | null;
+      if (!cell) return;
+      const courtId = cell.getAttribute("data-court-id");
+      const slotIndex = Number(cell.getAttribute("data-slot-index"));
+      if (!courtId || isNaN(slotIndex)) return;
+      if (courtId !== selectionStartRef.current.courtId) return;
+      setSelectionEnd({ courtId, slotIndex });
+    }
+
+    el.addEventListener("touchstart", onTouchStart, { passive: false });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+    };
+  // re-registers when the ref mounts (null → element)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gridContainerRef.current]);
 
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
@@ -474,6 +535,8 @@ export function CalendarClient({
                       return (
                         <div
                           key={`${court.courtId}-${slotIndex}`}
+                          data-court-id={isBooked || isOutsideHours ? undefined : court.courtId}
+                          data-slot-index={isBooked || isOutsideHours ? undefined : String(slotIndex)}
                           className={[
                             "relative select-none border-b border-l border-slate-100 transition-colors",
                             isOutsideHours
@@ -549,30 +612,77 @@ export function CalendarClient({
           )}
         </div>
 
-        {/* Right panel: detail view or booking creation */}
-        {viewingBooking ? (
-          <BookingDetailPanel
-            booking={viewingBooking.booking}
-            courtName={viewingBooking.courtName}
-            startSlot={viewingBooking.startSlot}
-            endSlot={viewingBooking.endSlot}
-            locale={dateLocale}
-            onClose={() => setViewingBooking(null)}
-          />
-        ) : showBookingPanel ? (
-          <BookingPanel
-            selection={selection}
-            courts={courts.map((c) => ({
-              id: c.courtId,
-              name: c.courtName,
-            }))}
-            selectedDate={selectedDate}
-            startHour={scheduleStartHour}
-            onClose={handleBookingPanelClose}
-            onConfirm={handleBookingConfirm}
-            isPending={isCreating}
-          />
-        ) : null}
+        {/* Right panel (desktop) or Modal (mobile) */}
+        {isMobile ? (
+          <>
+            <Dialog
+              open={!!viewingBooking}
+              onOpenChange={(open) => !open && setViewingBooking(null)}
+            >
+              <DialogContent className="max-w-sm p-0">
+                {viewingBooking && (
+                  <BookingDetailPanel
+                    booking={viewingBooking.booking}
+                    courtName={viewingBooking.courtName}
+                    startSlot={viewingBooking.startSlot}
+                    endSlot={viewingBooking.endSlot}
+                    locale={dateLocale}
+                    onClose={() => setViewingBooking(null)}
+                    standalone={false}
+                  />
+                )}
+              </DialogContent>
+            </Dialog>
+
+            <Dialog
+              open={showBookingPanel}
+              onOpenChange={(open) => !open && handleBookingPanelClose()}
+            >
+              <DialogContent className="max-w-sm p-0">
+                <BookingPanel
+                  selection={selection}
+                  courts={courts.map((c) => ({
+                    id: c.courtId,
+                    name: c.courtName,
+                  }))}
+                  selectedDate={selectedDate}
+                  startHour={scheduleStartHour}
+                  onClose={handleBookingPanelClose}
+                  onConfirm={handleBookingConfirm}
+                  isPending={isCreating}
+                  standalone={false}
+                />
+              </DialogContent>
+            </Dialog>
+          </>
+        ) : (
+          <>
+            {viewingBooking && (
+              <BookingDetailPanel
+                booking={viewingBooking.booking}
+                courtName={viewingBooking.courtName}
+                startSlot={viewingBooking.startSlot}
+                endSlot={viewingBooking.endSlot}
+                locale={dateLocale}
+                onClose={() => setViewingBooking(null)}
+              />
+            )}
+            {showBookingPanel && (
+              <BookingPanel
+                selection={selection}
+                courts={courts.map((c) => ({
+                  id: c.courtId,
+                  name: c.courtName,
+                }))}
+                selectedDate={selectedDate}
+                startHour={scheduleStartHour}
+                onClose={handleBookingPanelClose}
+                onConfirm={handleBookingConfirm}
+                isPending={isCreating}
+              />
+            )}
+          </>
+        )}
       </div>
     </div>
   );
