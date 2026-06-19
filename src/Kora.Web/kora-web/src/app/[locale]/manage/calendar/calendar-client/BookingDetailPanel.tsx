@@ -11,6 +11,7 @@ interface BookingDetailPanelProps {
   endSlot: ScheduleSlot;
   locale?: Locale;
   onClose: () => void;
+  standalone?: boolean;
 }
 
 function ParticipantAvatar({ userId }: { userId: string }) {
@@ -63,14 +64,15 @@ export function BookingDetailPanel({
   endSlot,
   locale,
   onClose,
+  standalone = true,
 }: BookingDetailPanelProps) {
   const teamA = booking.participants.filter((p) => p.team === "TeamA");
   const teamB = booking.participants.filter((p) => p.team === "TeamB");
   const startFmt = format(new Date(startSlot.startTime), "p", { locale });
   const endFmt = format(new Date(endSlot.endTime), "p", { locale });
 
-  return (
-    <div className="flex w-80 shrink-0 flex-col rounded-xl border border-slate-200 bg-white">
+  const inner = (
+    <>
       {/* Header */}
       <div className="flex items-start justify-between border-b border-slate-100 px-4 py-3">
         <div className="min-w-0">
@@ -79,23 +81,23 @@ export function BookingDetailPanel({
             {startFmt} – {endFmt}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="ml-2 mt-0.5 shrink-0 rounded-md p-0.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
-        >
-          <X className="h-4 w-4" />
-        </button>
+        {standalone && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="ml-2 mt-0.5 shrink-0 rounded-md p-0.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       {/* Teams */}
       <div className="flex flex-1 items-start justify-between gap-2 px-4 py-5">
         <TeamColumn label="Team A" participants={teamA} />
-
         <div className="flex flex-col items-center pt-8">
           <span className="text-xs font-bold text-slate-300">VS</span>
         </div>
-
         <TeamColumn label="Team B" participants={teamB} />
       </div>
 
@@ -108,6 +110,16 @@ export function BookingDetailPanel({
           <p className="mt-1 text-xs text-slate-500">{booking.description}</p>
         )}
       </div>
-    </div>
+    </>
   );
+
+  if (standalone) {
+    return (
+      <div className="flex w-80 shrink-0 flex-col rounded-xl border border-slate-200 bg-white">
+        {inner}
+      </div>
+    );
+  }
+
+  return <div className="flex flex-col">{inner}</div>;
 }
