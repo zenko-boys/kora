@@ -184,11 +184,11 @@ export function Navbar() {
                                                 {tManage("clubs.title")}
                                             </Link>
                                             <Link
-                                                href="/manage/bookings"
-                                                className={pathname.startsWith("/manage/bookings") ? activeSubLinkCls : subLinkCls}
+                                                href="/manage/calendar"
+                                                className={pathname.startsWith("/manage/calendar") ? activeSubLinkCls : subLinkCls}
                                             >
                                                 <CalendarDays className="h-4 w-4" />
-                                                {tManage("bookings.title")}
+                                                {tManage("calendar.title")}
                                             </Link>
                                         </div>
                                     )}
