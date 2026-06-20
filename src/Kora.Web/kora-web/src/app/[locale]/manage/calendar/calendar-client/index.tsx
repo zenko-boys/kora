@@ -76,6 +76,13 @@ export function CalendarClient({
     MANAGEMENT_ROLES.includes(c.role)
   );
 
+  useEffect(() => {
+    if (managedClubs.length > 0 && !selectedClubId) {
+      setSelectedClubId(managedClubs[0].clubId);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [managedClubs.length]);
+
   // ── Schedule ──────────────────────────────────────────────────────────────────
   const { data: scheduleData, isLoading } = useQuery({
     queryKey: ["club-schedule", selectedClubId, dateStr],
@@ -89,6 +96,8 @@ export function CalendarClient({
     if (!firstSlot) return START_HOUR;
     return new Date(firstSlot.startTime).getHours();
   }, [courts]);
+
+  const now = useMemo(() => new Date(), [dateStr]);
 
   const scheduleSlotCount = courts[0]?.slots.length ?? SLOTS;
 
@@ -524,6 +533,8 @@ export function CalendarClient({
                         ?.get(slotIndex);
                       const isOutsideHours = !slotInfo;
                       const isBooked = !!slotInfo?.booking;
+                      const isPast = !!slotInfo && new Date(slotInfo.startTime) < now;
+                      const isDisabled = isOutsideHours || isBooked || isPast;
                       const isBookingStart = bookingStartSet.has(
                         `${court.courtId}:${slotIndex}`
                       );
@@ -535,18 +546,19 @@ export function CalendarClient({
                       return (
                         <div
                           key={`${court.courtId}-${slotIndex}`}
-                          data-court-id={isBooked || isOutsideHours ? undefined : court.courtId}
-                          data-slot-index={isBooked || isOutsideHours ? undefined : String(slotIndex)}
+                          data-court-id={isDisabled ? undefined : court.courtId}
+                          data-slot-index={isDisabled ? undefined : String(slotIndex)}
                           className={[
                             "relative select-none border-b border-l border-slate-100 transition-colors",
-                            isOutsideHours
+                            isOutsideHours || isPast
                               ? "bg-slate-50/60"
                               : isBooked
                                 ? "bg-rose-50"
                                 : "cursor-pointer",
+                            isPast ? "opacity-50" : "",
                             selected
                               ? "bg-[#8CC63F]/20 ring-1 ring-inset ring-[#8CC63F]/50"
-                              : !isBooked && !isOutsideHours
+                              : !isDisabled
                                 ? "hover:bg-[#8CC63F]/10"
                                 : "",
                           ]
@@ -554,7 +566,7 @@ export function CalendarClient({
                             .join(" ")}
                           style={{ height: slotHeight }}
                           onMouseDown={
-                            isBooked || isOutsideHours
+                            isDisabled
                               ? undefined
                               : (e) =>
                                   handleCellMouseDown(
