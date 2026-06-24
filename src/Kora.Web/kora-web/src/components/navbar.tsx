@@ -28,7 +28,8 @@ export function Navbar() {
     const subLinkCls = "flex items-center gap-3 rounded-lg pl-9 pr-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
     const activeSubLinkCls = "flex items-center gap-3 rounded-lg pl-9 pr-3 py-2 text-sm bg-[#8CC63F]/10 text-[#8CC63F]";
 
-    if (pathname === "/landing") return null;
+    // Hide navbar on landing or when not signed in
+    if (pathname === "/landing" || !isSignedIn) return null;
 
     return (
         <>
