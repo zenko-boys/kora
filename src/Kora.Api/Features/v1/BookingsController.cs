@@ -2,6 +2,7 @@ using Kora.Common.Controllers;
 using Kora.Domain.Bookings;
 using Kora.Features.Bookings.CreateBooking;
 using Kora.Features.Bookings.DeleteBooking;
+using Kora.Features.Bookings.GetBooking;
 using Kora.Features.Bookings.InviteToBooking;
 using Kora.Features.Bookings.JoinBooking;
 using Kora.Features.Bookings.LeaveBooking;
@@ -23,6 +24,13 @@ public class BookingsController : ApiController
         [FromServices] ListBookingsHandler handler,
         CancellationToken ct)
         => Ok(await handler.Handle(clubId, type, open, fromUtc, toUtc, ct));
+
+    [HttpGet("{bookingId:guid}")]
+    public async Task<IActionResult> Get(
+        Guid bookingId,
+        [FromServices] GetBookingHandler handler,
+        CancellationToken ct)
+        => Ok(await handler.Handle(bookingId, ct));
 
     [HttpPost]
     public async Task<IActionResult> Create(
