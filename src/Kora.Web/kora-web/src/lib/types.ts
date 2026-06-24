@@ -32,7 +32,7 @@ export type BookingTeam = "TeamA" | "TeamB";
 
 export interface BookingGuestRequest {
     name: string;
-    email: string;
+    email?: string;
     team: BookingTeam;
     positionInTeam: number;
 }
@@ -256,4 +256,13 @@ export interface GetClubScheduleResponse {
     timeZoneId: string;
     slotCellDurationMinutes: number;
     courts: CourtSchedule[];
+}
+
+// ---- Users ----
+
+export interface UserSummary {
+    id: string;
+    email: string;
+    firstName: string | null;
+    lastName: string | null;
 }

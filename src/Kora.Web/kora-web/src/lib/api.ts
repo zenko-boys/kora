@@ -20,6 +20,7 @@ import type {
     PlayerStatsResponse,
     UpcomingGamesResponse,
     FeedResponse,
+    UserSummary,
 } from "./types";
 import { MOCK_BOOKINGS, MOCK_PLAYER_STATS, MOCK_UPCOMING_GAMES, MOCK_FEED_ITEMS } from "./mock-data";
 
@@ -289,5 +290,12 @@ export function createApiClient(getToken: GetToken) {
                 getToken
             );
         },
+
+        findUserByEmail: (email: string): Promise<UserSummary | null> =>
+            apiFetch<UserSummary>(`/users/by-email?email=${encodeURIComponent(email)}`, getToken)
+                .catch((err: Error) => {
+                    if (err.message.startsWith("API error 404")) return null;
+                    throw err;
+                }),
     };
 }

@@ -13,24 +13,6 @@ import { formatSlotTime } from "./helpers";
 import { AvatarSlot } from "./AvatarSlot";
 import { PlayerSelectorDialog } from "./PlayerSelectorDialog";
 
-const MOCK_PLAYERS = [
-  "Rafaela Monteiro",
-  "Bruno Cavalcante",
-  "Letícia Drummond",
-  "Caio Ferreira",
-  "Viviane Assis",
-  "Marcos Teixeira",
-  "Isadora Leal",
-  "Henrique Nogueira",
-  "Priya Mendes",
-  "Rodrigo Bittencourt",
-  "Camila Zanetti",
-  "Felipe Guimarães",
-  "Tatiane Ramos",
-  "André Lustosa",
-  "Nathalia Vaz",
-  "Claudio Pires",
-];
 
 export interface BookingFormData {
   courtId: string;
@@ -84,11 +66,11 @@ export function BookingPanel({
     setSelectorOpen(true);
   }
 
-  function handlePlayerSelect(name: string) {
+  function handlePlayerSelect({ name, email }: { name: string; email: string }) {
     if (editingIndex === null) return;
     setSlots((prev) => {
       const next = [...prev] as [TeamSlot, TeamSlot, TeamSlot, TeamSlot];
-      next[editingIndex] = { name };
+      next[editingIndex] = { name, email };
       return next;
     });
     setSelectorOpen(false);
@@ -217,7 +199,6 @@ export function BookingPanel({
         open={selectorOpen}
         onOpenChange={handleSelectorClose}
         onSelect={handlePlayerSelect}
-        players={MOCK_PLAYERS}
         titleLabel={t("calendar.selectPlayer")}
         searchLabel={t("calendar.searchPlayers")}
         guestLabel={t("calendar.guest")}

@@ -47,11 +47,11 @@ export function TeamCardDialog({
     setPlayerSelectorOpen(true);
   }
 
-  function handlePlayerSelect(name: string) {
+  function handlePlayerSelect({ name, email }: { name: string; email: string }) {
     if (editingSlot === null) return;
     setTeams((prev) => {
       const next = [...prev] as [TeamSlot, TeamSlot, TeamSlot, TeamSlot];
-      next[editingSlot] = { name };
+      next[editingSlot] = { name, email };
       return next;
     });
     setPlayerSelectorOpen(false);
@@ -142,7 +142,6 @@ export function TeamCardDialog({
           }
         }}
         onSelect={handlePlayerSelect}
-        players={[]}
         titleLabel={t("calendar.selectPlayer")}
         searchLabel={t("calendar.searchPlayers")}
         guestLabel={t("calendar.guest")}

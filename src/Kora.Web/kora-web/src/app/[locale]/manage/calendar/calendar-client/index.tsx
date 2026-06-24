@@ -277,12 +277,15 @@ export function CalendarClient({
 
       const guests = teamEntries
         .filter(([slot]) => !!slot)
-        .map(([slot, team, positionInTeam]) => ({
-          name: slot!.name,
-          email: "guilherme.or2013@gmail.com",
-          team,
-          positionInTeam,
-        }));
+        .map(([slot, team, positionInTeam]) => {
+          const entry: { name: string; email?: string; team: BookingTeam; positionInTeam: number } = {
+            name: slot!.name,
+            team,
+            positionInTeam,
+          };
+          if (slot!.email) entry.email = slot!.email;
+          return entry;
+        });
 
       return api.createBooking(selectedClubId, {
         type: "Game",
