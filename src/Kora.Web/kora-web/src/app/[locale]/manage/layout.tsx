@@ -20,9 +20,16 @@ export default async function ManageLayout({ children, params }: ManageLayoutPro
     }
 
     const api = createApiClient((opts) => authObj.getToken(opts));
-    const { clubs } = await api.getMyClubs();
-    const hasAccess = clubs.some((c) => MANAGEMENT_ROLES.includes(c.role));
 
+    let clubs: { role: string }[] = [];
+    try {
+        const data = await api.getMyClubs();
+        clubs = data.clubs;
+    } catch {
+        redirect(`/${locale}/bookings`);
+    }
+
+    const hasAccess = clubs.some((c) => MANAGEMENT_ROLES.includes(c.role));
     if (!hasAccess) {
         redirect(`/${locale}/bookings`);
     }

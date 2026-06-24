@@ -550,12 +550,13 @@ export function CalendarClient({
                           data-slot-index={isDisabled ? undefined : String(slotIndex)}
                           className={[
                             "relative select-none border-b border-l border-slate-100 transition-colors",
-                            isOutsideHours || isPast
-                              ? "bg-slate-50/60"
-                              : isBooked
-                                ? "bg-rose-50"
-                                : "cursor-pointer",
-                            isPast ? "opacity-50" : "",
+                            isOutsideHours
+                              ? "bg-slate-100"
+                              : isPast
+                                ? "bg-slate-200"
+                                : isBooked
+                                  ? "bg-rose-50"
+                                  : "cursor-pointer",
                             selected
                               ? "bg-[#8CC63F]/20 ring-1 ring-inset ring-[#8CC63F]/50"
                               : !isDisabled
