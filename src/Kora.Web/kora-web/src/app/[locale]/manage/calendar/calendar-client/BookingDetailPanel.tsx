@@ -1,8 +1,13 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { format, type Locale } from "date-fns";
-import { X, UserRound } from "lucide-react";
+import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ScheduleBookingInfo, ScheduleSlot } from "@/lib/types";
+import type { TeamSlot } from "./types";
+import { AvatarSlot } from "./AvatarSlot";
+import { PlayerSelectorDialog } from "./PlayerSelectorDialog";
 
 interface BookingDetailPanelProps {
   booking: ScheduleBookingInfo;
@@ -14,47 +19,20 @@ interface BookingDetailPanelProps {
   standalone?: boolean;
 }
 
-function ParticipantAvatar({ userId }: { userId: string }) {
-  return (
-    <img
-      src={`https://picsum.photos/seed/${encodeURIComponent(userId)}/48/48`}
-      alt=""
-      className="h-12 w-12 rounded-full object-cover shadow ring-2 ring-white"
-    />
-  );
-}
+function buildSlots(booking: ScheduleBookingInfo): [TeamSlot, TeamSlot, TeamSlot, TeamSlot] {
+  const slots: [TeamSlot, TeamSlot, TeamSlot, TeamSlot] = [null, null, null, null];
 
-function EmptySlot() {
-  return (
-    <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-slate-200 bg-slate-50">
-      <UserRound className="h-4 w-4 text-slate-300" />
-    </div>
-  );
-}
+  const teamA = booking.participants.filter((p) => p.team === "TeamA");
+  const teamB = booking.participants.filter((p) => p.team === "TeamB");
 
-function TeamColumn({
-  label,
-  participants,
-}: {
-  label: string;
-  participants: { userId: string }[];
-}) {
-  return (
-    <div className="flex flex-col items-center gap-3">
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-        {label}
-      </span>
-      <div className="flex gap-3">
-        {[0, 1].map((i) =>
-          participants[i] ? (
-            <ParticipantAvatar key={participants[i].userId} userId={participants[i].userId} />
-          ) : (
-            <EmptySlot key={i} />
-          )
-        )}
-      </div>
-    </div>
-  );
+  teamA.slice(0, 2).forEach((p, i) => {
+    slots[i] = { name: p.userId, email: "" };
+  });
+  teamB.slice(0, 2).forEach((p, i) => {
+    slots[2 + i] = { name: p.userId, email: "" };
+  });
+
+  return slots;
 }
 
 export function BookingDetailPanel({
@@ -66,10 +44,36 @@ export function BookingDetailPanel({
   onClose,
   standalone = true,
 }: BookingDetailPanelProps) {
-  const teamA = booking.participants.filter((p) => p.team === "TeamA");
-  const teamB = booking.participants.filter((p) => p.team === "TeamB");
+  const t = useTranslations("manage");
+
+  const [slots, setSlots] = useState<[TeamSlot, TeamSlot, TeamSlot, TeamSlot]>(() =>
+    buildSlots(booking)
+  );
+  const [selectorOpen, setSelectorOpen] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    setSlots(buildSlots(booking));
+  }, [booking]);
+
   const startFmt = format(new Date(startSlot.startTime), "p", { locale });
   const endFmt = format(new Date(endSlot.endTime), "p", { locale });
+
+  function handleAvatarClick(index: number) {
+    setEditingIndex(index);
+    setSelectorOpen(true);
+  }
+
+  function handlePlayerSelect({ name, email }: { name: string; email: string }) {
+    if (editingIndex === null) return;
+    setSlots((prev) => {
+      const next = [...prev] as [TeamSlot, TeamSlot, TeamSlot, TeamSlot];
+      next[editingIndex] = { name, email };
+      return next;
+    });
+    setSelectorOpen(false);
+    setEditingIndex(null);
+  }
 
   const inner = (
     <>
@@ -94,11 +98,41 @@ export function BookingDetailPanel({
 
       {/* Teams */}
       <div className="flex flex-1 items-start justify-between gap-2 px-4 py-5">
-        <TeamColumn label="Team A" participants={teamA} />
+        <div className="flex flex-col items-center gap-3">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+            Team A
+          </span>
+          <div className="flex gap-3">
+            {([0, 1] as const).map((i) => (
+              <AvatarSlot
+                key={i}
+                slot={slots[i]}
+                onClick={() => handleAvatarClick(i)}
+                addLabel={t("calendar.addPlayer")}
+              />
+            ))}
+          </div>
+        </div>
+
         <div className="flex flex-col items-center pt-8">
           <span className="text-xs font-bold text-slate-300">VS</span>
         </div>
-        <TeamColumn label="Team B" participants={teamB} />
+
+        <div className="flex flex-col items-center gap-3">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+            Team B
+          </span>
+          <div className="flex gap-3">
+            {([2, 3] as const).map((i) => (
+              <AvatarSlot
+                key={i}
+                slot={slots[i]}
+                onClick={() => handleAvatarClick(i)}
+                addLabel={t("calendar.addPlayer")}
+              />
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Footer */}
@@ -113,13 +147,29 @@ export function BookingDetailPanel({
     </>
   );
 
-  if (standalone) {
-    return (
-      <div className="flex w-80 shrink-0 flex-col rounded-xl border border-slate-200 bg-white">
-        {inner}
-      </div>
-    );
-  }
+  return (
+    <>
+      {standalone ? (
+        <div className="flex w-80 shrink-0 flex-col rounded-xl border border-slate-200 bg-white">
+          {inner}
+        </div>
+      ) : (
+        <div className="flex flex-col">{inner}</div>
+      )}
 
-  return <div className="flex flex-col">{inner}</div>;
+      <PlayerSelectorDialog
+        open={selectorOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectorOpen(false);
+            setEditingIndex(null);
+          }
+        }}
+        onSelect={handlePlayerSelect}
+        titleLabel={t("calendar.selectPlayer")}
+        searchLabel={t("calendar.searchPlayers")}
+        guestLabel={t("calendar.guest")}
+      />
+    </>
+  );
 }
