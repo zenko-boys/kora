@@ -1,5 +1,6 @@
 using Kora.Common.Controllers;
 using Kora.Features.Management.Bookings.AddParticipant;
+using Kora.Features.Management.Bookings.RemoveParticipant;
 using Kora.Infrastructure.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,4 +19,12 @@ public class ManagementBookingsController : ApiController
         [FromServices] AddParticipantHandler handler,
         CancellationToken ct)
         => Ok(await handler.Handle(bookingId, request, ct));
+
+    [HttpDelete("{bookingId:guid}/participants/{userId:guid}")]
+    public async Task<IActionResult> RemoveParticipant(
+        Guid bookingId,
+        Guid userId,
+        [FromServices] RemoveParticipantHandler handler,
+        CancellationToken ct)
+        => Ok(await handler.Handle(bookingId, userId, ct));
 }
