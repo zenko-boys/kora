@@ -1,6 +1,6 @@
 using Kora.Common.Controllers;
 using Kora.Features.Users.ListMyClubs;
-using Kora.Features.Users.ListUsers;
+using Kora.Features.Users.FindUserByEmail;
 using Kora.Features.Users.WhoAmI;
 using Kora.Infrastructure.Auth;
 using Microsoft.AspNetCore.Mvc;
@@ -26,10 +26,13 @@ public class UsersController : ApiController
         CancellationToken ct)
         => Ok(await handler.Handle(ct));
 
-    [HttpGet("users")]
-    public async Task<IActionResult> ListUsers(
-        [FromQuery] string? search,
-        [FromServices] ListUsersHandler handler,
+    [HttpGet("users/by-email")]
+    public async Task<IActionResult> FindUserByEmail(
+        [FromQuery] string email,
+        [FromServices] FindUserByEmailHandler handler,
         CancellationToken ct)
-        => Ok(await handler.Handle(search, ct));
+    {
+        var user = await handler.Handle(email, ct);
+        return user is null ? NotFound() : Ok(user);
+    }
 }
