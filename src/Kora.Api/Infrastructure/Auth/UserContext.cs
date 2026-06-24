@@ -49,6 +49,12 @@ public class UserContext : IUserContext
         var email = principal.FindFirstValue(ClaimTypes.Email)
             ?? principal.FindFirstValue("email");
 
+        var firstName = principal.FindFirstValue(ClaimTypes.GivenName)
+            ?? principal.FindFirstValue("given_name");
+
+        var lastName = principal.FindFirstValue(ClaimTypes.Surname)
+            ?? principal.FindFirstValue("family_name");
+
         var user = await _db.Users
             .FirstOrDefaultAsync(u => u.IdpUserId == idpUserId, ct);
 
@@ -68,6 +74,8 @@ public class UserContext : IUserContext
                 Id = Guid.NewGuid(),
                 IdpUserId = idpUserId,
                 Email = email,
+                FirstName = firstName,
+                LastName = lastName,
                 Role = expectedRole,
                 CreatedAt = DateTime.UtcNow
             };

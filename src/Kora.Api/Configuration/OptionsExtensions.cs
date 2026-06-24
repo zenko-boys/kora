@@ -29,6 +29,13 @@ public static class OptionsExtensions
                 "Email:From is required")
             .ValidateOnStart();
 
+        services
+            .AddOptions<AppOptions>()
+            .Bind(configuration.GetSection(AppOptions.SectionName))
+            .Validate(options => !string.IsNullOrWhiteSpace(options.Url),
+                "App:Url is required")
+            .ValidateOnStart();
+
         return services;
     }
 }
