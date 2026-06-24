@@ -64,6 +64,32 @@ public class GameBookingStrategy : ICreateBookingStrategy
             });
         }
 
+        foreach (var input in request.Participants ?? [])
+        {
+            if (!isStaff && input.UserId == currentUser.Id)
+                continue;
+
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == input.UserId, ct);
+            if (user is null)
+                throw new NotFoundException($"User {input.UserId} not found.");
+
+            var hasConflict = await _db.Bookings
+                .AnyAsync(b => b.Participants.Any(p => p.UserId == input.UserId)
+                            && b.StartsAt < plan.EndsAtUtc
+                            && b.EndsAt > plan.StartsAtUtc, ct);
+
+            if (hasConflict)
+                throw new DomainException($"User {user.Email} already has a booking during this time.");
+
+            participants.Add(new BookingParticipant
+            {
+                UserId = input.UserId,
+                JoinedAt = DateTime.UtcNow,
+                Team = input.Team,
+                PositionInTeam = input.PositionInTeam
+            });
+        }
+
         var guests = (request.Guests ?? [])
             .Select(g => new BookingGuest { Id = Guid.NewGuid(), Name = g.Name, Email = g.Email, Team = g.Team, PositionInTeam = g.PositionInTeam })
             .ToList();

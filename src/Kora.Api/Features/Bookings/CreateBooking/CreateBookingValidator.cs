@@ -25,6 +25,12 @@ public class CreateBookingValidator : AbstractValidator<CreateBookingRequest>
                 guest.RuleFor(g => g.Email).MaximumLength(200).EmailAddress().When(g => g.Email is not null);
             });
 
+        RuleForEach(x => x.Participants)
+            .ChildRules(p =>
+            {
+                p.RuleFor(x => x.UserId).NotEmpty();
+            });
+
         When(x => x.Type == BookingType.DayUse, () =>
         {
             RuleFor(x => x.CourtsToOccupy)

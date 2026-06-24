@@ -4,6 +4,8 @@ namespace Kora.Features.Bookings.CreateBooking;
 
 public record GuestInput(string Name, string? Email, Team? Team, int? PositionInTeam);
 
+public record ParticipantInput(Guid UserId, Team? Team, int? PositionInTeam);
+
 public record CreateBookingRequest(
     Guid ClubId,
     BookingType Type,
@@ -13,5 +15,6 @@ public record CreateBookingRequest(
     bool IsPrivate,
     string? Description,
     Guid? CourtId,
-    GuestInput[]? Guests
+    GuestInput[]? Guests,
+    ParticipantInput[]? Participants
 );

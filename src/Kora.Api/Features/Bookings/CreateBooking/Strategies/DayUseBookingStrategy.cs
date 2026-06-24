@@ -3,6 +3,7 @@ using Kora.Domain.Bookings;
 using Kora.Domain.Reservations;
 using Kora.Infrastructure.Auth;
 using Kora.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Kora.Features.Bookings.CreateBooking.Strategies;
 
@@ -27,12 +28,28 @@ public class DayUseBookingStrategy : ICreateBookingStrategy
         var plan = await BookingPlanning.PrepareAsync(
             _db, clubId, request, requiredCourts: request.CourtsToOccupy!.Value, ct);
 
+        var participants = new List<BookingParticipant>();
+        foreach (var input in request.Participants ?? [])
+        {
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == input.UserId, ct);
+            if (user is null)
+                throw new NotFoundException($"User {input.UserId} not found.");
+
+            participants.Add(new BookingParticipant
+            {
+                UserId = input.UserId,
+                JoinedAt = DateTime.UtcNow,
+                Team = input.Team,
+                PositionInTeam = input.PositionInTeam
+            });
+        }
+
         var guests = (request.Guests ?? [])
             .Select(g => new BookingGuest { Id = Guid.NewGuid(), Name = g.Name, Email = g.Email, Team = g.Team, PositionInTeam = g.PositionInTeam })
             .ToList();
 
-        if (guests.Count > request.Capacity!.Value)
-            throw new DomainException($"Too many guests. This booking has a capacity of {request.Capacity.Value}.");
+        if (participants.Count + guests.Count > request.Capacity!.Value)
+            throw new DomainException($"Too many occupants. This booking has a capacity of {request.Capacity.Value}.");
 
         var booking = new Booking
         {
@@ -44,6 +61,7 @@ public class DayUseBookingStrategy : ICreateBookingStrategy
             Capacity = request.Capacity!.Value,
             Description = request.Description,
             CreatedAt = DateTime.UtcNow,
+            Participants = participants,
             Guests = guests,
             Reservations = plan.FreeCourtIds
                 .Select(courtId => new Reservation
