@@ -35,13 +35,13 @@ export function BookingsFilterBar({ filters, onChange }: BookingsFilterBarProps)
                 onValueChange={handleTypeChange}
                 className="h-8 rounded-md border border-border bg-background p-0.5"
             >
-                <ToggleGroupItem value="all" className="h-6 rounded px-2.5 text-xs aria-pressed:bg-foreground/10 aria-pressed:text-foreground">
+                <ToggleGroupItem value="all" className="h-6 cursor-pointer rounded px-2.5 text-xs aria-pressed:bg-foreground/10 aria-pressed:text-foreground">
                     {t("allTypes")}
                 </ToggleGroupItem>
-                <ToggleGroupItem value="Game" className="h-6 rounded px-2.5 text-xs aria-pressed:bg-[#8CC63F]/20 aria-pressed:text-[#8CC63F]">
+                <ToggleGroupItem value="Game" className="h-6 cursor-pointer rounded px-2.5 text-xs aria-pressed:bg-[#8CC63F]/20 aria-pressed:text-[#8CC63F]">
                     {t("game")}
                 </ToggleGroupItem>
-                <ToggleGroupItem value="DayUse" className="h-6 rounded px-2.5 text-xs aria-pressed:bg-[#8CC63F]/20 aria-pressed:text-[#8CC63F]">
+                <ToggleGroupItem value="DayUse" className="h-6 cursor-pointer rounded px-2.5 text-xs aria-pressed:bg-[#8CC63F]/20 aria-pressed:text-[#8CC63F]">
                     {t("dayUse")}
                 </ToggleGroupItem>
             </ToggleGroup>
@@ -52,7 +52,7 @@ export function BookingsFilterBar({ filters, onChange }: BookingsFilterBarProps)
                     id="open-spots"
                     checked={!!filters.open}
                     onCheckedChange={handleOpenChange}
-                    className="data-[state=checked]:bg-[#8CC63F]"
+                    className="cursor-pointer data-[state=checked]:bg-[#8CC63F]"
                 />
                 <Label
                     htmlFor="open-spots"

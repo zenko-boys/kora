@@ -1,12 +1,11 @@
 "use client";
 
 import { UserButton, SignInButton, useAuth } from "@clerk/nextjs";
-import { Sun, Moon, Languages, House, Menu, X, LayoutDashboard, Building2, CalendarDays, ChevronDown } from "lucide-react";
+import { Sun, Moon, House, Menu, X, LayoutDashboard, Building2, CalendarDays, ChevronDown } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
-import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import { routing } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 
 export function Navbar() {
     const { isSignedIn } = useAuth();
@@ -16,20 +15,13 @@ export function Navbar() {
     const [manageExpanded, setManageExpanded] = useState(false);
     const t = useTranslations("nav");
     const tManage = useTranslations("manage");
-    const locale = useLocale();
     const pathname = usePathname();
-    const router = useRouter();
 
     useEffect(() => setMounted(true), []);
     // Close mobile menu on navigation
     useEffect(() => { setMenuOpen(false); }, [pathname]);
     // Auto-expand manage submenu when on a manage page
     useEffect(() => { if (pathname.startsWith("/manage")) setManageExpanded(true); }, [pathname]);
-
-    function toggleLocale() {
-        const next = routing.locales.find((l) => l !== locale) ?? routing.defaultLocale;
-        router.replace(pathname, { locale: next });
-    }
 
     const activeNavLinkCls = "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium bg-[#8CC63F]/10 text-[#8CC63F]";
     const navLinkCls = "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground";
@@ -43,17 +35,17 @@ export function Navbar() {
             <header className="sticky top-0 z-50 w-full border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
                     {/* Logo */}
-                    <Link href="/bookings" className="flex items-center gap-2">
-                        <img src="/logo.png" alt="Kora" className="h-7 w-auto object-contain" />
+                    <Link href="/bookings" className="flex shrink-0 items-center gap-2">
+                        <img src="/logo.png" alt="Kora" width={784} height={435} className="h-7 w-auto" />
                     </Link>
 
                     {/* Desktop nav links */}
                     <nav className="hidden items-center gap-6 sm:flex">
                         <Link
                             href="/"
-                            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                            className="flex items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                         >
-                            <House className="inline-block h-4 w-4" />
+                            <House className="h-4 w-4" />
                             <span className="sr-only">{t("home")}</span>
                         </Link>
                         <Link
@@ -76,13 +68,6 @@ export function Navbar() {
                     <div className="flex items-center gap-3">
                         {mounted && (
                             <>
-                                <button
-                                    onClick={toggleLocale}
-                                    className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                                    title={locale === "en" ? "PT" : "EN"}
-                                >
-                                    <Languages className="h-4 w-4" />
-                                </button>
                                 <button
                                     onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                                     className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
@@ -133,7 +118,7 @@ export function Navbar() {
                                 className="flex items-center gap-2"
                                 onClick={() => setMenuOpen(false)}
                             >
-                                <img src="/logo.png" alt="Kora" className="h-7 w-auto object-contain" />
+                                <img src="/logo.png" alt="Kora" width={784} height={435} className="h-7 w-auto" />
                             </Link>
                             <button
                                 onClick={() => setMenuOpen(false)}
