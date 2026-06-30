@@ -10,13 +10,6 @@ import React, {
 import { format, addDays, subDays, startOfWeek, endOfWeek } from "date-fns";
 import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { createApiClient } from "@/lib/api";
@@ -38,6 +31,7 @@ import { timeToSlotIndex, formatSlotTime } from "./helpers";
 import { BookingPanel, type BookingFormData } from "./BookingPanel";
 import { SlotBookingCard } from "./SlotBookingCard";
 import { BookingDetailPanel } from "./BookingDetailPanel";
+import { ClubSwitcher } from "./ClubSwitcher";
 import type { SlotKey } from "./types";
 
 export function CalendarClient({
@@ -393,80 +387,74 @@ export function CalendarClient({
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
     <div className="flex h-full flex-col space-y-4">
-      {/* Page header + club selector */}
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            {title}
-          </h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>
-        </div>
-
-        <Select
-          value={selectedClubId}
-          onValueChange={(v) => {
-            setSelectedClubId(v ?? "");
-            clearSelection();
-            setShowBookingPanel(false);
-            setViewingBooking(null);
-          }}
-        >
-          <SelectTrigger className="w-52">
-            <SelectValue placeholder={t("calendar.selectClub")} />
-          </SelectTrigger>
-          <SelectContent>
-            {managedClubs.map((c) => (
-              <SelectItem key={c.clubId} value={c.clubId}>
-                {c.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Date navigation */}
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => setSelectedDate((d) => subDays(d, 1))}
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-800 active:scale-[0.96]"
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-
-        <div className="min-w-0 text-center">
-          <p className="text-sm font-semibold leading-tight tracking-tight text-slate-800">
-            {dayLabel}
-          </p>
-          <p className="text-[11px] leading-tight text-slate-400">
-            {t("calendar.weekOf")} {weekLabel}
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setSelectedDate((d) => addDays(d, 1))}
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-800 active:scale-[0.96]"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setSelectedDate(new Date())}
-          className="ml-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 active:scale-[0.97]"
-        >
-          {t("calendar.today")}
-        </button>
+      {/* Page header */}
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          {title}
+        </h1>
+        <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>
       </div>
 
       {/* Calendar + right panel */}
       <div className="flex min-h-0 flex-1 gap-4">
-        {/* Grid container */}
-        <div
-          ref={gridContainerRef}
-          className="flex-1 overflow-x-auto overflow-y-hidden rounded-xl border border-slate-200 bg-white"
-        >
+        {/* Toolbar + grid — fused into a single card */}
+        <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white">
+          {/* Toolbar: club switcher + date navigation */}
+          <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-2.5">
+            <ClubSwitcher
+              clubs={managedClubs}
+              selectedClubId={selectedClubId}
+              onSelect={(id) => {
+                setSelectedClubId(id);
+                clearSelection();
+                setShowBookingPanel(false);
+                setViewingBooking(null);
+              }}
+              placeholder={t("calendar.selectClub")}
+              formatCourtsCount={(count) => t("clubs.courtsCount", { count })}
+            />
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setSelectedDate((d) => subDays(d, 1))}
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-800 active:scale-[0.96]"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+
+              <div className="min-w-0 text-center">
+                <p className="text-sm font-semibold leading-tight tracking-tight text-slate-800">
+                  {dayLabel}
+                </p>
+                <p className="text-[11px] leading-tight text-slate-400">
+                  {t("calendar.weekOf")} {weekLabel}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedDate((d) => addDays(d, 1))}
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-800 active:scale-[0.96]"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedDate(new Date())}
+                className="ml-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 active:scale-[0.97]"
+              >
+                {t("calendar.today")}
+              </button>
+            </div>
+          </div>
+
+          {/* Grid container */}
+          <div
+            ref={gridContainerRef}
+            className="flex-1 overflow-x-auto overflow-y-hidden"
+          >
           {/* No club selected */}
           {!selectedClubId && (
             <div className="flex h-full flex-col items-center justify-center gap-2 text-slate-400">
@@ -640,6 +628,7 @@ export function CalendarClient({
               })}
             </div>
           )}
+          </div>
         </div>
 
         {/* Right panel (desktop) or Modal (mobile) */}
