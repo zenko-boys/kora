@@ -15,6 +15,7 @@ import {
 interface SelectedPlayer {
   name: string;
   email: string;
+  userId?: string;
 }
 
 function displayName(user: { firstName: string | null; lastName: string | null; email: string }) {
@@ -114,7 +115,7 @@ export function PlayerSelectorDialog({
           {showUser && !isLoading && (
             <button
               type="button"
-              onClick={() => handleSelect({ name: displayName(user!), email: user!.email })}
+              onClick={() => handleSelect({ name: displayName(user!), email: user!.email, userId: user!.id })}
               className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors hover:bg-slate-50 active:scale-[0.98]"
             >
               <img

@@ -17,6 +17,7 @@ import type {
     UpdateCourtResponse,
     GetClubSlotsResponse,
     GetClubScheduleResponse,
+    GetBookingResponse,
     PlayerStatsResponse,
     UpcomingGamesResponse,
     FeedResponse,
@@ -290,6 +291,23 @@ export function createApiClient(getToken: GetToken) {
                 getToken
             );
         },
+
+        getBooking: (bookingId: string): Promise<GetBookingResponse> =>
+            apiFetch<GetBookingResponse>(`/bookings/${bookingId}`, getToken),
+
+        addParticipant: (
+            bookingId: string,
+            body: { userId: string; team: string; positionInTeam: number }
+        ): Promise<void> =>
+            apiFetch<void>(`/management/bookings/${bookingId}/participants`, getToken, {
+                method: "POST",
+                body: JSON.stringify(body),
+            }),
+
+        removeParticipant: (bookingId: string, userId: string): Promise<void> =>
+            apiFetch<void>(`/management/bookings/${bookingId}/participants/${userId}`, getToken, {
+                method: "DELETE",
+            }),
 
         findUserByEmail: (email: string): Promise<UserSummary | null> =>
             apiFetch<UserSummary>(`/users/by-email?email=${encodeURIComponent(email)}`, getToken)

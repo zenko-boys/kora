@@ -30,9 +30,37 @@ export interface BookingsFilter {
 
 export type BookingTeam = "TeamA" | "TeamB";
 
+export interface BookingParticipantDto {
+    userId: string;
+    name: string;
+    email: string;
+    team: BookingTeam | null;
+    positionInTeam: number | null;
+}
+
+export interface BookingGuestDto {
+    id: string;
+    name: string;
+    email: string | null;
+    team: BookingTeam | null;
+    positionInTeam: number | null;
+}
+
+export interface GetBookingResponse {
+    bookingId: string;
+    participants: BookingParticipantDto[];
+    guests: BookingGuestDto[];
+}
+
 export interface BookingGuestRequest {
     name: string;
     email?: string;
+    team: BookingTeam;
+    positionInTeam: number;
+}
+
+export interface BookingParticipantRequest {
+    userId: string;
     team: BookingTeam;
     positionInTeam: number;
 }
@@ -46,6 +74,7 @@ export interface CreateBookingRequest {
     isPrivate?: boolean;
     description?: string;
     guests?: BookingGuestRequest[];
+    participants?: BookingParticipantRequest[];
 }
 
 export interface JoinBookingResponse {

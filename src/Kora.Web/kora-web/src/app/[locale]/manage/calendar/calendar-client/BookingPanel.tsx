@@ -66,11 +66,11 @@ export function BookingPanel({
     setSelectorOpen(true);
   }
 
-  function handlePlayerSelect({ name, email }: { name: string; email: string }) {
+  function handlePlayerSelect({ name, email, userId }: { name: string; email: string; userId?: string }) {
     if (editingIndex === null) return;
     setSlots((prev) => {
       const next = [...prev] as [TeamSlot, TeamSlot, TeamSlot, TeamSlot];
-      next[editingIndex] = { name, email };
+      next[editingIndex] = { name, email, userId };
       return next;
     });
     setSelectorOpen(false);

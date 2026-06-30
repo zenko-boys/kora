@@ -186,9 +186,11 @@ export function CalendarClient({
   useEffect(() => { selectionStartRef.current = selectionStart; }, [selectionStart]);
   const [viewingBooking, setViewingBooking] = useState<{
     booking: ScheduleBookingInfo;
+    courtId: string;
     courtName: string;
     startSlot: ScheduleSlot;
     endSlot: ScheduleSlot;
+    slotKeys: SlotKey[];
   } | null>(null);
 
   const selection = useMemo<SlotKey[]>(() => {
@@ -275,17 +277,23 @@ export function CalendarClient({
         [data.teamB[1], "TeamB", 1],
       ];
 
-      const guests = teamEntries
-        .filter(([slot]) => !!slot)
-        .map(([slot, team, positionInTeam]) => {
-          const entry: { name: string; email?: string; team: BookingTeam; positionInTeam: number } = {
-            name: slot!.name,
+      const guests: { name: string; email?: string; team: BookingTeam; positionInTeam: number }[] = [];
+      const participants: { userId: string; team: BookingTeam; positionInTeam: number }[] = [];
+
+      for (const [slot, team, positionInTeam] of teamEntries) {
+        if (!slot) continue;
+        if (slot.userId) {
+          participants.push({ userId: slot.userId, team, positionInTeam });
+        } else {
+          const guest: { name: string; email?: string; team: BookingTeam; positionInTeam: number } = {
+            name: slot.name,
             team,
             positionInTeam,
           };
-          if (slot!.email) entry.email = slot!.email;
-          return entry;
-        });
+          if (slot.email) guest.email = slot.email;
+          guests.push(guest);
+        }
+      }
 
       return api.createBooking(selectedClubId, {
         type: "Game",
@@ -293,7 +301,8 @@ export function CalendarClient({
         courtId: data.courtId,
         courtsToOccupy: 1,
         isPrivate: false,
-        guests,
+        guests: guests.length > 0 ? guests : undefined,
+        participants: participants.length > 0 ? participants : undefined,
       });
     },
     onSuccess: () => {
@@ -610,9 +619,14 @@ export function CalendarClient({
                                 onClick={() =>
                                   setViewingBooking({
                                     booking,
+                                    courtId: court.courtId,
                                     courtName: court.courtName,
                                     startSlot: slotInfo,
                                     endSlot,
+                                    slotKeys: Array.from({ length: span }, (_, i) => ({
+                                      courtId: court.courtId,
+                                      slotIndex: slotIndex + i,
+                                    })),
                                   })
                                 }
                               />
