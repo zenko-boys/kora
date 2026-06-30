@@ -32,6 +32,7 @@ import { BookingPanel, type BookingFormData } from "./BookingPanel";
 import { SlotBookingCard } from "./SlotBookingCard";
 import { BookingDetailPanel } from "./BookingDetailPanel";
 import { ClubSwitcher } from "./ClubSwitcher";
+import { SelectedGamesPanel } from "./SelectedGamesPanel";
 import type { SlotKey } from "./types";
 
 export function CalendarClient({
@@ -345,6 +346,21 @@ export function CalendarClient({
     return () => ro.disconnect();
   }, [computeSlotHeight]);
 
+  // Measures the toolbar+grid column's rendered height so the fused
+  // "selected games" side column can match it exactly (not a guessed value).
+  const calendarColumnRef = useRef<HTMLDivElement>(null);
+  const [calendarColumnHeight, setCalendarColumnHeight] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const el = calendarColumnRef.current;
+    if (!el) return;
+    const update = () => setCalendarColumnHeight(el.clientHeight);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   // Touch start/move — non-passive so we can preventDefault and block scroll
   useEffect(() => {
     const el = gridContainerRef.current;
@@ -405,7 +421,7 @@ export function CalendarClient({
       <div className="flex min-h-0 flex-1 gap-4">
         {/* Toolbar + grid + viewing-bookings list — fused into a single card */}
         <div className="flex min-h-0 flex-1 overflow-hidden rounded-xl border border-slate-200 bg-white">
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <div ref={calendarColumnRef} className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           {/* Toolbar: club switcher + date navigation */}
           <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-2.5">
             <ClubSwitcher
@@ -648,32 +664,13 @@ export function CalendarClient({
 
         {/* Viewing-bookings list — fused right column, attached to the same card (desktop only) */}
         {!isMobile && viewingBookings.length > 0 && (
-          <div className="flex min-h-0 w-80 shrink-0 flex-col border-l border-slate-200">
-            <div className="shrink-0 border-b border-slate-200 px-4 py-2.5">
-              <p className="text-sm font-semibold text-slate-700">
-                {t("calendar.selectedGames")} ({viewingBookings.length})
-              </p>
-            </div>
-            <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
-              {viewingBookings.map((vb) => (
-                <div
-                  key={vb.booking.bookingId}
-                  className="rounded-lg border border-slate-200"
-                >
-                  <BookingDetailPanel
-                    booking={vb.booking}
-                    courtName={vb.courtName}
-                    startSlot={vb.startSlot}
-                    endSlot={vb.endSlot}
-                    locale={dateLocale}
-                    onClose={() => closeViewingBooking(vb.booking.bookingId)}
-                    standalone={false}
-                    showCloseButton
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
+          <SelectedGamesPanel
+            bookings={viewingBookings}
+            dateLocale={dateLocale}
+            onCloseBooking={closeViewingBooking}
+            titleLabel={t("calendar.selectedGames")}
+            maxHeight={calendarColumnHeight}
+          />
         )}
         </div>
 
