@@ -283,7 +283,8 @@
             "teamA": "Team A",
             "teamB": "Team B",
             "addPlayer": "Add player",
-            "selectClubToView": "Select a club to view the calendar"
+            "selectClubToView": "Select a club to view the calendar",
+            "selectedGames": "Selected games"
         }
     },
     "landing": {

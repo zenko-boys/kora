@@ -284,7 +284,8 @@
             "teamA": "Time A",
             "teamB": "Time B",
             "addPlayer": "Adicionar jogador",
-            "selectClubToView": "Selecione um clube para visualizar o calendário"
+            "selectClubToView": "Selecione um clube para visualizar o calendário",
+            "selectedGames": "Jogos selecionados"
         }
     },
     "landing": {

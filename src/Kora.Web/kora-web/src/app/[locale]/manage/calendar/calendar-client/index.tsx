@@ -178,14 +178,20 @@ export function CalendarClient({
   const selectionStartRef = useRef<SlotKey | null>(null);
   useEffect(() => { isDraggingRef.current = isDragging; }, [isDragging]);
   useEffect(() => { selectionStartRef.current = selectionStart; }, [selectionStart]);
-  const [viewingBooking, setViewingBooking] = useState<{
-    booking: ScheduleBookingInfo;
-    courtId: string;
-    courtName: string;
-    startSlot: ScheduleSlot;
-    endSlot: ScheduleSlot;
-    slotKeys: SlotKey[];
-  } | null>(null);
+  const [viewingBookings, setViewingBookings] = useState<
+    {
+      booking: ScheduleBookingInfo;
+      courtId: string;
+      courtName: string;
+      startSlot: ScheduleSlot;
+      endSlot: ScheduleSlot;
+      slotKeys: SlotKey[];
+    }[]
+  >([]);
+
+  const closeViewingBooking = useCallback((bookingId: string) => {
+    setViewingBookings((prev) => prev.filter((b) => b.booking.bookingId !== bookingId));
+  }, []);
 
   const selection = useMemo<SlotKey[]>(() => {
     if (!selectionStart || !selectionEnd) return [];
@@ -230,7 +236,7 @@ export function CalendarClient({
       setSelectionEnd({ courtId, slotIndex });
       setIsDragging(true);
       setShowBookingPanel(false);
-      setViewingBooking(null);
+      setViewingBookings([]);
     },
     []
   );
@@ -357,7 +363,7 @@ export function CalendarClient({
       setSelectionEnd({ courtId, slotIndex });
       setIsDragging(true);
       setShowBookingPanel(false);
-      setViewingBooking(null);
+      setViewingBookings([]);
     }
 
     function onTouchMove(e: TouchEvent) {
@@ -397,8 +403,9 @@ export function CalendarClient({
 
       {/* Calendar + right panel */}
       <div className="flex min-h-0 flex-1 gap-4">
-        {/* Toolbar + grid — fused into a single card */}
-        <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white">
+        {/* Toolbar + grid + viewing-bookings list — fused into a single card */}
+        <div className="flex min-h-0 flex-1 overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           {/* Toolbar: club switcher + date navigation */}
           <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-2.5">
             <ClubSwitcher
@@ -408,7 +415,7 @@ export function CalendarClient({
                 setSelectedClubId(id);
                 clearSelection();
                 setShowBookingPanel(false);
-                setViewingBooking(null);
+                setViewingBookings([]);
               }}
               placeholder={t("calendar.selectClub")}
               formatCourtsCount={(count) => t("clubs.courtsCount", { count })}
@@ -605,16 +612,24 @@ export function CalendarClient({
                                 slotHeight={slotHeight}
                                 locale={dateLocale}
                                 onClick={() =>
-                                  setViewingBooking({
-                                    booking,
-                                    courtId: court.courtId,
-                                    courtName: court.courtName,
-                                    startSlot: slotInfo,
-                                    endSlot,
-                                    slotKeys: Array.from({ length: span }, (_, i) => ({
-                                      courtId: court.courtId,
-                                      slotIndex: slotIndex + i,
-                                    })),
+                                  setViewingBookings((prev) => {
+                                    if (prev.some((b) => b.booking.bookingId === booking.bookingId)) {
+                                      return prev;
+                                    }
+                                    return [
+                                      ...prev,
+                                      {
+                                        booking,
+                                        courtId: court.courtId,
+                                        courtName: court.courtName,
+                                        startSlot: slotInfo,
+                                        endSlot,
+                                        slotKeys: Array.from({ length: span }, (_, i) => ({
+                                          courtId: court.courtId,
+                                          slotIndex: slotIndex + i,
+                                        })),
+                                      },
+                                    ];
                                   })
                                 }
                               />
@@ -631,22 +646,53 @@ export function CalendarClient({
           </div>
         </div>
 
-        {/* Right panel (desktop) or Modal (mobile) */}
-        {isMobile ? (
+        {/* Viewing-bookings list — fused right column, attached to the same card (desktop only) */}
+        {!isMobile && viewingBookings.length > 0 && (
+          <div className="flex min-h-0 w-80 shrink-0 flex-col border-l border-slate-200">
+            <div className="shrink-0 border-b border-slate-200 px-4 py-2.5">
+              <p className="text-sm font-semibold text-slate-700">
+                {t("calendar.selectedGames")} ({viewingBookings.length})
+              </p>
+            </div>
+            <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
+              {viewingBookings.map((vb) => (
+                <div
+                  key={vb.booking.bookingId}
+                  className="rounded-lg border border-slate-200"
+                >
+                  <BookingDetailPanel
+                    booking={vb.booking}
+                    courtName={vb.courtName}
+                    startSlot={vb.startSlot}
+                    endSlot={vb.endSlot}
+                    locale={dateLocale}
+                    onClose={() => closeViewingBooking(vb.booking.bookingId)}
+                    standalone={false}
+                    showCloseButton
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        </div>
+
+        {/* Mobile: dialogs for viewing a booking / creating a booking */}
+        {isMobile && (
           <>
             <Dialog
-              open={!!viewingBooking}
-              onOpenChange={(open) => !open && setViewingBooking(null)}
+              open={viewingBookings.length > 0}
+              onOpenChange={(open) => !open && setViewingBookings([])}
             >
               <DialogContent className="max-w-sm p-0">
-                {viewingBooking && (
+                {viewingBookings.length > 0 && (
                   <BookingDetailPanel
-                    booking={viewingBooking.booking}
-                    courtName={viewingBooking.courtName}
-                    startSlot={viewingBooking.startSlot}
-                    endSlot={viewingBooking.endSlot}
+                    booking={viewingBookings[viewingBookings.length - 1].booking}
+                    courtName={viewingBookings[viewingBookings.length - 1].courtName}
+                    startSlot={viewingBookings[viewingBookings.length - 1].startSlot}
+                    endSlot={viewingBookings[viewingBookings.length - 1].endSlot}
                     locale={dateLocale}
-                    onClose={() => setViewingBooking(null)}
+                    onClose={() => setViewingBookings([])}
                     standalone={false}
                   />
                 )}
@@ -674,33 +720,22 @@ export function CalendarClient({
               </DialogContent>
             </Dialog>
           </>
-        ) : (
-          <>
-            {viewingBooking && (
-              <BookingDetailPanel
-                booking={viewingBooking.booking}
-                courtName={viewingBooking.courtName}
-                startSlot={viewingBooking.startSlot}
-                endSlot={viewingBooking.endSlot}
-                locale={dateLocale}
-                onClose={() => setViewingBooking(null)}
-              />
-            )}
-            {showBookingPanel && (
-              <BookingPanel
-                selection={selection}
-                courts={courts.map((c) => ({
-                  id: c.courtId,
-                  name: c.courtName,
-                }))}
-                selectedDate={selectedDate}
-                startHour={scheduleStartHour}
-                onClose={handleBookingPanelClose}
-                onConfirm={handleBookingConfirm}
-                isPending={isCreating}
-              />
-            )}
-          </>
+        )}
+
+        {/* Desktop: booking-creation panel (separate floating card) */}
+        {!isMobile && showBookingPanel && (
+          <BookingPanel
+            selection={selection}
+            courts={courts.map((c) => ({
+              id: c.courtId,
+              name: c.courtName,
+            }))}
+            selectedDate={selectedDate}
+            startHour={scheduleStartHour}
+            onClose={handleBookingPanelClose}
+            onConfirm={handleBookingConfirm}
+            isPending={isCreating}
+          />
         )}
       </div>
     </div>

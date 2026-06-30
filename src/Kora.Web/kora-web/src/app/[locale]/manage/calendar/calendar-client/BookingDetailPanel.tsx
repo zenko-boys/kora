@@ -20,6 +20,7 @@ interface BookingDetailPanelProps {
   locale?: Locale;
   onClose: () => void;
   standalone?: boolean;
+  showCloseButton?: boolean;
 }
 
 // positionInTeam from API is 1-indexed; slot index within team is 0-indexed.
@@ -62,6 +63,7 @@ export function BookingDetailPanel({
   locale,
   onClose,
   standalone = true,
+  showCloseButton = standalone,
 }: BookingDetailPanelProps) {
   const t = useTranslations("manage");
   const { getToken } = useAuth();
@@ -149,7 +151,7 @@ export function BookingDetailPanel({
             {startFmt} – {endFmt}
           </p>
         </div>
-        {standalone && (
+        {showCloseButton && (
           <button
             type="button"
             onClick={onClose}
