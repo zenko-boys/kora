@@ -10,13 +10,6 @@ import React, {
 import { format, addDays, subDays, startOfWeek, endOfWeek } from "date-fns";
 import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { createApiClient } from "@/lib/api";
@@ -38,6 +31,8 @@ import { timeToSlotIndex, formatSlotTime } from "./helpers";
 import { BookingPanel, type BookingFormData } from "./BookingPanel";
 import { SlotBookingCard } from "./SlotBookingCard";
 import { BookingDetailPanel } from "./BookingDetailPanel";
+import { ClubSwitcher } from "./ClubSwitcher";
+import { SelectedGamesPanel } from "./SelectedGamesPanel";
 import type { SlotKey } from "./types";
 
 export function CalendarClient({
@@ -76,6 +71,13 @@ export function CalendarClient({
     MANAGEMENT_ROLES.includes(c.role)
   );
 
+  useEffect(() => {
+    if (managedClubs.length > 0 && !selectedClubId) {
+      setSelectedClubId(managedClubs[0].clubId);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [managedClubs.length]);
+
   // ── Schedule ──────────────────────────────────────────────────────────────────
   const { data: scheduleData, isLoading } = useQuery({
     queryKey: ["club-schedule", selectedClubId, dateStr],
@@ -89,6 +91,8 @@ export function CalendarClient({
     if (!firstSlot) return START_HOUR;
     return new Date(firstSlot.startTime).getHours();
   }, [courts]);
+
+  const now = useMemo(() => new Date(), [dateStr]);
 
   const scheduleSlotCount = courts[0]?.slots.length ?? SLOTS;
 
@@ -175,12 +179,20 @@ export function CalendarClient({
   const selectionStartRef = useRef<SlotKey | null>(null);
   useEffect(() => { isDraggingRef.current = isDragging; }, [isDragging]);
   useEffect(() => { selectionStartRef.current = selectionStart; }, [selectionStart]);
-  const [viewingBooking, setViewingBooking] = useState<{
-    booking: ScheduleBookingInfo;
-    courtName: string;
-    startSlot: ScheduleSlot;
-    endSlot: ScheduleSlot;
-  } | null>(null);
+  const [viewingBookings, setViewingBookings] = useState<
+    {
+      booking: ScheduleBookingInfo;
+      courtId: string;
+      courtName: string;
+      startSlot: ScheduleSlot;
+      endSlot: ScheduleSlot;
+      slotKeys: SlotKey[];
+    }[]
+  >([]);
+
+  const closeViewingBooking = useCallback((bookingId: string) => {
+    setViewingBookings((prev) => prev.filter((b) => b.booking.bookingId !== bookingId));
+  }, []);
 
   const selection = useMemo<SlotKey[]>(() => {
     if (!selectionStart || !selectionEnd) return [];
@@ -225,7 +237,7 @@ export function CalendarClient({
       setSelectionEnd({ courtId, slotIndex });
       setIsDragging(true);
       setShowBookingPanel(false);
-      setViewingBooking(null);
+      setViewingBookings([]);
     },
     []
   );
@@ -266,14 +278,23 @@ export function CalendarClient({
         [data.teamB[1], "TeamB", 1],
       ];
 
-      const guests = teamEntries
-        .filter(([slot]) => !!slot)
-        .map(([slot, team, positionInTeam]) => ({
-          name: slot!.name,
-          email: "guilherme.or2013@gmail.com",
-          team,
-          positionInTeam,
-        }));
+      const guests: { name: string; email?: string; team: BookingTeam; positionInTeam: number }[] = [];
+      const participants: { userId: string; team: BookingTeam; positionInTeam: number }[] = [];
+
+      for (const [slot, team, positionInTeam] of teamEntries) {
+        if (!slot) continue;
+        if (slot.userId) {
+          participants.push({ userId: slot.userId, team, positionInTeam });
+        } else {
+          const guest: { name: string; email?: string; team: BookingTeam; positionInTeam: number } = {
+            name: slot.name,
+            team,
+            positionInTeam,
+          };
+          if (slot.email) guest.email = slot.email;
+          guests.push(guest);
+        }
+      }
 
       return api.createBooking(selectedClubId, {
         type: "Game",
@@ -281,7 +302,8 @@ export function CalendarClient({
         courtId: data.courtId,
         courtsToOccupy: 1,
         isPrivate: false,
-        guests,
+        guests: guests.length > 0 ? guests : undefined,
+        participants: participants.length > 0 ? participants : undefined,
       });
     },
     onSuccess: () => {
@@ -324,6 +346,21 @@ export function CalendarClient({
     return () => ro.disconnect();
   }, [computeSlotHeight]);
 
+  // Measures the toolbar+grid column's rendered height so the fused
+  // "selected games" side column can match it exactly (not a guessed value).
+  const calendarColumnRef = useRef<HTMLDivElement>(null);
+  const [calendarColumnHeight, setCalendarColumnHeight] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const el = calendarColumnRef.current;
+    if (!el) return;
+    const update = () => setCalendarColumnHeight(el.clientHeight);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   // Touch start/move — non-passive so we can preventDefault and block scroll
   useEffect(() => {
     const el = gridContainerRef.current;
@@ -342,7 +379,7 @@ export function CalendarClient({
       setSelectionEnd({ courtId, slotIndex });
       setIsDragging(true);
       setShowBookingPanel(false);
-      setViewingBooking(null);
+      setViewingBookings([]);
     }
 
     function onTouchMove(e: TouchEvent) {
@@ -372,80 +409,75 @@ export function CalendarClient({
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
     <div className="flex h-full flex-col space-y-4">
-      {/* Page header + club selector */}
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            {title}
-          </h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>
-        </div>
-
-        <Select
-          value={selectedClubId}
-          onValueChange={(v) => {
-            setSelectedClubId(v ?? "");
-            clearSelection();
-            setShowBookingPanel(false);
-            setViewingBooking(null);
-          }}
-        >
-          <SelectTrigger className="w-52">
-            <SelectValue placeholder={t("calendar.selectClub")} />
-          </SelectTrigger>
-          <SelectContent>
-            {managedClubs.map((c) => (
-              <SelectItem key={c.clubId} value={c.clubId}>
-                {c.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Date navigation */}
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => setSelectedDate((d) => subDays(d, 1))}
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-800 active:scale-[0.96]"
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-
-        <div className="min-w-0 text-center">
-          <p className="text-sm font-semibold leading-tight tracking-tight text-slate-800">
-            {dayLabel}
-          </p>
-          <p className="text-[11px] leading-tight text-slate-400">
-            {t("calendar.weekOf")} {weekLabel}
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setSelectedDate((d) => addDays(d, 1))}
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-800 active:scale-[0.96]"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setSelectedDate(new Date())}
-          className="ml-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 active:scale-[0.97]"
-        >
-          {t("calendar.today")}
-        </button>
+      {/* Page header */}
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          {title}
+        </h1>
+        <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>
       </div>
 
       {/* Calendar + right panel */}
       <div className="flex min-h-0 flex-1 gap-4">
-        {/* Grid container */}
-        <div
-          ref={gridContainerRef}
-          className="flex-1 overflow-x-auto overflow-y-hidden rounded-xl border border-slate-200 bg-white"
-        >
+        {/* Toolbar + grid + viewing-bookings list — fused into a single card */}
+        <div className="flex min-h-0 flex-1 overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <div ref={calendarColumnRef} className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+          {/* Toolbar: club switcher + date navigation */}
+          <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-2.5">
+            <ClubSwitcher
+              clubs={managedClubs}
+              selectedClubId={selectedClubId}
+              onSelect={(id) => {
+                setSelectedClubId(id);
+                clearSelection();
+                setShowBookingPanel(false);
+                setViewingBookings([]);
+              }}
+              placeholder={t("calendar.selectClub")}
+              formatCourtsCount={(count) => t("clubs.courtsCount", { count })}
+            />
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setSelectedDate((d) => subDays(d, 1))}
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-800 active:scale-[0.96]"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+
+              <div className="min-w-0 text-center">
+                <p className="text-sm font-semibold leading-tight tracking-tight text-slate-800">
+                  {dayLabel}
+                </p>
+                <p className="text-[11px] leading-tight text-slate-400">
+                  {t("calendar.weekOf")} {weekLabel}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedDate((d) => addDays(d, 1))}
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-800 active:scale-[0.96]"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedDate(new Date())}
+                className="ml-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 active:scale-[0.97]"
+              >
+                {t("calendar.today")}
+              </button>
+            </div>
+          </div>
+
+          {/* Grid container */}
+          <div
+            ref={gridContainerRef}
+            className="flex-1 overflow-x-auto overflow-y-hidden"
+          >
           {/* No club selected */}
           {!selectedClubId && (
             <div className="flex h-full flex-col items-center justify-center gap-2 text-slate-400">
@@ -524,6 +556,8 @@ export function CalendarClient({
                         ?.get(slotIndex);
                       const isOutsideHours = !slotInfo;
                       const isBooked = !!slotInfo?.booking;
+                      const isPast = !!slotInfo && new Date(slotInfo.startTime) < now;
+                      const isDisabled = isOutsideHours || isBooked || isPast;
                       const isBookingStart = bookingStartSet.has(
                         `${court.courtId}:${slotIndex}`
                       );
@@ -535,18 +569,20 @@ export function CalendarClient({
                       return (
                         <div
                           key={`${court.courtId}-${slotIndex}`}
-                          data-court-id={isBooked || isOutsideHours ? undefined : court.courtId}
-                          data-slot-index={isBooked || isOutsideHours ? undefined : String(slotIndex)}
+                          data-court-id={isDisabled ? undefined : court.courtId}
+                          data-slot-index={isDisabled ? undefined : String(slotIndex)}
                           className={[
                             "relative select-none border-b border-l border-slate-100 transition-colors",
                             isOutsideHours
-                              ? "bg-slate-50/60"
-                              : isBooked
-                                ? "bg-rose-50"
-                                : "cursor-pointer",
+                              ? "bg-slate-100"
+                              : isPast
+                                ? "bg-slate-200"
+                                : isBooked
+                                  ? "bg-rose-50"
+                                  : "cursor-pointer",
                             selected
                               ? "bg-[#8CC63F]/20 ring-1 ring-inset ring-[#8CC63F]/50"
-                              : !isBooked && !isOutsideHours
+                              : !isDisabled
                                 ? "hover:bg-[#8CC63F]/10"
                                 : "",
                           ]
@@ -554,7 +590,7 @@ export function CalendarClient({
                             .join(" ")}
                           style={{ height: slotHeight }}
                           onMouseDown={
-                            isBooked || isOutsideHours
+                            isDisabled
                               ? undefined
                               : (e) =>
                                   handleCellMouseDown(
@@ -592,11 +628,24 @@ export function CalendarClient({
                                 slotHeight={slotHeight}
                                 locale={dateLocale}
                                 onClick={() =>
-                                  setViewingBooking({
-                                    booking,
-                                    courtName: court.courtName,
-                                    startSlot: slotInfo,
-                                    endSlot,
+                                  setViewingBookings((prev) => {
+                                    if (prev.some((b) => b.booking.bookingId === booking.bookingId)) {
+                                      return prev;
+                                    }
+                                    return [
+                                      ...prev,
+                                      {
+                                        booking,
+                                        courtId: court.courtId,
+                                        courtName: court.courtName,
+                                        startSlot: slotInfo,
+                                        endSlot,
+                                        slotKeys: Array.from({ length: span }, (_, i) => ({
+                                          courtId: court.courtId,
+                                          slotIndex: slotIndex + i,
+                                        })),
+                                      },
+                                    ];
                                   })
                                 }
                               />
@@ -610,24 +659,37 @@ export function CalendarClient({
               })}
             </div>
           )}
+          </div>
         </div>
 
-        {/* Right panel (desktop) or Modal (mobile) */}
-        {isMobile ? (
+        {/* Viewing-bookings list — fused right column, attached to the same card (desktop only) */}
+        {!isMobile && viewingBookings.length > 0 && (
+          <SelectedGamesPanel
+            bookings={viewingBookings}
+            dateLocale={dateLocale}
+            onCloseBooking={closeViewingBooking}
+            titleLabel={t("calendar.selectedGames")}
+            maxHeight={calendarColumnHeight}
+          />
+        )}
+        </div>
+
+        {/* Mobile: dialogs for viewing a booking / creating a booking */}
+        {isMobile && (
           <>
             <Dialog
-              open={!!viewingBooking}
-              onOpenChange={(open) => !open && setViewingBooking(null)}
+              open={viewingBookings.length > 0}
+              onOpenChange={(open) => !open && setViewingBookings([])}
             >
               <DialogContent className="max-w-sm p-0">
-                {viewingBooking && (
+                {viewingBookings.length > 0 && (
                   <BookingDetailPanel
-                    booking={viewingBooking.booking}
-                    courtName={viewingBooking.courtName}
-                    startSlot={viewingBooking.startSlot}
-                    endSlot={viewingBooking.endSlot}
+                    booking={viewingBookings[viewingBookings.length - 1].booking}
+                    courtName={viewingBookings[viewingBookings.length - 1].courtName}
+                    startSlot={viewingBookings[viewingBookings.length - 1].startSlot}
+                    endSlot={viewingBookings[viewingBookings.length - 1].endSlot}
                     locale={dateLocale}
-                    onClose={() => setViewingBooking(null)}
+                    onClose={() => setViewingBookings([])}
                     standalone={false}
                   />
                 )}
@@ -655,33 +717,22 @@ export function CalendarClient({
               </DialogContent>
             </Dialog>
           </>
-        ) : (
-          <>
-            {viewingBooking && (
-              <BookingDetailPanel
-                booking={viewingBooking.booking}
-                courtName={viewingBooking.courtName}
-                startSlot={viewingBooking.startSlot}
-                endSlot={viewingBooking.endSlot}
-                locale={dateLocale}
-                onClose={() => setViewingBooking(null)}
-              />
-            )}
-            {showBookingPanel && (
-              <BookingPanel
-                selection={selection}
-                courts={courts.map((c) => ({
-                  id: c.courtId,
-                  name: c.courtName,
-                }))}
-                selectedDate={selectedDate}
-                startHour={scheduleStartHour}
-                onClose={handleBookingPanelClose}
-                onConfirm={handleBookingConfirm}
-                isPending={isCreating}
-              />
-            )}
-          </>
+        )}
+
+        {/* Desktop: booking-creation panel (separate floating card) */}
+        {!isMobile && showBookingPanel && (
+          <BookingPanel
+            selection={selection}
+            courts={courts.map((c) => ({
+              id: c.courtId,
+              name: c.courtName,
+            }))}
+            selectedDate={selectedDate}
+            startHour={scheduleStartHour}
+            onClose={handleBookingPanelClose}
+            onConfirm={handleBookingConfirm}
+            isPending={isCreating}
+          />
         )}
       </div>
     </div>

@@ -20,8 +20,9 @@ import {
     Sun,
     Moon,
     X,
+    ChevronDown,
 } from "lucide-react";
-import { SignInButton } from "@clerk/nextjs";
+import { SignInButton, UserButton, useAuth } from "@clerk/nextjs";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useTheme } from "next-themes";
@@ -59,6 +60,7 @@ function useReveal<T extends HTMLElement = HTMLDivElement>() {
 function LandingNavbar() {
     const t = useTranslations("nav");
     const { theme, setTheme } = useTheme();
+    const { isSignedIn } = useAuth();
     const [mounted, setMounted] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const locale = useLocale();
@@ -122,11 +124,17 @@ function LandingNavbar() {
                             {isDark ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
                         </button>
                     )}
-                    <SignInButton mode="modal">
-                        <button className="flex items-center rounded-full bg-[#8CC63F] px-4 py-1.5 text-[11px] font-bold text-[#0D1B2A] transition-all duration-300 hover:bg-[#7AB534] hover:shadow-[0_6px_20px_rgba(140,198,63,0.3)] active:scale-[0.97]">
-                            {t("signIn")}
-                        </button>
-                    </SignInButton>
+                    {isSignedIn ? (
+                        <div className="flex h-7 w-7 items-center justify-center">
+                            <UserButton />
+                        </div>
+                    ) : (
+                        <SignInButton mode="modal" forceRedirectUrl="/bookings">
+                            <button className="flex items-center rounded-full bg-[#8CC63F] px-4 py-1.5 text-[11px] font-bold text-[#0D1B2A] transition-all duration-300 hover:bg-[#7AB534] hover:shadow-[0_6px_20px_rgba(140,198,63,0.3)] active:scale-[0.97]">
+                                {t("signIn")}
+                            </button>
+                        </SignInButton>
+                    )}
                 </div>
 
                 {/* Hamburger — mobile only */}
@@ -217,11 +225,17 @@ function LandingNavbar() {
                             {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                         </button>
                     )}
-                    <SignInButton mode="modal">
-                        <button className="ml-auto rounded-full bg-[#8CC63F] px-6 py-3 text-sm font-bold text-[#0D1B2A]">
-                            {t("signIn")}
-                        </button>
-                    </SignInButton>
+                    {isSignedIn ? (
+                        <div className="ml-auto">
+                            <UserButton />
+                        </div>
+                    ) : (
+                        <SignInButton mode="modal" forceRedirectUrl="/bookings">
+                            <button className="ml-auto rounded-full bg-[#8CC63F] px-6 py-3 text-sm font-bold text-[#0D1B2A]">
+                                {t("signIn")}
+                            </button>
+                        </SignInButton>
+                    )}
                 </div>
             </div>
         </>
@@ -233,8 +247,10 @@ function LandingNavbar() {
 // ---------------------------------------------------------------------------
 function HeroSection() {
     const t = useTranslations("landing");
+    const { isSignedIn } = useAuth();
     return (
         <section
+            id="hero"
             className="relative overflow-hidden"
             style={{ minHeight: "100dvh", backgroundColor: "var(--landing-bg-1)" }}
         >
@@ -273,9 +289,10 @@ function HeroSection() {
                         style={{ color: "var(--landing-text-1)" }}
                     >
                         {t("hero.headline1")}
-                        <br />
+                        {" "}
                         <span className="text-[#8CC63F]">{t("hero.headline2")}</span>
-                        <br />{t("hero.headline3")}
+                        {" "}
+                        {t("hero.headline3")}
                     </h1>
 
                     <p
@@ -286,9 +303,9 @@ function HeroSection() {
                     </p>
 
                     <div className="flex flex-wrap items-center gap-4">
-                        {/* Button-in-button CTA */}
-                        <SignInButton mode="modal">
-                            <button
+                        {isSignedIn ? (
+                            <Link
+                                href="/bookings"
                                 className="group inline-flex items-center gap-0 rounded-full bg-[#8CC63F] pl-6 pr-2 py-2 text-sm font-semibold text-[#0D1B2A] transition-all duration-500 hover:-translate-y-[2px] hover:bg-[#7AB534] hover:shadow-[0_12px_35px_rgba(140,198,63,0.38)] active:scale-[0.98]"
                                 style={{ transitionTimingFunction: "cubic-bezier(0.32,0.72,0,1)" }}
                             >
@@ -299,8 +316,23 @@ function HeroSection() {
                                 >
                                     <ArrowRight className="h-3.5 w-3.5" />
                                 </span>
-                            </button>
-                        </SignInButton>
+                            </Link>
+                        ) : (
+                            <SignInButton mode="modal" forceRedirectUrl="/bookings">
+                                <button
+                                    className="group inline-flex items-center gap-0 rounded-full bg-[#8CC63F] pl-6 pr-2 py-2 text-sm font-semibold text-[#0D1B2A] transition-all duration-500 hover:-translate-y-[2px] hover:bg-[#7AB534] hover:shadow-[0_12px_35px_rgba(140,198,63,0.38)] active:scale-[0.98]"
+                                    style={{ transitionTimingFunction: "cubic-bezier(0.32,0.72,0,1)" }}
+                                >
+                                    {t("hero.ctaLogin")}
+                                    <span
+                                        className="ml-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/15 transition-all duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105"
+                                        style={{ transitionTimingFunction: "cubic-bezier(0.32,0.72,0,1)" }}
+                                    >
+                                        <ArrowRight className="h-3.5 w-3.5" />
+                                    </span>
+                                </button>
+                            </SignInButton>
+                        )}
                         <Link
                             href="/clubs"
                             className="inline-flex items-center gap-2 rounded-full border px-6 py-2.5 text-sm font-semibold transition-all duration-500 active:scale-[0.98]"
@@ -314,16 +346,7 @@ function HeroSection() {
                         </Link>
                     </div>
 
-                    <div className="flex items-center gap-3 pt-1">
-                        <div className="flex" aria-label="5 estrelas">
-                            {[0, 1, 2, 3, 4].map((i) => (
-                                <Star key={i} className="h-3.5 w-3.5 fill-[#8CC63F] text-[#8CC63F]" />
-                            ))}
-                        </div>
-                        <span className="text-sm" style={{ color: "var(--landing-text-3)" }}>
-                            {t("hero.socialProof")}
-                        </span>
-                    </div>
+                    {/* Stars removed */}
                 </div>
 
                 {/* Right: image panel — Double-Bezel */}
@@ -359,8 +382,8 @@ function HeroSection() {
                                     background: "linear-gradient(to top, var(--landing-bg-1) 0%, transparent 55%)",
                                 }}
                             />
-                            {/* Floating match card */}
-                            <div
+                            {/* Floating match card — COMMENTED OUT */}
+                            {/* <div
                                 className="absolute bottom-5 left-5 right-5 rounded-xl p-4"
                                 style={{
                                     border: "1px solid var(--landing-card-border)",
@@ -405,7 +428,7 @@ function HeroSection() {
                                         {t("hero.matchCard.join")}
                                     </span>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                     {/* Glow behind card */}
@@ -487,6 +510,7 @@ function BrazilSection() {
 
     return (
         <section
+            id="brazil-expansion"
             ref={ref}
             className="overflow-hidden py-28"
             style={{ backgroundColor: "var(--landing-bg-1)" }}
@@ -604,6 +628,7 @@ function BenefitsSection() {
 
     return (
         <section
+            id="benefits"
             ref={ref}
             className="py-28"
             style={{ backgroundColor: "var(--landing-bg-2)" }}
@@ -730,6 +755,7 @@ function FindPlayersSection() {
 
     return (
         <section
+            id="find-players"
             ref={ref}
             className="py-28"
             style={{ backgroundColor: "var(--landing-bg-1)" }}
@@ -859,6 +885,7 @@ function AccessibilitySection() {
 
     return (
         <section
+            id="accessibility"
             ref={ref}
             className="py-28"
             style={{ backgroundColor: "var(--landing-bg-2)" }}
@@ -951,6 +978,7 @@ function HowItWorksSection() {
 
     return (
         <section
+            id="how-it-works"
             ref={ref}
             className="py-28"
             style={{ backgroundColor: "var(--landing-bg-1)" }}
@@ -1030,8 +1058,9 @@ function CtaSection() {
 
     return (
         <section
+            id="cta"
             ref={ref}
-            className="pb-28 pt-4"
+            className="py-4"
             style={{ backgroundColor: "var(--landing-bg-2)" }}
         >
             <div className="mx-auto max-w-7xl px-4">
@@ -1552,28 +1581,22 @@ function FooterSection() {
     const tc = useTranslations("cookies");
 
     const col1 = [
-        { label: t("footer.col1Faq"), href: "#" },
         { label: t("footer.col1Clubs"), href: "/clubs" },
-        { label: t("footer.col1Events"), href: "#" },
-        { label: t("footer.col1Players"), href: "#" },
-        { label: t("footer.col1Rankings"), href: "#" },
     ];
     const col2 = [
         { label: t("footer.col2Book"), href: "/bookings" },
-        { label: t("footer.col2HowItWorks"), href: "#" },
-        { label: t("footer.col2Pricing"), href: "#" },
-        { label: t("footer.col2App"), href: "#" },
     ];
-    const col3 = [
-        { label: t("footer.col3About"), href: "#" },
-        { label: t("footer.col3Blog"), href: "#" },
-        { label: t("footer.col3Careers"), href: "#" },
-        { label: t("footer.col3Partners"), href: "#" },
-        { label: t("footer.col3Press"), href: "#" },
-    ];
+    const col3: { label: string; href: string }[] = [];
+
+    // Only show columns with links
+    const columns = [col1, col2, col3].filter(col => col.length > 0);
+    const columnTitles = [t("footer.col1Title"), t("footer.col2Title")].filter((_, i) => [col1, col2, col3][i].length > 0);
 
     return (
-        <footer style={{ borderTop: "1px solid var(--landing-divider)", backgroundColor: "var(--landing-bg-footer)" }}>
+        <footer
+            id="footer"
+            style={{ borderTop: "1px solid var(--landing-divider)", backgroundColor: "var(--landing-bg-footer)" }}
+        >
             <div className="mx-auto max-w-7xl px-4 py-16">
                 <div className="grid grid-cols-1 gap-16 md:grid-cols-[auto_1fr]">
 
@@ -1633,18 +1656,14 @@ function FooterSection() {
                     </div>
 
                     {/* RIGHT: Site map */}
-                    <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 md:justify-items-end">
-                        {[
-                            { title: t("footer.col1Title"), links: col1 },
-                            { title: t("footer.col2Title"), links: col2 },
-                            { title: t("footer.col3Title"), links: col3 },
-                        ].map(({ title, links }) => (
-                            <div key={title}>
+                    <div className="grid grid-cols-2 gap-8 sm:grid-cols-2 md:justify-items-end">
+                        {columns.map((links, idx) => (
+                            <div key={idx}>
                                 <p
                                     className="mb-4 text-[11px] font-semibold uppercase tracking-[0.14em]"
                                     style={{ color: "var(--landing-text-3)" }}
                                 >
-                                    {title}
+                                    {columnTitles[idx]}
                                 </p>
                                 <ul className="flex flex-col gap-3">
                                     {links.map(({ label, href }) => (
@@ -1684,6 +1703,126 @@ function FooterSection() {
                 </div>
             </div>
         </footer>
+    );
+}
+
+// ---------------------------------------------------------------------------
+// FAQ SECTION
+// ---------------------------------------------------------------------------
+function FAQSection() {
+    const t = useTranslations("landing");
+    const [ref, visible] = useReveal();
+    const [expanded, setExpanded] = useState<string | null>(null);
+
+    const faqs = [
+        {
+            id: "faq-1",
+            question: t("faq.q1"),
+            answer: t("faq.a1"),
+        },
+        {
+            id: "faq-2",
+            question: t("faq.q2"),
+            answer: t("faq.a2"),
+        },
+        {
+            id: "faq-3",
+            question: t("faq.q3"),
+            answer: t("faq.a3"),
+        },
+        {
+            id: "faq-4",
+            question: t("faq.q4"),
+            answer: t("faq.a4"),
+        },
+    ];
+
+    return (
+        <section
+            id="faq"
+            ref={ref}
+            className="py-28"
+            style={{ backgroundColor: "var(--landing-bg-2)" }}
+        >
+            <div className="mx-auto max-w-3xl px-4">
+                <div
+                    className="mb-14 text-center"
+                    style={{
+                        opacity: visible ? 1 : 0,
+                        transform: visible ? "translateY(0)" : "translateY(16px)",
+                        transition: "opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1)",
+                    }}
+                >
+                    <div
+                        className="mb-4 flex w-fit items-center gap-2 rounded-full border px-3 py-1 mx-auto"
+                        style={{
+                            borderColor: "rgba(140,198,63,0.3)",
+                            backgroundColor: "rgba(140,198,63,0.08)",
+                        }}
+                    >
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#8CC63F]" />
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#8CC63F]">
+                            {t("faq.badge")}
+                        </span>
+                    </div>
+                    <h2
+                        className="text-4xl font-bold leading-[1.1] tracking-tighter lg:text-5xl"
+                        style={{ color: "var(--landing-text-1)" }}
+                    >
+                        {t("faq.headline")}
+                    </h2>
+                </div>
+
+                <div className="space-y-3">
+                    {faqs.map((faq, i) => (
+                        <div
+                            key={faq.id}
+                            className="rounded-xl overflow-hidden border"
+                            style={{
+                                borderColor: "var(--landing-card-border)",
+                                backgroundColor: "var(--landing-bg-1)",
+                                opacity: visible ? 1 : 0,
+                                transform: visible ? "translateY(0)" : "translateY(16px)",
+                                transition: "opacity 0.6s cubic-bezier(0.16,1,0.3,1) " + (0.05 + i * 0.08) + "s, transform 0.6s cubic-bezier(0.16,1,0.3,1) " + (0.05 + i * 0.08) + "s",
+                            }}
+                        >
+                            <button
+                                onClick={() => setExpanded(expanded === faq.id ? null : faq.id)}
+                                className="w-full flex items-center justify-between px-6 py-4 text-left transition-colors hover:bg-[#8CC63F]/5"
+                            >
+                                <span
+                                    className="font-semibold"
+                                    style={{ color: "var(--landing-text-1)" }}
+                                >
+                                    {faq.question}
+                                </span>
+                                <div
+                                    className="flex h-6 w-6 items-center justify-center rounded-full shrink-0 transition-transform duration-300"
+                                    style={{
+                                        backgroundColor: "rgba(140,198,63,0.1)",
+                                        transform: expanded === faq.id ? "rotate(180deg)" : "rotate(0)",
+                                    }}
+                                >
+                                    <ChevronDown className="h-4 w-4 text-[#8CC63F]" />
+                                </div>
+                            </button>
+
+                            {expanded === faq.id && (
+                                <div
+                                    className="px-6 pb-4 border-t"
+                                    style={{
+                                        borderColor: "var(--landing-divider)",
+                                        color: "var(--landing-text-2)",
+                                    }}
+                                >
+                                    <p className="text-sm leading-relaxed">{faq.answer}</p>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
     );
 }
 
@@ -1755,15 +1894,16 @@ export function LandingPage() {
 
             <LandingNavbar />
             <HeroSection />
-            <StatsSection />
+            {/* <StatsSection /> */}
             <BrazilSection />
-            <ClubsCarouselSection />
+            {/* <ClubsCarouselSection /> */}
             <BenefitsSection />
             <FindPlayersSection />
             <AccessibilitySection />
             <HowItWorksSection />
             <CtaSection />
-            <ContactSection />
+            {/* <ContactSection /> */}
+            <FAQSection />
             <FooterSection />
         </>
     );

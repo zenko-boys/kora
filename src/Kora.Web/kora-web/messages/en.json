@@ -283,7 +283,8 @@
             "teamA": "Team A",
             "teamB": "Team B",
             "addPlayer": "Add player",
-            "selectClubToView": "Select a club to view the calendar"
+            "selectClubToView": "Select a club to view the calendar",
+            "selectedGames": "Selected games"
         }
     },
     "landing": {
@@ -296,7 +297,7 @@
             "ctaPrimary": "Get started",
             "ctaLogin": "Login",
             "ctaSecondary": "View clubs",
-            "socialProof": "+2,800 bookings made this month",
+            "socialProof": "",
             "matchCard": {
                 "label": "Next available slot",
                 "court": "Arena Kora · Court 3",
@@ -319,7 +320,7 @@
             "headline": "Padel grows 5x faster than any other sport in the country.",
             "description": "With over 2 million players and rapid growth in São Paulo, Rio de Janeiro, Brasília and Curitiba, padel has become the fastest-growing sport in Brazil.",
             "fact1": "2nd most played racket sport in the world",
-            "fact2": "Over 800 new clubs opened in the last 2 years",
+            "fact2": "New clubs opening every month",
             "fact3": "67% of players are between 18 and 40 years old",
             "fact4": "Present in all 26 Brazilian states"
         },
@@ -363,7 +364,7 @@
             "feature3": "Notifications for open slots near you",
             "feature4": "Groups and tournaments organised by clubs",
             "cta": "Explore open matches",
-            "count": "+2,400 players available today",
+            "count": "",
             "p1Name": "Fernanda Queiroz",
             "p1Level": "Advanced",
             "p1City": "São Paulo",
@@ -435,6 +436,18 @@
             "infoPlayers": "Players registered",
             "infoPlayersValue": "47,000+",
             "infoPrivacy": "We take data privacy seriously. Your information is never sold or shared beyond what you've consented to."
+        },
+        "faq": {
+            "badge": "Frequently Asked Questions",
+            "headline": "Questions about padel and Kora?",
+            "q1": "How do I get started playing padel?",
+            "a1": "It's simple! Create your account on Kora, choose an available court and time, confirm your booking and show up at the club. You can play solo or be automatically paired with other players at your level.",
+            "q2": "What is the minimum age to play?",
+            "a2": "There's no minimum age limit, but we recommend children under 10 play with adult supervision. Padel is an inclusive sport for all ages.",
+            "q3": "How does cancellation work?",
+            "a3": "You can cancel your booking for free up to 2 hours before the match. Cancellations outside this window incur a 50% penalty.",
+            "q4": "Can I bring my own equipment?",
+            "a4": "Yes! You can bring your own rackets. Most clubs offer racket and ball rentals if you don't have your own."
         },
         "footer": {
             "tagline": "Book courts. Find players. Play more.",

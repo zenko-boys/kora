@@ -1,13 +1,23 @@
-import { getTranslations } from "next-intl/server";
-import { HomeClient } from "./home-client";
+"use client";
 
-export default async function HomePage({
-    params,
-}: {
-    params: Promise<{ locale: string }>;
-}) {
-    const { locale } = await params;
-    const t = await getTranslations({ locale, namespace: "home" });
-    return <HomeClient title={t("title")} />;
+import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "@/i18n/navigation";
+import { useEffect } from "react";
+
+export default function HomePage() {
+    const { isSignedIn, isLoaded } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!isLoaded) return;
+
+        if (isSignedIn) {
+            router.push("/bookings");
+        } else {
+            router.push("/landing");
+        }
+    }, [isLoaded, isSignedIn, router]);
+
+    return null;
 }
 

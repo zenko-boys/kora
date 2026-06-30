@@ -17,9 +17,11 @@ import type {
     UpdateCourtResponse,
     GetClubSlotsResponse,
     GetClubScheduleResponse,
+    GetBookingResponse,
     PlayerStatsResponse,
     UpcomingGamesResponse,
     FeedResponse,
+    UserSummary,
 } from "./types";
 import { MOCK_BOOKINGS, MOCK_PLAYER_STATS, MOCK_UPCOMING_GAMES, MOCK_FEED_ITEMS } from "./mock-data";
 
@@ -289,5 +291,29 @@ export function createApiClient(getToken: GetToken) {
                 getToken
             );
         },
+
+        getBooking: (bookingId: string): Promise<GetBookingResponse> =>
+            apiFetch<GetBookingResponse>(`/bookings/${bookingId}`, getToken),
+
+        addParticipant: (
+            bookingId: string,
+            body: { userId: string; team: string; positionInTeam: number }
+        ): Promise<void> =>
+            apiFetch<void>(`/management/bookings/${bookingId}/participants`, getToken, {
+                method: "POST",
+                body: JSON.stringify(body),
+            }),
+
+        removeParticipant: (bookingId: string, userId: string): Promise<void> =>
+            apiFetch<void>(`/management/bookings/${bookingId}/participants/${userId}`, getToken, {
+                method: "DELETE",
+            }),
+
+        findUserByEmail: (email: string): Promise<UserSummary | null> =>
+            apiFetch<UserSummary>(`/users/by-email?email=${encodeURIComponent(email)}`, getToken)
+                .catch((err: Error) => {
+                    if (err.message.startsWith("API error 404")) return null;
+                    throw err;
+                }),
     };
 }

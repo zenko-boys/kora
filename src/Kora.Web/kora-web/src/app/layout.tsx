@@ -15,7 +15,10 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "Kora",
   description: "Court booking platform",
-  icons: { icon: "/favicon.png", apple: "/favicon.png" },
+  icons: {
+    icon: { url: "/favicon.png", type: "image/png" },
+    apple: { url: "/favicon.png", type: "image/png" },
+  },
 };
 
 export default async function RootLayout({

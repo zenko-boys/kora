@@ -284,7 +284,8 @@
             "teamA": "Time A",
             "teamB": "Time B",
             "addPlayer": "Adicionar jogador",
-            "selectClubToView": "Selecione um clube para visualizar o calendário"
+            "selectClubToView": "Selecione um clube para visualizar o calendário",
+            "selectedGames": "Jogos selecionados"
         }
     },
     "landing": {
@@ -297,7 +298,7 @@
             "ctaPrimary": "Começar agora",
             "ctaLogin": "Login",
             "ctaSecondary": "Ver clubes",
-            "socialProof": "+2.800 partidas reservadas este mês",
+            "socialProof": "",
             "matchCard": {
                 "label": "Próxima vaga disponível",
                 "court": "Arena Kora · Quadra 3",
@@ -320,7 +321,7 @@
             "headline": "O padel cresce 5x mais rápido que qualquer outro esporte no país.",
             "description": "Com mais de 2 milhões de praticantes e crescimento acelerado em São Paulo, Rio de Janeiro, Brasília e Curitiba, o padel se consolidou como o esporte de mais rápida ascensão do Brasil.",
             "fact1": "2º esporte de raquete mais praticado no mundo",
-            "fact2": "Mais de 800 novos clubes abertos nos últimos 2 anos",
+            "fact2": "Diversos clubes abertos todo mês",
             "fact3": "67% dos praticantes têm entre 18 e 40 anos",
             "fact4": "Presente em todos os 26 estados brasileiros"
         },
@@ -364,7 +365,7 @@
             "feature3": "Notificações de vagas abertas perto de você",
             "feature4": "Grupos e campeonatos organizados pelos clubes",
             "cta": "Explorar partidas abertas",
-            "count": "+2.400 jogadores disponíveis hoje",
+            "count": "",
             "p1Name": "Fernanda Queiroz",
             "p1Level": "Avançado",
             "p1City": "São Paulo",
@@ -436,6 +437,18 @@
             "infoPlayers": "Jogadores registrados",
             "infoPlayersValue": "47.000+",
             "infoPrivacy": "Levamos a privacidade de dados a s\u00e9rio. Suas informa\u00e7\u00f5es nunca s\u00e3o vendidas ou compartilhadas al\u00e9m do que voc\u00ea autorizou."
+        },
+        "faq": {
+            "badge": "Perguntas Frequentes",
+            "headline": "D\u00favidas sobre padel e Kora?",
+            "q1": "Como come\u00e7o a jogar padel?",
+            "a1": "\u00c9 simples! Crie sua conta no Kora, escolha uma quadra e hor\u00e1rio dispon\u00edveis, confirme a reserva e apare\u00e7a no clube. Voc\u00ea pode jogar sozinho ou ser automaticamente pareado com outros jogadores do seu n\u00edvel.",
+            "q2": "Qual \u00e9 a idade m\u00ednima para jogar?",
+            "a2": "N\u00e3o h\u00e1 limite de idade m\u00ednima, mas recomendamos que crian\u00e7as menores de 10 anos joguem com orienta\u00e7\u00e3o de um adulto. O padel \u00e9 um esporte inclusivo para todas as idades.",
+            "q3": "Como funciona o cancelamento?",
+            "a3": "Voc\u00ea pode cancelar sua reserva gratuitamente at\u00e9 2 horas antes da partida. Cancelamentos fora desse prazo t\u00eam penalidade de 50% do valor.",
+            "q4": "Posso trazer meus pr\u00f3prios equipamentos?",
+            "a4": "Sim! Voc\u00ea pode trazer suas pr\u00f3prias raquetes. A maioria dos clubes oferece aluguel de raquetes e bolas caso voc\u00ea n\u00e3o tenha os seus pr\u00f3prios."
         },
         "footer": {
             "tagline": "Reserve quadras. Encontre jogadores. Jogue mais.",
