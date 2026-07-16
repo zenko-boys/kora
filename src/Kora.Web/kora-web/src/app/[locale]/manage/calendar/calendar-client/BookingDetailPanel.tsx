@@ -2,15 +2,24 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { format, type Locale } from "date-fns";
-import { X } from "lucide-react";
+import { X, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
+import { toast } from "sonner";
 import { createApiClient } from "@/lib/api";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import type { ScheduleBookingInfo, ScheduleSlot, BookingParticipantDto, BookingGuestDto } from "@/lib/types";
 import type { TeamSlot } from "./types";
-import { AvatarSlot } from "./AvatarSlot";
-import { PlayerSelectorDialog } from "./PlayerSelectorDialog";
+import { AvatarSlot } from "@/components/players/avatar-slot";
+import { PlayerSelectorDialog } from "@/components/players/player-selector-dialog";
 
 interface BookingDetailPanelProps {
   booking: ScheduleBookingInfo;
@@ -82,6 +91,7 @@ export function BookingDetailPanel({
 
   const [selectorOpen, setSelectorOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   useEffect(() => {
     if (detail) {
@@ -125,6 +135,19 @@ export function BookingDetailPanel({
     },
   });
 
+  const { mutate: deleteBooking, isPending: isDeleting } = useMutation({
+    mutationFn: () => api.deleteBooking(booking.bookingId),
+    onSuccess: () => {
+      toast.success(t("calendar.deleted"));
+      queryClient.invalidateQueries({ queryKey: ["club-schedule"] });
+      setConfirmDeleteOpen(false);
+      onClose();
+    },
+    onError: (err: Error) => {
+      toast.error(t("calendar.deleteFailed"), { description: err.message });
+    },
+  });
+
   function handleAvatarClick(index: number) {
     setEditingIndex(index);
     setSelectorOpen(true);
@@ -151,15 +174,25 @@ export function BookingDetailPanel({
             {startFmt} – {endFmt}
           </p>
         </div>
-        {showCloseButton && (
+        <div className="ml-2 flex shrink-0 items-center gap-1">
           <button
             type="button"
-            onClick={onClose}
-            className="ml-2 mt-0.5 shrink-0 rounded-md p-0.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+            onClick={() => setConfirmDeleteOpen(true)}
+            aria-label={t("calendar.deleteBooking")}
+            className="mt-0.5 rounded-md p-0.5 text-red-500 transition-colors hover:bg-red-50 hover:text-red-600"
           >
-            <X className="h-4 w-4" />
+            <Trash2 className="h-4 w-4" />
           </button>
-        )}
+          {showCloseButton && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="mt-0.5 rounded-md p-0.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Teams */}
@@ -270,6 +303,39 @@ export function BookingDetailPanel({
         searchLabel={t("calendar.searchPlayers")}
         guestLabel={t("calendar.guest")}
       />
+
+      <Dialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{t("calendar.deleteConfirmTitle")}</DialogTitle>
+            <DialogDescription>{t("calendar.deleteConfirmDescription")}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <button
+              type="button"
+              onClick={() => setConfirmDeleteOpen(false)}
+              className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
+            >
+              {t("calendar.cancel")}
+            </button>
+            <button
+              type="button"
+              disabled={isDeleting}
+              onClick={() => deleteBooking()}
+              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isDeleting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  {t("calendar.deleteConfirmAction")}
+                </span>
+              ) : (
+                t("calendar.deleteConfirmAction")
+              )}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

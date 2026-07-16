@@ -22,6 +22,8 @@ import {
     TooltipTrigger,
     TooltipContent,
 } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
+import { getBookingStatus } from "@/lib/booking-status";
 import type { BookingCard as BookingCardType } from "@/lib/types";
 
 type Team = "TeamA" | "TeamB";
@@ -135,6 +137,7 @@ export function BookingCard({
     const t = useTranslations("bookings.card");
     const locale = useLocale();
     const [confirmOpen, setConfirmOpen] = useState(false);
+    const [confirmLeaveOpen, setConfirmLeaveOpen] = useState(false);
     const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
     const { user } = useUser();
 
@@ -152,6 +155,12 @@ export function BookingCard({
     } = booking;
 
     const isFull = spotsOpen <= 0;
+    const status = getBookingStatus(booking);
+    const isFinished = status === "finished";
+    const isInProgress = status === "inProgress";
+    const canJoin = status === "upcoming";
+    const hoursUntilStart = (new Date(startsAt).getTime() - Date.now()) / (1000 * 60 * 60);
+    const canLeave = hoursUntilStart >= 24;
 
     const userInitials = user
         ? `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase().trim() || "?"
@@ -177,7 +186,24 @@ export function BookingCard({
     };
 
     return (
-        <Card className="flex flex-col overflow-hidden border border-[#1E2F40] transition-all hover:border-[#2A3B4C] hover:shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
+        <Card
+            className={cn(
+                "relative flex flex-col overflow-hidden border border-[#1E2F40] transition-all hover:border-[#2A3B4C] hover:shadow-[0_4px_20px_rgba(0,0,0,0.2)]",
+                isFinished && "pointer-events-none opacity-60 grayscale-30"
+            )}
+        >
+            {(isFinished || isInProgress) && (
+                <Badge
+                    className={cn(
+                        "absolute right-3 top-3 z-10 text-[10px] font-semibold uppercase tracking-wider",
+                        isFinished
+                            ? "bg-muted text-muted-foreground"
+                            : "border-amber-500/30 bg-amber-500/15 text-amber-600"
+                    )}
+                >
+                    {isFinished ? t("statusFinished") : t("statusInProgress")}
+                </Badge>
+            )}
             <CardHeader className="px-5 pb-3 pt-5">
                 <div className="flex items-start justify-between gap-2">
                     {/* Club + court */}
@@ -233,7 +259,7 @@ export function BookingCard({
                                     const slotIndex = i; // 0 or 1
                                     const filled = slotIndex < Math.min(participantsCount, 2);
                                     const isCurrentUser = amIIn && slotIndex === 0;
-                                    const clickable = !filled && !amIIn && !isFull && !isManageView;
+                                    const clickable = !filled && !amIIn && !isFull && !isManageView && canJoin;
                                     return (
                                         <GameSlotAvatar
                                             key={slot.positionInTeam}
@@ -262,7 +288,7 @@ export function BookingCard({
                                     const globalIndex = 2 + i; // slots 2 and 3 overall
                                     const filled = globalIndex < participantsCount;
                                     const isCurrentUser = false; // current user is always placed in TeamA
-                                    const clickable = !filled && !amIIn && !isFull && !isManageView;
+                                    const clickable = !filled && !amIIn && !isFull && !isManageView && canJoin;
                                     return (
                                         <GameSlotAvatar
                                             key={slot.positionInTeam}
@@ -338,33 +364,40 @@ export function BookingCard({
                 {!isManageView && (
                     <div className="flex items-center justify-between gap-2 pt-1">
                         {amIIn ? (
-                            <>
-                                <div className="flex items-center gap-1.5 text-sm font-medium text-[#8CC63F]">
-                                    <CheckCircle2 className="h-4 w-4" />
-                                    {t("youreIn")}
+                            <div className="flex w-full flex-col gap-1.5">
+                                <div className="flex items-center justify-between gap-2">
+                                    <div className="flex items-center gap-1.5 text-sm font-medium text-[#8CC63F]">
+                                        <CheckCircle2 className="h-4 w-4" />
+                                        {t("youreIn")}
+                                    </div>
+                                    <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() => setConfirmLeaveOpen(true)}
+                                        disabled={isLeaving || !canLeave}
+                                        className="text-destructive hover:bg-destructive/10 hover:text-destructive disabled:opacity-40"
+                                    >
+                                        <UserMinus className="h-3.5 w-3.5" />
+                                        {isLeaving ? t("leaving") : t("leave")}
+                                    </Button>
                                 </div>
-                                <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => onLeave(bookingId)}
-                                    disabled={isLeaving}
-                                    className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                >
-                                    <UserMinus className="h-3.5 w-3.5" />
-                                    {isLeaving ? t("leaving") : t("leave")}
-                                </Button>
-                            </>
+                                {!canLeave && (
+                                    <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
+                                        {t("cancelTooLate")}
+                                    </p>
+                                )}
+                            </div>
                         ) : isFull ? (
                             <Button disabled variant="outline" className="w-full">
                                 {t("bookingFull")}
                             </Button>
                         ) : type === "Game" ? (
                             // For game bookings the slot avatars above are the CTA — show a hint
-                            <p className="text-xs text-muted-foreground">{t("selectSpot")}</p>
+                            canJoin && <p className="text-xs text-muted-foreground">{t("selectSpot")}</p>
                         ) : (
                             <Button
                                 onClick={() => setConfirmOpen(true)}
-                                disabled={isJoining}
+                                disabled={isJoining || !canJoin}
                                 className="w-full bg-[#8CC63F] text-[#0D1B2A] font-semibold hover:bg-[#7AB534] disabled:opacity-60"
                             >
                                 {isJoining ? t("joining") : t("join")}
@@ -395,6 +428,31 @@ export function BookingCard({
                             className="bg-[#8CC63F] text-[#0D1B2A] font-semibold hover:bg-[#7AB534]"
                         >
                             {t("joinConfirm.confirm")}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Confirm dialog for leaving a booking */}
+            <Dialog open={confirmLeaveOpen} onOpenChange={setConfirmLeaveOpen}>
+                <DialogContent className="sm:max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle>{t("leaveConfirm.title")}</DialogTitle>
+                        <DialogDescription>{t("leaveConfirm.description")}</DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <Button variant="outline" onClick={() => setConfirmLeaveOpen(false)}>
+                            {t("leaveConfirm.cancel")}
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                setConfirmLeaveOpen(false);
+                                onLeave(bookingId);
+                            }}
+                            disabled={isLeaving}
+                            className="bg-destructive text-white font-semibold hover:bg-destructive/90"
+                        >
+                            {t("leaveConfirm.confirm")}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

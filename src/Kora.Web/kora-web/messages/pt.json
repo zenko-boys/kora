@@ -39,15 +39,24 @@
         "checkConnection": "Verifique sua conexão e tente novamente.",
         "noBookingsAvailable": "Nenhuma reserva disponível",
         "adjustFilters": "Tente ajustar os filtros ou volte mais tarde.",
+        "tabs": {
+            "myGames": "Meus Jogos",
+            "discover": "Descobrir Jogos"
+        },
         "filter": {
             "type": "Tipo",
             "allTypes": "Todos",
             "game": "Game",
             "dayUse": "Day Use",
-            "openSpotsOnly": "Apenas com vagas"
+            "openSpotsOnly": "Apenas com vagas",
+            "club": "Clube",
+            "allClubs": "Todos os clubes",
+            "anyDate": "Qualquer data"
         },
         "card": {
             "players": "{count} / {capacity} jogadores",
+            "statusFinished": "Finalizado",
+            "statusInProgress": "Em andamento",
             "full": "Lotado",
             "openSpots": "{count} vaga(s)",
             "youreIn": "Você está dentro",
@@ -63,7 +72,14 @@
                 "description": "Você está prestes a entrar nesta reserva. Deseja continuar?",
                 "confirm": "Sim, entrar",
                 "cancel": "Cancelar"
-            }
+            },
+            "leaveConfirm": {
+                "title": "Sair desta reserva?",
+                "description": "Se você for o último participante, a reserva será cancelada para todos. Essa ação não pode ser desfeita.",
+                "confirm": "Sim, sair",
+                "cancel": "Cancelar"
+            },
+            "cancelTooLate": "Não é possível cancelar uma reserva com menos de 24 horas de antecedência."
         },
         "form": {
             "title": "Nova Reserva",
@@ -91,7 +107,18 @@
             "create": "Criar Reserva",
             "creating": "Criando…",
             "description": "Descrição",
-            "descriptionPlaceholder": "Adicione detalhes sobre esta reserva (opcional)…"
+            "descriptionPlaceholder": "Adicione detalhes sobre esta reserva (opcional)…",
+            "isPrivate": "Reserva privada",
+            "isPrivateDescription": "Somente participantes podem ver e entrar nessa reserva.",
+            "selectPlayers": "Jogadores",
+            "selectPlayersDescription": "Reservas privadas precisam de pelo menos um jogador de verdade (não convidado).",
+            "teamA": "Time A",
+            "teamB": "Time B",
+            "addPlayer": "Adicionar jogador",
+            "selectPlayer": "Selecionar jogador",
+            "searchPlayers": "Buscar jogadores…",
+            "guest": "Convidado",
+            "privatePlayerRequired": "Adicione pelo menos um jogador cadastrado (não convidado) em uma reserva privada."
         },
         "toast": {
             "joined": "Você entrou na reserva!",
@@ -285,7 +312,13 @@
             "teamB": "Time B",
             "addPlayer": "Adicionar jogador",
             "selectClubToView": "Selecione um clube para visualizar o calendário",
-            "selectedGames": "Jogos selecionados"
+            "selectedGames": "Jogos selecionados",
+            "deleteBooking": "Excluir reserva",
+            "deleteConfirmTitle": "Excluir esta reserva?",
+            "deleteConfirmDescription": "Isso cancela permanentemente a reserva para todos os participantes. Essa ação não pode ser desfeita.",
+            "deleteConfirmAction": "Sim, excluir",
+            "deleted": "Reserva excluída.",
+            "deleteFailed": "Não foi possível excluir a reserva"
         }
     },
     "landing": {

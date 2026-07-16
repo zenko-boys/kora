@@ -7,13 +7,20 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import type { MyClubSummary } from "@/lib/types";
+
+export interface ClubSwitcherClub {
+  clubId: string;
+  name: string;
+  imageUrl?: string;
+  courtsCount?: number;
+  rating?: number;
+}
 
 function ClubAvatar({
   club,
   size,
 }: {
-  club?: MyClubSummary;
+  club?: ClubSwitcherClub;
   size: number;
 }) {
   const style = { width: size, height: size };
@@ -42,16 +49,21 @@ export function ClubSwitcher({
   selectedClubId,
   onSelect,
   placeholder,
-  formatCourtsCount,
+  formatCourtsCount = (count) => String(count),
+  allLabel,
 }: {
-  clubs: MyClubSummary[];
+  clubs: ClubSwitcherClub[];
   selectedClubId: string;
   onSelect: (clubId: string) => void;
   placeholder: string;
-  formatCourtsCount: (count: number) => string;
+  formatCourtsCount?: (count: number) => string;
+  /** When provided, shows an extra "all clubs" option at the top that selects clubId "". */
+  allLabel?: string;
 }) {
   const [open, setOpen] = useState(false);
   const selected = clubs.find((c) => c.clubId === selectedClubId);
+  const triggerLabel =
+    selected?.name ?? (allLabel && selectedClubId === "" ? allLabel : placeholder);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -59,14 +71,35 @@ export function ClubSwitcher({
         className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
       >
         <ClubAvatar club={selected} size={24} />
-        <span className="max-w-40 truncate">
-          {selected?.name ?? placeholder}
-        </span>
+        <span className="max-w-40 truncate">{triggerLabel}</span>
         <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
       </PopoverTrigger>
 
       <PopoverContent align="start" className="w-72 p-1.5">
         <div className="flex flex-col gap-0.5">
+          {allLabel && (
+            <button
+              type="button"
+              onClick={() => {
+                onSelect("");
+                setOpen(false);
+              }}
+              className={[
+                "flex items-center gap-3 rounded-lg p-2 text-left transition-colors",
+                selectedClubId === "" ? "bg-[#8CC63F]/10" : "hover:bg-slate-50",
+              ].join(" ")}
+            >
+              <ClubAvatar size={36} />
+              <p
+                className={[
+                  "truncate text-sm font-medium",
+                  selectedClubId === "" ? "text-[#8CC63F]" : "text-slate-700",
+                ].join(" ")}
+              >
+                {allLabel}
+              </p>
+            </button>
+          )}
           {clubs.map((c) => {
             const isSelected = c.clubId === selectedClubId;
             const stars = c.rating ?? 0;

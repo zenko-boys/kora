@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git diff *)",
+      "Read(//e/projects/kora/src/Kora.Api/**)",
+      "Read(//e/projects/kora/src/Kora.Api/Features/Bookings/ListBookings/**)"
+    ]
+  }
+}

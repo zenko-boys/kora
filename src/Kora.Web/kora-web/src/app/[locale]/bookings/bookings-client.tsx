@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { startOfDay } from "date-fns";
 import { CalendarOff, Plus } from "lucide-react";
 import { BookingCard } from "@/components/bookings/booking-card";
 import { BookingCardSkeleton } from "@/components/bookings/booking-card-skeleton";
@@ -12,7 +13,11 @@ import { BookingsFilterBar } from "@/components/bookings/bookings-filter-bar";
 import { CreateBookingDialog } from "@/components/bookings/create-booking-dialog";
 import { createApiClient } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { getBookingStatus } from "@/lib/booking-status";
 import type { BookingsFilter } from "@/lib/types";
+
+const STATUS_RANK = { upcoming: 0, inProgress: 1, finished: 2 } as const;
 
 export function BookingsClient({ title, subtitle }: { title: string; subtitle: string }) {
     const { getToken } = useAuth();
@@ -21,13 +26,30 @@ export function BookingsClient({ title, subtitle }: { title: string; subtitle: s
     const [joiningId, setJoiningId] = useState<string | null>(null);
     const [leavingId, setLeavingId] = useState<string | null>(null);
     const [showCreate, setShowCreate] = useState(false);
-    const [filters, setFilters] = useState<BookingsFilter>({});
+    const [filters, setFilters] = useState<BookingsFilter>({ open: true });
+    const [tab, setTab] = useState<"myGames" | "discover">("myGames");
 
     const api = createApiClient(async () => getToken({ template: "dev" }));
 
+    // Default the lower bound to the start of today (instead of "now") so games
+    // already underway or finished earlier today still show up in the listing.
+    const effectiveFilters: BookingsFilter = {
+        ...filters,
+        fromUtc: filters.fromUtc ?? startOfDay(new Date()).toISOString(),
+    };
+
     const { data, isLoading, isError } = useQuery({
-        queryKey: ["bookings", filters],
-        queryFn: () => api.getBookings(filters),
+        queryKey: ["bookings", effectiveFilters],
+        queryFn: () => api.getBookings(effectiveFilters),
+    });
+
+    // Club options for the filter dropdown must ignore the active clubId filter,
+    // otherwise picking a club hides every other option. Reuses the same cache
+    // entry as the main query when no club is selected.
+    const clubOptionsFilters: BookingsFilter = { ...effectiveFilters, clubId: undefined };
+    const { data: clubOptionsData } = useQuery({
+        queryKey: ["bookings", clubOptionsFilters],
+        queryFn: () => api.getBookings(clubOptionsFilters),
     });
 
     const joinMutation = useMutation({
@@ -69,7 +91,23 @@ export function BookingsClient({ title, subtitle }: { title: string; subtitle: s
         onSettled: () => setLeavingId(null),
     });
 
-    const bookings = data?.bookings ?? [];
+    const allBookings = [...(data?.bookings ?? [])].sort((a, b) => {
+        const statusA = getBookingStatus(a);
+        const statusB = getBookingStatus(b);
+        if (statusA !== statusB) return STATUS_RANK[statusA] - STATUS_RANK[statusB];
+        const startA = new Date(a.startsAt).getTime();
+        const startB = new Date(b.startsAt).getTime();
+        return statusA === "finished" ? startB - startA : startA - startB;
+    });
+    const myGames = allBookings.filter((b) => b.amIIn);
+    const discoverGames = allBookings.filter((b) => !b.amIIn);
+    const bookings = tab === "myGames" ? myGames : discoverGames;
+
+    const clubOptions = Array.from(
+        new Map((clubOptionsData?.bookings ?? []).map((b) => [b.clubId, b.clubName])).entries()
+    )
+        .map(([clubId, name]) => ({ clubId, name }))
+        .sort((a, b) => a.name.localeCompare(b.name));
 
     return (
         <div className="space-y-6">
@@ -92,8 +130,27 @@ export function BookingsClient({ title, subtitle }: { title: string; subtitle: s
             <CreateBookingDialog open={showCreate} onOpenChange={setShowCreate} />
 
             {/* Filter bar */}
-            <div className="rounded-xl border border-border bg-card px-4 py-3">
-                <BookingsFilterBar filters={filters} onChange={setFilters} />
+            <div className="flex flex-wrap items-center gap-4 rounded-xl border border-border bg-card px-4 py-3">
+                {/* Tabs: My Games / Discover Games */}
+                <ToggleGroup
+                    value={[tab]}
+                    onValueChange={(values) => {
+                        const val = values[0];
+                        if (val) setTab(val as "myGames" | "discover");
+                    }}
+                    className="h-8 rounded-md border border-border bg-background p-0.5"
+                >
+                    <ToggleGroupItem value="myGames" className="h-6 cursor-pointer rounded px-2.5 text-xs aria-pressed:bg-[#8CC63F]/20 aria-pressed:text-[#8CC63F]">
+                        {t("tabs.myGames")}
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="discover" className="h-6 cursor-pointer rounded px-2.5 text-xs aria-pressed:bg-[#8CC63F]/20 aria-pressed:text-[#8CC63F]">
+                        {t("tabs.discover")}
+                    </ToggleGroupItem>
+                </ToggleGroup>
+
+                <div className="h-5 w-px bg-border" />
+
+                <BookingsFilterBar filters={filters} onChange={setFilters} clubOptions={clubOptions} />
             </div>
 
             {/* Results header */}
