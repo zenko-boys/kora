@@ -39,15 +39,24 @@
         "checkConnection": "Check your connection and try again.",
         "noBookingsAvailable": "No bookings available",
         "adjustFilters": "Try adjusting your filters or check back later.",
+        "tabs": {
+            "myGames": "My Games",
+            "discover": "Discover Games"
+        },
         "filter": {
             "type": "Type",
             "allTypes": "All",
             "game": "Game",
             "dayUse": "Day Use",
-            "openSpotsOnly": "Open spots only"
+            "openSpotsOnly": "Open spots only",
+            "club": "Club",
+            "allClubs": "All clubs",
+            "anyDate": "Any date"
         },
         "card": {
             "players": "{count} / {capacity} players",
+            "statusFinished": "Finished",
+            "statusInProgress": "In progress",
             "full": "Full",
             "openSpots": "{count} open",
             "youreIn": "You're In",
@@ -63,7 +72,14 @@
                 "description": "You are about to join this booking. Do you want to continue?",
                 "confirm": "Yes, join",
                 "cancel": "Cancel"
-            }
+            },
+            "leaveConfirm": {
+                "title": "Leave this booking?",
+                "description": "If you're the last participant, the booking will be cancelled for everyone. This action cannot be undone.",
+                "confirm": "Yes, leave",
+                "cancel": "Cancel"
+            },
+            "cancelTooLate": "Cannot leave a booking less than 24 hours before it starts."
         },
         "form": {
             "title": "New Booking",
@@ -91,7 +107,18 @@
             "create": "Create Booking",
             "creating": "Creating…",
             "description": "Description",
-            "descriptionPlaceholder": "Add details about this booking (optional)…"
+            "descriptionPlaceholder": "Add details about this booking (optional)…",
+            "isPrivate": "Private booking",
+            "isPrivateDescription": "Only participants can see and join this booking.",
+            "selectPlayers": "Players",
+            "selectPlayersDescription": "Private bookings need at least one real player (not a guest).",
+            "teamA": "Team A",
+            "teamB": "Team B",
+            "addPlayer": "Add player",
+            "selectPlayer": "Select player",
+            "searchPlayers": "Search players…",
+            "guest": "Guest",
+            "privatePlayerRequired": "Add at least one registered player (not a guest) to a private booking."
         },
         "toast": {
             "joined": "You joined the booking!",
@@ -284,7 +311,13 @@
             "teamB": "Team B",
             "addPlayer": "Add player",
             "selectClubToView": "Select a club to view the calendar",
-            "selectedGames": "Selected games"
+            "selectedGames": "Selected games",
+            "deleteBooking": "Delete booking",
+            "deleteConfirmTitle": "Delete this booking?",
+            "deleteConfirmDescription": "This will permanently cancel the booking for all participants. This action cannot be undone.",
+            "deleteConfirmAction": "Yes, delete",
+            "deleted": "Booking deleted.",
+            "deleteFailed": "Could not delete booking"
         }
     },
     "landing": {

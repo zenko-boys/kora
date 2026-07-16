@@ -1,5 +1,7 @@
+import type { TeamSlot } from "@/components/players/types";
+
+export type { TeamSlot };
 export type Court = { id: string; name: string };
-export type TeamSlot = { name: string; email: string; userId?: string } | null;
 export type Booking = {
   id: string;
   courtId: string;

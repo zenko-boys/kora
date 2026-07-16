@@ -31,7 +31,7 @@ import { timeToSlotIndex, formatSlotTime } from "./helpers";
 import { BookingPanel, type BookingFormData } from "./BookingPanel";
 import { SlotBookingCard } from "./SlotBookingCard";
 import { BookingDetailPanel } from "./BookingDetailPanel";
-import { ClubSwitcher } from "./ClubSwitcher";
+import { ClubSwitcher } from "@/components/clubs/club-switcher";
 import { SelectedGamesPanel } from "./SelectedGamesPanel";
 import type { SlotKey } from "./types";
 
@@ -421,7 +421,11 @@ export function CalendarClient({
       <div className="flex min-h-0 flex-1 gap-4">
         {/* Toolbar + grid + viewing-bookings list — fused into a single card */}
         <div className="flex min-h-0 flex-1 overflow-hidden rounded-xl border border-slate-200 bg-white">
-        <div ref={calendarColumnRef} className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <div
+          ref={calendarColumnRef}
+          className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
+          style={calendarColumnHeight !== undefined ? { minHeight: calendarColumnHeight } : undefined}
+        >
           {/* Toolbar: club switcher + date navigation */}
           <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-4 py-2.5">
             <ClubSwitcher
@@ -476,7 +480,7 @@ export function CalendarClient({
           {/* Grid container */}
           <div
             ref={gridContainerRef}
-            className="flex-1 overflow-x-auto overflow-y-hidden"
+            className="min-h-0 flex-1 overflow-x-auto overflow-y-hidden"
           >
           {/* No club selected */}
           {!selectedClubId && (

@@ -10,8 +10,19 @@ import moment from "moment-timezone";
 import { createApiClient } from "@/lib/api";
 import { MANAGEMENT_ROLES } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import type { BookingType, CreateBookingRequest } from "@/lib/types";
+import { AvatarSlot } from "@/components/players/avatar-slot";
+import { PlayerSelectorDialog } from "@/components/players/player-selector-dialog";
+import type { TeamSlot } from "@/components/players/types";
+import type {
+    BookingType,
+    CreateBookingRequest,
+    BookingParticipantRequest,
+    BookingGuestRequest,
+    BookingTeam,
+} from "@/lib/types";
 
 function inputCls(extra?: string) {
     return `w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#8CC63F]/50 ${extra ?? ""}`;
@@ -32,6 +43,28 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     const [courtsToOccupy, setCourtsToOccupy] = useState<number>(1);
     const [capacity, setCapacity] = useState<number | "">(10);
     const [description, setDescription] = useState("");
+    const [isPrivate, setIsPrivate] = useState(false);
+    const [teamSlots, setTeamSlots] = useState<[TeamSlot, TeamSlot, TeamSlot, TeamSlot]>([null, null, null, null]);
+    const [selectorOpen, setSelectorOpen] = useState(false);
+    const [editingSlotIndex, setEditingSlotIndex] = useState<number | null>(null);
+
+    const hasRealPlayer = teamSlots.some((s) => !!s?.userId);
+
+    function handleSlotAvatarClick(index: number) {
+        setEditingSlotIndex(index);
+        setSelectorOpen(true);
+    }
+
+    function handleSlotPlayerSelect({ name, email, userId }: { name: string; email: string; userId?: string }) {
+        if (editingSlotIndex === null) return;
+        setTeamSlots((prev) => {
+            const next = [...prev] as [TeamSlot, TeamSlot, TeamSlot, TeamSlot];
+            next[editingSlotIndex] = { name, email, userId };
+            return next;
+        });
+        setSelectorOpen(false);
+        setEditingSlotIndex(null);
+    }
 
     // Reset slot selection when club or date changes
     useEffect(() => { setSelectionRange(null); }, [clubId, date]);
@@ -135,12 +168,31 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                 startMoment.clone().add(i * cellMin, "minutes").format()
             );
 
+            const showTeamSlots = isPrivate && type === "Game";
+            const participants: BookingParticipantRequest[] = [];
+            const guests: BookingGuestRequest[] = [];
+            if (showTeamSlots) {
+                teamSlots.forEach((slot, i) => {
+                    if (!slot) return;
+                    const team: BookingTeam = i < 2 ? "TeamA" : "TeamB";
+                    const positionInTeam = (i % 2) + 1;
+                    if (slot.userId) {
+                        participants.push({ userId: slot.userId, team, positionInTeam });
+                    } else {
+                        guests.push({ name: slot.name, email: slot.email || undefined, team, positionInTeam });
+                    }
+                });
+            }
+
             const body: CreateBookingRequest = {
                 type,
                 slots: slotTimes,
                 courtsToOccupy,
                 capacity: capacity !== "" ? capacity : undefined,
                 description: description || undefined,
+                isPrivate,
+                participants: participants.length > 0 ? participants : undefined,
+                guests: guests.length > 0 ? guests : undefined,
             };
             return api.createBooking(clubId, body);
         },
@@ -161,6 +213,10 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
         if (!date) { toast.error(t("toast.selectDate")); return; }
         if (!selectionRange) { toast.error(t("toast.selectSlot")); return; }
         if (!meetsMinDuration) { toast.error(t("toast.minimumDuration", { min: minMin })); return; }
+        if (isPrivate && type === "Game" && !hasRealPlayer) {
+            toast.error(t("form.privatePlayerRequired"));
+            return;
+        }
         mutation.mutate();
     };
 
@@ -474,6 +530,80 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                 </div>
             )}
 
+            {!!clubId && (
+                <div className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2.5">
+                    <div className="space-y-0.5">
+                        <Label htmlFor="is-private" className="cursor-pointer text-sm font-medium text-foreground">
+                            {t("form.isPrivate")}
+                        </Label>
+                        <p className="text-xs text-muted-foreground">{t("form.isPrivateDescription")}</p>
+                    </div>
+                    <Switch
+                        id="is-private"
+                        checked={isPrivate}
+                        onCheckedChange={setIsPrivate}
+                        className="cursor-pointer data-[state=checked]:bg-[#8CC63F]"
+                    />
+                </div>
+            )}
+
+            {!!clubId && isPrivate && type === "Game" && (
+                <div className="space-y-2 rounded-md border border-border px-3 py-3">
+                    <div>
+                        <label className="text-xs font-medium text-muted-foreground">{t("form.selectPlayers")}</label>
+                        <p className="text-xs text-muted-foreground/70">{t("form.selectPlayersDescription")}</p>
+                    </div>
+                    <div className="flex items-center justify-around gap-2 pt-1">
+                        <div className="flex flex-col items-center gap-2">
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t("form.teamA")}</span>
+                            <div className="flex gap-3">
+                                {([0, 1] as const).map((i) => (
+                                    <AvatarSlot
+                                        key={i}
+                                        slot={teamSlots[i]}
+                                        onClick={() => handleSlotAvatarClick(i)}
+                                        addLabel={t("form.addPlayer")}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                        <span className="text-xs font-bold text-muted-foreground/60">VS</span>
+                        <div className="flex flex-col items-center gap-2">
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t("form.teamB")}</span>
+                            <div className="flex gap-3">
+                                {([2, 3] as const).map((i) => (
+                                    <AvatarSlot
+                                        key={i}
+                                        slot={teamSlots[i]}
+                                        onClick={() => handleSlotAvatarClick(i)}
+                                        addLabel={t("form.addPlayer")}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                    {!hasRealPlayer && (
+                        <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
+                            {t("form.privatePlayerRequired")}
+                        </p>
+                    )}
+                </div>
+            )}
+
+            <PlayerSelectorDialog
+                open={selectorOpen}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setSelectorOpen(false);
+                        setEditingSlotIndex(null);
+                    }
+                }}
+                onSelect={handleSlotPlayerSelect}
+                titleLabel={t("form.selectPlayer")}
+                searchLabel={t("form.searchPlayers")}
+                guestLabel={t("form.guest")}
+            />
+
             <div className="flex justify-end gap-2">
                 <Button type="button" variant="ghost" size="sm" onClick={onClose} disabled={mutation.isPending}>
                     <X className="h-3.5 w-3.5" />
@@ -482,7 +612,12 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                 <Button
                     type="submit"
                     size="sm"
-                    disabled={mutation.isPending || !selectionRange || !meetsMinDuration}
+                    disabled={
+                        mutation.isPending ||
+                        !selectionRange ||
+                        !meetsMinDuration ||
+                        (isPrivate && type === "Game" && !hasRealPlayer)
+                    }
                     className="bg-[#8CC63F] text-[#0D1B2A] hover:bg-[#7AB534]"
                 >
                     <Check className="h-3.5 w-3.5" />

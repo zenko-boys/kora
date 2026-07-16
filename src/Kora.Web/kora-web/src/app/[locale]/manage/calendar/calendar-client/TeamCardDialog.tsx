@@ -11,8 +11,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { AvatarSlot } from "./AvatarSlot";
-import { PlayerSelectorDialog } from "./PlayerSelectorDialog";
+import { AvatarSlot } from "@/components/players/avatar-slot";
+import { PlayerSelectorDialog } from "@/components/players/player-selector-dialog";
 import { COURTS } from "./constants";
 import type { Booking, TeamSlot } from "./types";
 

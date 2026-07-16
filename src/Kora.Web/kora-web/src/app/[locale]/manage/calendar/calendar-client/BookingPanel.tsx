@@ -10,8 +10,8 @@ import type { SlotKey, TeamSlot } from "./types";
 type CourtOption = { id: string; name: string };
 import { START_HOUR } from "./constants";
 import { formatSlotTime } from "./helpers";
-import { AvatarSlot } from "./AvatarSlot";
-import { PlayerSelectorDialog } from "./PlayerSelectorDialog";
+import { AvatarSlot } from "@/components/players/avatar-slot";
+import { PlayerSelectorDialog } from "@/components/players/player-selector-dialog";
 
 
 export interface BookingFormData {
