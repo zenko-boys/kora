@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { startOfDay } from "date-fns";
 import { Plus, SlidersHorizontal } from "lucide-react";
 import { BookingsSection } from "@/components/bookings/bookings-section";
-import { BookingsFiltersColumn } from "@/components/bookings/bookings-filters-column";
+import { BookingsFiltersColumn, EMPTY_FILTER_DRAFT, type FilterDraft } from "@/components/bookings/bookings-filters-column";
 import { CreateBookingDialog } from "@/components/bookings/create-booking-dialog";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { createApiClient } from "@/lib/api";
@@ -38,10 +38,16 @@ export function BookingsClient({ title }: { title: string }) {
     const [showCreate, setShowCreate] = useState(false);
     const [showFilters, setShowFilters] = useState(false);
 
-    // Each section (Meus Jogos / Descobrir Jogos) keeps its own independently applied filter.
+    // Each section (Meus Jogos / Descobrir Jogos) keeps its own independently applied filter,
+    // plus its own in-progress draft — so switching tabs never resets what you were configuring.
     const [activeFilterTab, setActiveFilterTab] = useState<"myGames" | "discover">("myGames");
     const [myGamesFilters, setMyGamesFilters] = useState<BookingsFilter>({ open: true });
     const [discoverFilters, setDiscoverFilters] = useState<BookingsFilter>({ open: true });
+    const [myGamesDraft, setMyGamesDraft] = useState<FilterDraft>(EMPTY_FILTER_DRAFT);
+    const [discoverDraft, setDiscoverDraft] = useState<FilterDraft>(EMPTY_FILTER_DRAFT);
+
+    const activeDraft = activeFilterTab === "myGames" ? myGamesDraft : discoverDraft;
+    const setActiveDraft = activeFilterTab === "myGames" ? setMyGamesDraft : setDiscoverDraft;
 
     const api = createApiClient(async () => getToken({ template: "dev" }));
 
@@ -125,13 +131,13 @@ export function BookingsClient({ title }: { title: string }) {
         <>
             <div className="hidden w-[320px] shrink-0 border-r border-border lg:block">
                 <BookingsFiltersColumn
-                    key={activeFilterTab}
-                    title={title}
                     tab={activeFilterTab}
                     onTabChange={setActiveFilterTab}
-                    initialFilters={activeFilterTab === "myGames" ? myGamesFilters : discoverFilters}
+                    draft={activeDraft}
+                    onDraftChange={setActiveDraft}
                     clubOptions={clubOptions}
                     onApply={activeFilterTab === "myGames" ? setMyGamesFilters : setDiscoverFilters}
+                    onCreateBooking={() => setShowCreate(true)}
                 />
             </div>
 
@@ -149,7 +155,7 @@ export function BookingsClient({ title }: { title: string }) {
                     <Button
                         size="sm"
                         onClick={() => setShowCreate(true)}
-                        className="bg-[#8CC63F] text-[#0D1B2A] font-semibold hover:bg-[#7AB534]"
+                        className="bg-[#8CC63F] text-[#0D1B2A] font-semibold hover:bg-[#7AB534] lg:hidden"
                     >
                         <Plus className="h-3.5 w-3.5" />
                         {t("newBooking")}
@@ -162,16 +168,19 @@ export function BookingsClient({ title }: { title: string }) {
                     <DialogContent className="max-h-[85vh] w-full max-w-sm overflow-y-auto p-0 lg:hidden" showCloseButton>
                         <DialogTitle className="sr-only">{title}</DialogTitle>
                         <BookingsFiltersColumn
-                            key={activeFilterTab}
-                            title={title}
                             tab={activeFilterTab}
                             onTabChange={setActiveFilterTab}
-                            initialFilters={activeFilterTab === "myGames" ? myGamesFilters : discoverFilters}
+                            draft={activeDraft}
+                            onDraftChange={setActiveDraft}
                             clubOptions={clubOptions}
                             onApply={(filters) => {
                                 if (activeFilterTab === "myGames") setMyGamesFilters(filters);
                                 else setDiscoverFilters(filters);
                                 setShowFilters(false);
+                            }}
+                            onCreateBooking={() => {
+                                setShowFilters(false);
+                                setShowCreate(true);
                             }}
                         />
                     </DialogContent>
