@@ -31,7 +31,8 @@
     "bookings": {
         "page": {
             "title": "Bookings",
-            "subtitle": "Browse available sessions and join a booking or create your own."
+            "subtitle": "Browse available sessions and join a booking or create your own.",
+            "resultsTitle": "Available games"
         },
         "newBooking": "New Booking",
         "bookingsFound": "{count, plural, =0 {No bookings found} one {1 booking found} other {{count} bookings found}}",
@@ -51,12 +52,28 @@
             "openSpotsOnly": "Open spots only",
             "club": "Club",
             "allClubs": "All clubs",
-            "anyDate": "Any date"
+            "anyDate": "Any date",
+            "day": "Day",
+            "period": "Time",
+            "periods": {
+                "morning": "Morning",
+                "afternoon": "Afternoon",
+                "evening": "Evening"
+            },
+            "clubSearchPlaceholder": "Search club by name",
+            "clearClub": "Clear club",
+            "apply": "Filter",
+            "selectClubFirst": "Select a club",
+            "selectDayFirst": "Select a day",
+            "selectPeriodFirst": "Select a time",
+            "mobileOpen": "Open filters",
+            "mobileClose": "Close filters"
         },
         "card": {
             "players": "{count} / {capacity} players",
             "statusFinished": "Finished",
             "statusInProgress": "In progress",
+            "statusUpcoming": "Upcoming",
             "full": "Full",
             "openSpots": "{count} open",
             "youreIn": "You're In",

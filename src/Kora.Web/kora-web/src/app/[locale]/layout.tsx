@@ -1,7 +1,7 @@
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { Providers } from "@/components/providers";
-import { Navbar } from "@/components/navbar";
+import { AppSidebar } from "@/components/app-sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { CookieBanner } from "@/components/cookie-banner";
 
@@ -17,8 +17,10 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
     return (
         <NextIntlClientProvider messages={messages}>
             <Providers>
-                <Navbar />
-                <div className="flex-1">{children}</div>
+                <div className="flex min-h-screen flex-1">
+                    <AppSidebar />
+                    <div className="min-w-0 flex-1">{children}</div>
+                </div>
                 <Toaster richColors position="bottom-right" />
                 <CookieBanner />
             </Providers>

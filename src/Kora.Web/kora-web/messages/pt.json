@@ -31,7 +31,8 @@
     "bookings": {
         "page": {
             "title": "Reservas",
-            "subtitle": "Navegue pelas sess\u00f5es dispon\u00edveis e participe de uma reserva ou crie a sua pr\u00f3pria."
+            "subtitle": "Navegue pelas sess\u00f5es dispon\u00edveis e participe de uma reserva ou crie a sua pr\u00f3pria.",
+            "resultsTitle": "Jogos dispon\u00edveis"
         },
         "newBooking": "Nova Reserva",
         "bookingsFound": "{count, plural, =0 {Nenhuma reserva encontrada} one {1 reserva encontrada} other {{count} reservas encontradas}}",
@@ -51,12 +52,28 @@
             "openSpotsOnly": "Apenas com vagas",
             "club": "Clube",
             "allClubs": "Todos os clubes",
-            "anyDate": "Qualquer data"
+            "anyDate": "Qualquer data",
+            "day": "Dia",
+            "period": "Horário",
+            "periods": {
+                "morning": "Manhã",
+                "afternoon": "Tarde",
+                "evening": "Noite"
+            },
+            "clubSearchPlaceholder": "Buscar clube pelo nome",
+            "clearClub": "Limpar clube",
+            "apply": "Filtrar",
+            "selectClubFirst": "Selecione um clube",
+            "selectDayFirst": "Selecione um dia",
+            "selectPeriodFirst": "Selecione um horário",
+            "mobileOpen": "Abrir filtros",
+            "mobileClose": "Fechar filtros"
         },
         "card": {
             "players": "{count} / {capacity} jogadores",
             "statusFinished": "Finalizado",
             "statusInProgress": "Em andamento",
+            "statusUpcoming": "Próximo",
             "full": "Lotado",
             "openSpots": "{count} vaga(s)",
             "youreIn": "Você está dentro",
