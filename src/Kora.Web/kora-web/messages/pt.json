@@ -31,8 +31,7 @@
     "bookings": {
         "page": {
             "title": "Reservas",
-            "subtitle": "Navegue pelas sess\u00f5es dispon\u00edveis e participe de uma reserva ou crie a sua pr\u00f3pria.",
-            "resultsTitle": "Jogos dispon\u00edveis"
+            "subtitle": "Navegue pelas sess\u00f5es dispon\u00edveis e participe de uma reserva ou crie a sua pr\u00f3pria."
         },
         "newBooking": "Nova Reserva",
         "bookingsFound": "{count, plural, =0 {Nenhuma reserva encontrada} one {1 reserva encontrada} other {{count} reservas encontradas}}",

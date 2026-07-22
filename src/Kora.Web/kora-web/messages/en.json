@@ -31,8 +31,7 @@
     "bookings": {
         "page": {
             "title": "Bookings",
-            "subtitle": "Browse available sessions and join a booking or create your own.",
-            "resultsTitle": "Available games"
+            "subtitle": "Browse available sessions and join a booking or create your own."
         },
         "newBooking": "New Booking",
         "bookingsFound": "{count, plural, =0 {No bookings found} one {1 booking found} other {{count} bookings found}}",
