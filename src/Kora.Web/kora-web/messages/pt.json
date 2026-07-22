@@ -44,6 +44,7 @@
             "discover": "Descobrir Jogos"
         },
         "filter": {
+            "sectionTitle": "Filtro",
             "type": "Tipo",
             "allTypes": "Todos",
             "game": "Game",
@@ -51,12 +52,28 @@
             "openSpotsOnly": "Apenas com vagas",
             "club": "Clube",
             "allClubs": "Todos os clubes",
-            "anyDate": "Qualquer data"
+            "anyDate": "Qualquer data",
+            "day": "Dia",
+            "period": "Horário",
+            "periods": {
+                "morning": "Manhã",
+                "afternoon": "Tarde",
+                "evening": "Noite"
+            },
+            "clubSearchPlaceholder": "Buscar clube pelo nome",
+            "clearClub": "Limpar clube",
+            "apply": "Filtrar",
+            "selectClubFirst": "Selecione um clube",
+            "selectDayFirst": "Selecione um dia",
+            "selectPeriodFirst": "Selecione um horário",
+            "mobileOpen": "Abrir filtros",
+            "mobileClose": "Fechar filtros"
         },
         "card": {
             "players": "{count} / {capacity} jogadores",
             "statusFinished": "Finalizado",
             "statusInProgress": "Em andamento",
+            "statusUpcoming": "Próximo",
             "full": "Lotado",
             "openSpots": "{count} vaga(s)",
             "youreIn": "Você está dentro",

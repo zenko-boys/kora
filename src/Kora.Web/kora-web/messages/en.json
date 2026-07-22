@@ -44,6 +44,7 @@
             "discover": "Discover Games"
         },
         "filter": {
+            "sectionTitle": "Filter",
             "type": "Type",
             "allTypes": "All",
             "game": "Game",
@@ -51,12 +52,28 @@
             "openSpotsOnly": "Open spots only",
             "club": "Club",
             "allClubs": "All clubs",
-            "anyDate": "Any date"
+            "anyDate": "Any date",
+            "day": "Day",
+            "period": "Time",
+            "periods": {
+                "morning": "Morning",
+                "afternoon": "Afternoon",
+                "evening": "Evening"
+            },
+            "clubSearchPlaceholder": "Search club by name",
+            "clearClub": "Clear club",
+            "apply": "Filter",
+            "selectClubFirst": "Select a club",
+            "selectDayFirst": "Select a day",
+            "selectPeriodFirst": "Select a time",
+            "mobileOpen": "Open filters",
+            "mobileClose": "Close filters"
         },
         "card": {
             "players": "{count} / {capacity} players",
             "statusFinished": "Finished",
             "statusInProgress": "In progress",
+            "statusUpcoming": "Upcoming",
             "full": "Full",
             "openSpots": "{count} open",
             "youreIn": "You're In",
