@@ -17,7 +17,7 @@ Os arquivos neste pacote (`kora-tela-reservas.html`, `kora-criar-jogo.html`) sã
 **Layout**: grid de 2 colunas — `84px` (sidebar ícones) + `1fr` (conteúdo). Conteúdo interno dividido em coluna de filtros fixa à esquerda (`.filters-col`, ~280px, fundo card, borda direita `1px solid var(--line-soft)`) e área principal rolável à direita (`.main`, padding `32px 40px`).
 
 **Components**:
-- **Sidebar** (`.sidebar`, fundo `--charcoal`): logo (imagem `assets/kora-icon.jpeg`, 36×36, `border-radius: 9px`) centralizado no topo; abaixo, ícones de navegação empilhados (`.icon-btn`, 46×46, `border-radius: 13px`) — "Reservas" (ativo: fundo `rgba(15,163,90,0.22)`, cor `--lime-green`) e "Gerenciar"; avatar do usuário no rodapé (gradiente `--lime-green` → `--deep-green`, circular). Sidebar é sticky (`position: sticky; top:0; height:100vh`) para permanecer fixa durante o scroll do conteúdo.
+- **Sidebar** (`.sidebar`, fundo `--charcoal`): logo (imagem `assets/kora-icon.png`, 36×36, `border-radius: 9px`) centralizado no topo; abaixo, ícones de navegação empilhados (`.icon-btn`, 46×46, `border-radius: 13px`) — "Reservas" (ativo: fundo `rgba(15,163,90,0.22)`, cor `--lime-green`) e "Gerenciar"; avatar do usuário no rodapé (gradiente `--lime-green` → `--deep-green`, circular). Sidebar é sticky (`position: sticky; top:0; height:100vh`) para permanecer fixa durante o scroll do conteúdo.
 - **Busca** (`.search-wrap input`): input com fundo branco, borda `--line-soft`, ícone de lupa.
 - **Filtro de Clube**: chips selecionáveis.
 - **Filtro de Dia** (`.day-row-wrap`): carrossel horizontal de chips dia-da-semana + número (`.day-chip`, 54px min-width, `border-radius: 12px`), com setas de navegação (`.carousel-arrow`, 24px, círculo com borda) à esquerda/direita que fazem `scrollBy` suave.
@@ -57,11 +57,11 @@ Os arquivos neste pacote (`kora-tela-reservas.html`, `kora-criar-jogo.html`) sã
 Nota: os valores exatos de cada variável CSS estão declarados no `:root` de cada arquivo HTML — usar esses como fonte de verdade.
 
 ## Assets
-- `assets/kora-icon.jpeg`: ícone/logo do Kora usado no topo da sidebar (fornecido pelo usuário).
+- `assets/kora-icon.png`: ícone/logo do Kora usado no topo da sidebar (fornecido pelo usuário).
 
 ## Files
 - `kora-tela-reservas.html` — tela de listagem/filtro de reservas
 - `kora-criar-jogo.html` — formulário de criação de jogo/reserva
-- `assets/kora-icon.jpeg` — logo
+- `assets/kora-icon.png` — logo
 
 Observação: este pacote reflete a versão desktop do fluxo; a moldura estilo "MacBook" (barra de título com 3 botões) visível ao abrir os arquivos é apenas apresentação do mockup e **não deve ser recriada** no app real.
