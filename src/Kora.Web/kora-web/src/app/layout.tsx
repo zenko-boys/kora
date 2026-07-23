@@ -16,8 +16,8 @@ export const metadata: Metadata = {
   title: "Kora",
   description: "Court booking platform",
   icons: {
-    icon: { url: "/kora-icon.jpeg", type: "image/jpeg" },
-    apple: { url: "/kora-icon.jpeg", type: "image/jpeg" },
+    icon: { url: "/kora-icon.png", type: "image/jpeg" },
+    apple: { url: "/kora-icon.png", type: "image/jpeg" },
   },
 };
 

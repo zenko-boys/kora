@@ -25,7 +25,7 @@ export function AppSidebar() {
     return (
         <aside className="sticky top-0 flex h-screen w-19 shrink-0 flex-col items-center gap-3 overflow-y-auto border-r border-sidebar-border bg-sidebar py-6 md:w-21">
             <Link href="/bookings" className="mb-2 flex items-center justify-center" title="Kora">
-                <img src="/kora-icon.jpeg" alt="Kora" width={36} height={36} className="rounded-[9px]" />
+                <img src="/kora-icon.png" alt="Kora" width={36} height={36} className="rounded-[9px]" />
             </Link>
 
             <nav className="flex flex-col items-center gap-3">
