@@ -45,6 +45,7 @@
         },
         "filter": {
             "sectionTitle": "Filter",
+            "reset": "Reset",
             "type": "Type",
             "allTypes": "All",
             "game": "Game",
@@ -63,7 +64,6 @@
             "clubSearchPlaceholder": "Search club by name",
             "clearClub": "Clear club",
             "apply": "Filter",
-            "selectClubFirst": "Select a club",
             "selectDayFirst": "Select a day",
             "selectPeriodFirst": "Select a time",
             "mobileOpen": "Open filters",
@@ -100,6 +100,7 @@
         },
         "form": {
             "title": "New Booking",
+            "pageTitle": "Create Game",
             "club": "Club",
             "searchClubs": "Search clubs…",
             "loadingClubs": "Loading clubs…",
@@ -119,6 +120,7 @@
             "timeSlots": "Time Slots",
             "loadingSlots": "Loading slots…",
             "noSlotsAvailable": "No slots available for this date.",
+            "noSlotsForPeriod": "No slots available for this period.",
             "minimumDuration": "(minimum {min} min)",
             "cancel": "Cancel",
             "create": "Create Booking",

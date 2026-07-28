@@ -1,7 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Plus, Sunrise, Sun, Moon } from "lucide-react";
+import { startOfDay } from "date-fns";
+import { Plus, RotateCcw, Sunrise, Sun, Moon } from "lucide-react";
 import { DayPickerRow } from "@/components/bookings/day-picker-row";
 import { ClubSearchInput, type ClubSearchOption } from "@/components/clubs/club-search-input";
 import { Switch } from "@/components/ui/switch";
@@ -71,12 +72,15 @@ export function BookingsFiltersColumn({
 
     const selectedClub = clubOptions.find((c) => c.clubId === clubId);
 
-    const missingField = !clubId ? "club" : !selectedDay ? "day" : !selectedPeriod ? "period" : null;
+    // Club is optional ("Todos os clubes" just omits clubId from the request) — period only
+    // makes sense (and is only enabled) once a specific club's timezone is known, so it's
+    // only required when a club is actually selected.
+    const missingField = !selectedDay ? "day" : clubId && !selectedPeriod ? "period" : null;
 
     function handleApply() {
-        if (missingField || !selectedDay || !selectedPeriod) return;
+        if (missingField || !selectedDay) return;
 
-        const range = selectedClub?.timeZoneId
+        const range = clubId && selectedPeriod && selectedClub?.timeZoneId
             ? periodUtcRange(selectedDay, selectedPeriod, selectedClub.timeZoneId)
             : dayOnlyUtcRange(selectedDay);
 
@@ -87,6 +91,11 @@ export function BookingsFiltersColumn({
             fromUtc: range.fromUtc,
             toUtc: range.toUtc,
         });
+    }
+
+    function handleReset() {
+        onDraftChange({ ...EMPTY_FILTER_DRAFT, open: false });
+        onApply({ fromUtc: startOfDay(new Date()).toISOString() });
     }
 
     return (
@@ -105,6 +114,14 @@ export function BookingsFiltersColumn({
                     {t("sectionTitle")}
                 </span>
                 <div className="h-px flex-1 bg-border" />
+                <button
+                    type="button"
+                    onClick={handleReset}
+                    className="flex shrink-0 cursor-pointer items-center gap-1 text-[11px] font-bold text-muted-foreground transition-colors hover:text-foreground"
+                >
+                    <RotateCcw className="h-3 w-3" />
+                    {t("reset")}
+                </button>
             </div>
 
             {/* Mode tabs: My Games / Discover — reactive, not staged behind Filtrar */}
@@ -229,13 +246,11 @@ export function BookingsFiltersColumn({
                         : "cursor-pointer bg-[#8CC63F] text-[#0D1B2A] hover:brightness-[1.06]",
                 ].join(" ")}
             >
-                {missingField === "club"
-                    ? t("selectClubFirst")
-                    : missingField === "day"
-                        ? t("selectDayFirst")
-                        : missingField === "period"
-                            ? t("selectPeriodFirst")
-                            : t("apply")}
+                {missingField === "day"
+                    ? t("selectDayFirst")
+                    : missingField === "period"
+                        ? t("selectPeriodFirst")
+                        : t("apply")}
             </button>
         </div>
     );

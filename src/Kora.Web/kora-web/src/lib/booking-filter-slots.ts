@@ -17,6 +17,16 @@ export function dayOnlyUtcRange(day: string): { fromUtc: string; toUtc: string }
     return { fromUtc: from.toISOString(), toUtc: to.toISOString() };
 }
 
+/** Which period card a given club-local slot start time falls into, if any. */
+export function bucketSlotPeriod(startTimeIso: string): PeriodKey | null {
+    const time = moment.parseZone(startTimeIso).format("HH:mm");
+    for (const key of PERIOD_KEYS) {
+        const [start, end] = PERIOD_TIME_RANGES[key];
+        if (time >= start && time < end) return key;
+    }
+    return null;
+}
+
 /** A period card's nominal boundaries in the club's own timezone, converted to UTC. */
 export function periodUtcRange(day: string, period: PeriodKey, timeZoneId: string): { fromUtc: string; toUtc: string } {
     const [startTime, endTime] = PERIOD_TIME_RANGES[period];

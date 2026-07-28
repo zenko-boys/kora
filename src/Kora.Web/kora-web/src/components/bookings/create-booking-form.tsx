@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/nextjs";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { X, Check, Clock, Loader2, Search, Star } from "lucide-react";
+import { X, Check, Clock, Loader2, Search, Star, Sunrise, Sun, Moon } from "lucide-react";
 import moment from "moment-timezone";
 import { createApiClient } from "@/lib/api";
 import { MANAGEMENT_ROLES } from "@/lib/constants";
@@ -16,6 +16,7 @@ import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { AvatarSlot } from "@/components/players/avatar-slot";
 import { PlayerSelectorDialog } from "@/components/players/player-selector-dialog";
 import type { TeamSlot } from "@/components/players/types";
+import { PERIOD_KEYS, type PeriodKey, bucketSlotPeriod } from "@/lib/booking-filter-slots";
 import type {
     BookingType,
     CreateBookingRequest,
@@ -24,8 +25,35 @@ import type {
     BookingTeam,
 } from "@/lib/types";
 
+const PERIOD_ICONS: Record<PeriodKey, typeof Sunrise> = { manha: Sunrise, tarde: Sun, noite: Moon };
+const PERIOD_LABEL_KEYS: Record<PeriodKey, string> = {
+    manha: "filter.periods.morning",
+    tarde: "filter.periods.afternoon",
+    noite: "filter.periods.evening",
+};
+
 function inputCls(extra?: string) {
-    return `w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-[#8CC63F]/50 ${extra ?? ""}`;
+    return `w-full rounded-xl border-[1.5px] border-border bg-background px-3.5 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#8CC63F] ${extra ?? ""}`;
+}
+
+function FieldLabel({
+    children,
+    required,
+    action,
+}: {
+    children: React.ReactNode;
+    required?: boolean;
+    action?: React.ReactNode;
+}) {
+    return (
+        <div className="mb-3 flex items-center justify-between">
+            <label className="flex items-center gap-1 text-sm font-bold text-foreground">
+                {children}
+                {required && <span className="text-[#8CC63F]">*</span>}
+            </label>
+            {action}
+        </div>
+    );
 }
 
 export function CreateBookingForm({ onClose }: { onClose: () => void }) {
@@ -40,6 +68,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     const [date, setDate] = useState("");
     const [dateViewMode, setDateViewMode] = useState<"month" | "week">("week");
     const [selectionRange, setSelectionRange] = useState<{ start: number; end: number } | null>(null);
+    const [selectedPeriod, setSelectedPeriod] = useState<PeriodKey | null>(null);
     const [courtsToOccupy, setCourtsToOccupy] = useState<number>(1);
     const [capacity, setCapacity] = useState<number | "">(10);
     const [description, setDescription] = useState("");
@@ -67,7 +96,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     }
 
     // Reset slot selection when club or date changes
-    useEffect(() => { setSelectionRange(null); }, [clubId, date]);
+    useEffect(() => { setSelectionRange(null); setSelectedPeriod(null); }, [clubId, date]);
 
     const { data: clubsData, isLoading: loadingClubs } = useQuery({
         queryKey: ["my-clubs"],
@@ -101,6 +130,16 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     const minMin = slotsData?.minimumBookingDurationMinutes ?? 60;
     const slots = slotsData?.slots ?? [];
     const maxCourts = slots.length > 0 ? Math.max(...slots.map((s) => s.availableCourts)) : 1;
+
+    // Default to "tarde" the first time a day's slots load, mirroring the reference design.
+    useEffect(() => {
+        if (slotsData && selectedPeriod === null) setSelectedPeriod("tarde");
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [slotsData]);
+
+    const periodSlots = slots
+        .map((slot, index) => ({ slot, index }))
+        .filter(({ slot }) => !selectedPeriod || bucketSlotPeriod(slot.startTime) === selectedPeriod);
 
     const selectedCellCount = selectionRange ? selectionRange.end - selectionRange.start + 1 : 0;
     const meetsMinDuration = selectedCellCount * cellMin >= minMin;
@@ -241,32 +280,32 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
     })();
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit}>
             {/* Club search + carousel */}
-            <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground">{t("form.club")} *</label>
-                <div className="relative">
-                    <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <div className="mb-7.5">
+                <FieldLabel required>{t("form.club")}</FieldLabel>
+                <div className="relative mb-4">
+                    <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4.25 w-4.25 -translate-y-1/2 text-muted-foreground" />
                     <input
                         type="text"
                         placeholder={t("form.searchClubs")}
                         value={clubSearch}
                         onChange={(e) => setClubSearch(e.target.value)}
-                        className={inputCls("pl-8")}
+                        className={inputCls("pl-10")}
                     />
                 </div>
                 {loadingClubs ? (
-                    <div className="flex gap-3 overflow-x-auto pb-1">
+                    <div className="flex gap-3.5 overflow-x-auto pb-1">
                         {Array.from({ length: 4 }).map((_, i) => (
-                            <div key={i} className="h-28 w-40 shrink-0 animate-pulse rounded-xl bg-muted" />
+                            <div key={i} className="h-28 w-45 shrink-0 animate-pulse rounded-[20px] bg-muted" />
                         ))}
                     </div>
                 ) : filteredClubs.length === 0 ? (
-                    <p className="rounded-md border border-dashed border-border py-3 text-center text-xs text-muted-foreground">
+                    <p className="rounded-xl border border-dashed border-border py-3 text-center text-xs text-muted-foreground">
                         {t("form.noClubsFound")}
                     </p>
                 ) : (
-                    <div className="flex gap-3 overflow-x-auto pb-1">
+                    <div className="flex gap-3.5 overflow-x-auto pb-1">
                         {filteredClubs.map((c) => {
                             const isSelected = clubId === c.clubId;
                             const stars = c.rating ?? 0;
@@ -276,45 +315,36 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                     type="button"
                                     onClick={() => setClubId(c.clubId)}
                                     className={[
-                                        "relative flex h-28 w-40 shrink-0 cursor-pointer flex-col justify-end overflow-hidden rounded-xl border-2 p-2.5 text-left transition-all",
-                                        isSelected
-                                            ? "border-[#8CC63F] ring-2 ring-[#8CC63F]/40"
-                                            : "border-transparent hover:border-[#8CC63F]/40",
+                                        "relative flex h-28 w-45 shrink-0 cursor-pointer flex-col justify-between rounded-[20px] border-[1.5px] p-4 text-left transition-all",
+                                        isSelected ? "border-[#8CC63F] bg-[#8CC63F]/5" : "border-[#1E2F40] bg-card hover:border-[#2A3B4C]",
                                     ].join(" ")}
                                 >
-                                    {c.imageUrl ? (
-                                        <img src={c.imageUrl} alt={c.name} className="absolute inset-0 h-full w-full object-cover" />
-                                    ) : (
-                                        <div className="absolute inset-0 flex items-center justify-center bg-[#1C2E40]">
-                                            <span className="select-none text-5xl font-bold leading-none text-[#8CC63F]/10">
-                                                {c.name.charAt(0).toUpperCase()}
-                                            </span>
+                                    {isSelected && (
+                                        <div className="absolute top-3 right-3 flex h-5.5 w-5.5 items-center justify-center rounded-full bg-[#8CC63F]">
+                                            <Check className="h-3 w-3 text-[#0D1B2A]" strokeWidth={3} />
                                         </div>
                                     )}
-                                    <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
-                                    <div className="relative space-y-0.5">
-                                        <p className="truncate text-xs font-semibold text-white">{c.name}</p>
-                                        <div className="flex items-center justify-between gap-2">
-                                            {c.courtsCount !== undefined && (
-                                                <span className="text-[10px] text-white/80">{c.courtsCount} {t("form.courts")}</span>
-                                            )}
-                                            {stars > 0 && (
-                                                <span className="flex items-center gap-0.5">
-                                                    {Array.from({ length: 5 }, (_, i) => (
-                                                        <Star
-                                                            key={i}
-                                                            className={[
-                                                                "h-2.5 w-2.5",
-                                                                i < Math.round(stars)
-                                                                    ? "fill-yellow-400 text-yellow-400"
-                                                                    : "text-white/40",
-                                                            ].join(" ")}
-                                                        />
-                                                    ))}
-                                                </span>
-                                            )}
-                                        </div>
+                                    <div className="min-w-0 pr-6">
+                                        <p className="truncate text-[15px] font-bold text-foreground">{c.name}</p>
+                                        {c.courtsCount !== undefined && (
+                                            <p className="mt-1 text-[11px] text-muted-foreground">{c.courtsCount} {t("form.courts")}</p>
+                                        )}
                                     </div>
+                                    {stars > 0 && (
+                                        <span className="flex items-center gap-0.5">
+                                            {Array.from({ length: 5 }, (_, i) => (
+                                                <Star
+                                                    key={i}
+                                                    className={[
+                                                        "h-2.5 w-2.5",
+                                                        i < Math.round(stars)
+                                                            ? "fill-yellow-400 text-yellow-400"
+                                                            : "text-muted-foreground/30",
+                                                    ].join(" ")}
+                                                />
+                                            ))}
+                                        </span>
+                                    )}
                                 </button>
                             );
                         })}
@@ -323,9 +353,9 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
             </div>
 
             {!!clubId && (
-                <div className="space-y-2">
-                    <label className="text-xs font-medium text-muted-foreground">{t("form.type")} *</label>
-                    <div className={["grid gap-3", availableTypes.length > 1 ? "grid-cols-2" : "grid-cols-1"].join(" ")}>
+                <div className="mb-7.5">
+                    <FieldLabel required>{t("form.type")}</FieldLabel>
+                    <div className={["grid gap-3.5", availableTypes.length > 1 ? "grid-cols-2" : "grid-cols-1"].join(" ")}>
                         {availableTypes.map((tp) => {
                             const isSelected = type === tp;
                             const label = tp === "Game" ? t("form.gameLabel") : t("form.dayUseLabel");
@@ -336,16 +366,16 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                     type="button"
                                     onClick={() => setType(tp)}
                                     className={[
-                                        "flex flex-col items-start cursor-pointer rounded-xl border-2 px-4 py-3 text-left transition-all",
+                                        "flex cursor-pointer flex-col items-start rounded-[14px] border-2 p-4.5 text-left transition-all",
                                         isSelected
-                                            ? "border-[#8CC63F] bg-[#8CC63F]/10 ring-2 ring-[#8CC63F]/30"
+                                            ? "border-[#8CC63F] bg-[#8CC63F]/6"
                                             : "border-border bg-background hover:border-[#8CC63F]/40 hover:bg-[#8CC63F]/5",
                                     ].join(" ")}
                                 >
-                                    <span className={["text-sm font-semibold", isSelected ? "text-[#8CC63F]" : "text-foreground"].join(" ")}>
+                                    <span className={["text-base font-extrabold", isSelected ? "text-[#8CC63F]" : "text-foreground"].join(" ")}>
                                         {label}
                                     </span>
-                                    <span className="mt-0.5 text-[10px] text-muted-foreground">{description}</span>
+                                    <span className="mt-1.5 text-[12.5px] leading-snug text-muted-foreground">{description}</span>
                                 </button>
                             );
                         })}
@@ -355,7 +385,7 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
 
             {/* Courts to occupy + Capacity (DayUse only) */}
             {!!clubId && type === "DayUse" && (
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="mb-7.5 grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                         <label className="text-xs font-medium text-muted-foreground">{t("form.courtsToOccupy")} *</label>
                         <input
@@ -387,36 +417,40 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
             )}
 
             {!!clubId && (
-                <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                        <label className="text-xs font-medium text-muted-foreground">{t("form.date")} *</label>
-                        <div className="flex overflow-hidden rounded-md border border-border text-xs">
-                            <button
-                                type="button"
-                                onClick={() => setDateViewMode("week")}
-                                className={[
-                                    "cursor-pointer px-3 py-1 transition-colors",
-                                    dateViewMode === "week"
-                                        ? "bg-[#8CC63F] text-[#0D1B2A]"
-                                        : "bg-background text-foreground hover:bg-muted",
-                                ].join(" ")}
-                            >
-                                {t("form.week")}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setDateViewMode("month")}
-                                className={[
-                                    "cursor-pointer px-3 py-1 transition-colors",
-                                    dateViewMode === "month"
-                                        ? "bg-[#8CC63F] text-[#0D1B2A]"
-                                        : "bg-background text-foreground hover:bg-muted",
-                                ].join(" ")}
-                            >
-                                {t("form.month")}
-                            </button>
-                        </div>
-                    </div>
+                <div className="mb-7.5">
+                    <FieldLabel
+                        required
+                        action={
+                            <div className="flex gap-0.5 rounded-full bg-background p-0.75">
+                                <button
+                                    type="button"
+                                    onClick={() => setDateViewMode("week")}
+                                    className={[
+                                        "cursor-pointer rounded-full px-3.5 py-1.5 text-[12.5px] font-bold transition-colors",
+                                        dateViewMode === "week"
+                                            ? "bg-[#8CC63F] text-[#0D1B2A]"
+                                            : "text-muted-foreground hover:text-foreground",
+                                    ].join(" ")}
+                                >
+                                    {t("form.week")}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setDateViewMode("month")}
+                                    className={[
+                                        "cursor-pointer rounded-full px-3.5 py-1.5 text-[12.5px] font-bold transition-colors",
+                                        dateViewMode === "month"
+                                            ? "bg-[#8CC63F] text-[#0D1B2A]"
+                                            : "text-muted-foreground hover:text-foreground",
+                                    ].join(" ")}
+                                >
+                                    {t("form.month")}
+                                </button>
+                            </div>
+                        }
+                    >
+                        {t("form.date")}
+                    </FieldLabel>
                     <div className="grid grid-cols-[repeat(auto-fill,minmax(2.5rem,1fr))] justify-items-center gap-2">
                         {visibleDays.map((d) => {
                             const val = d.format("YYYY-MM-DD");
@@ -429,16 +463,16 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                                     disabled={isPast}
                                     onClick={() => setDate(val)}
                                     className={[
-                                        "flex shrink-0 flex-col items-center rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
+                                        "flex min-w-14.5 shrink-0 flex-col items-center gap-0.5 rounded-xl border-[1.5px] px-1 pt-2.5 pb-3 text-xs font-medium transition-colors",
                                         isPast
                                             ? "cursor-not-allowed border-border bg-muted/40 text-muted-foreground opacity-40"
                                             : isSelected
-                                                ? "cursor-pointer border-[#8CC63F] bg-[#8CC63F] text-[#0D1B2A]"
+                                                ? "cursor-pointer border-transparent bg-[#8CC63F] text-[#0D1B2A]"
                                                 : "cursor-pointer border-border bg-background text-foreground hover:border-[#8CC63F]/40 hover:bg-[#8CC63F]/5",
                                     ].join(" ")}
                                 >
-                                    <span className="text-[10px] leading-none opacity-70">{DAY_INITIALS[d.day()]}</span>
-                                    <span className="mt-0.5 leading-none">{d.date()}</span>
+                                    <span className="text-[10.5px] leading-none font-bold uppercase opacity-70">{DAY_INITIALS[d.day()]}</span>
+                                    <span className="mt-1 text-base leading-none font-extrabold">{d.date()}</span>
                                 </button>
                             );
                         })}
@@ -446,20 +480,10 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                 </div>
             )}
 
-            {/* Slot picker */}
+            {/* Período + horário */}
             {clubId && date && (
-                <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                        <label className="text-xs font-medium text-muted-foreground">
-                            Available time slots *
-                        </label>
-                        {timeZoneId && (
-                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                                <Clock className="h-3 w-3" />
-                                {tzBadge}
-                            </span>
-                        )}
-                    </div>
+                <div className="mb-7.5">
+                    <FieldLabel required>{t("filter.period")}</FieldLabel>
 
                     {loadingSlots || fetchingSlots ? (
                         <div className="flex items-center gap-2 py-4 text-xs text-muted-foreground">
@@ -467,41 +491,81 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                             {t("form.loadingSlots")}
                         </div>
                     ) : slots.length === 0 ? (
-                        <p className="rounded-md border border-dashed border-border py-4 text-center text-xs text-muted-foreground">
+                        <p className="rounded-xl border border-dashed border-border py-4 text-center text-xs text-muted-foreground">
                             {t("form.noSlotsAvailable")}
                         </p>
                     ) : (
                         <>
-                            <div className="grid grid-cols-[repeat(auto-fill,minmax(6rem,1fr))] justify-items-center gap-2">
-                                {slots.map((slot, index) => {
-                                    const available = isSlotAvailable(index);
-                                    const past = !available && isSlotPast(index);
-                                    const occupied = !available && !past;
-                                    const isSelected = !!selectionRange && index >= selectionRange.start && index <= selectionRange.end;
+                            <div className="grid grid-cols-3 gap-2.5">
+                                {PERIOD_KEYS.map((key) => {
+                                    const Icon = PERIOD_ICONS[key];
+                                    const isSelected = selectedPeriod === key;
                                     return (
                                         <button
-                                            key={slot.startTime}
+                                            key={key}
                                             type="button"
-                                            disabled={!available}
-                                            onClick={() => handleSlotClick(index)}
+                                            onClick={() => {
+                                                setSelectedPeriod(key);
+                                                setSelectionRange(null);
+                                            }}
                                             className={[
-                                                "rounded-md border px-3 py-1.5 text-xs font-medium transition-colors",
-                                                available
-                                                    ? isSelected
-                                                        ? "cursor-pointer border-[#8CC63F] bg-[#8CC63F] text-[#0D1B2A]"
-                                                        : "cursor-pointer border-border bg-background text-foreground hover:border-[#8CC63F]/40 hover:bg-[#8CC63F]/5"
-                                                    : occupied
-                                                        ? "cursor-not-allowed border-[#C85252]/30 bg-[#C85252]/10 text-[#C85252]"
-                                                        : "cursor-not-allowed border-border bg-muted/40 text-muted-foreground opacity-40",
+                                                "flex cursor-pointer flex-col items-center gap-2 rounded-xl border-[1.5px] px-1.5 pt-4 pb-3 transition-colors",
+                                                isSelected
+                                                    ? "border-[#8CC63F] bg-[#8CC63F]/8"
+                                                    : "border-border hover:border-[#8CC63F]/40",
                                             ].join(" ")}
                                         >
-                                            {formatSlotTime(slot.startTime)}&nbsp;–&nbsp;{formatSlotTime(slot.endTime)}
+                                            <Icon className={["h-5.5 w-5.5", isSelected ? "text-[#8CC63F]" : "text-muted-foreground"].join(" ")} />
+                                            <span className={["text-[12.5px] font-bold", isSelected ? "text-[#8CC63F]" : "text-muted-foreground"].join(" ")}>
+                                                {t(PERIOD_LABEL_KEYS[key])}
+                                            </span>
                                         </button>
                                     );
                                 })}
                             </div>
+
+                            <div className="my-3.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <Clock className="h-3.25 w-3.25" />
+                                {tzBadge}
+                            </div>
+
+                            {periodSlots.length === 0 ? (
+                                <p className="rounded-xl border border-dashed border-border py-4 text-center text-xs text-muted-foreground">
+                                    {t("form.noSlotsForPeriod")}
+                                </p>
+                            ) : (
+                                <div className="grid grid-cols-3 gap-2.5">
+                                    {periodSlots.map(({ slot, index }) => {
+                                        const available = isSlotAvailable(index);
+                                        const past = !available && isSlotPast(index);
+                                        const occupied = !available && !past;
+                                        const isSelected = !!selectionRange && index >= selectionRange.start && index <= selectionRange.end;
+                                        return (
+                                            <button
+                                                key={slot.startTime}
+                                                type="button"
+                                                disabled={!available}
+                                                onClick={() => handleSlotClick(index)}
+                                                className={[
+                                                    "rounded-xl border-[1.5px] px-1.5 py-3 text-center text-[13px] font-bold transition-colors",
+                                                    available
+                                                        ? isSelected
+                                                            ? "cursor-pointer border-[#8CC63F] bg-[#8CC63F] text-[#0D1B2A]"
+                                                            : "cursor-pointer border-border bg-background text-foreground hover:border-[#8CC63F]/40 hover:bg-[#8CC63F]/5"
+                                                        : occupied
+                                                            ? "cursor-not-allowed border-[#FBE4E4] bg-[#FBE4E4] text-[#E5484D]"
+                                                            : "cursor-not-allowed border-border bg-muted/40 text-muted-foreground opacity-40",
+                                                ].join(" ")}
+                                            >
+                                                {formatSlotTime(slot.startTime)}&nbsp;–&nbsp;{formatSlotTime(slot.endTime)}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
+
                             {selectionRange && (
-                                <div className="mt-2 flex items-center gap-2 rounded-md border border-[#8CC63F]/25 bg-[#8CC63F]/8 px-3 py-2 text-xs">
+                                <div className="mt-3 flex items-center gap-2 rounded-xl border border-[#8CC63F]/25 bg-[#8CC63F]/8 px-3 py-2.5 text-xs">
                                     <Clock className="h-3.5 w-3.5 text-[#8CC63F]" />
                                     <span className="font-medium text-foreground">
                                         {formatSlotTime(slots[selectionRange.start].startTime)}&nbsp;–&nbsp;{formatSlotTime(slots[selectionRange.end].endTime)}
@@ -518,10 +582,10 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
             )}
 
             {!!clubId && (
-                <div className="space-y-2">
-                    <label className="text-xs font-medium text-muted-foreground">
+                <div className="mb-7.5">
+                    <label className="mb-3 flex items-center gap-1 text-sm font-bold text-foreground">
                         {t("form.description")}
-                        <span className="ml-1 text-muted-foreground/60">({t("form.capacityOptional")})</span>
+                        <span className="font-medium text-muted-foreground">({t("form.capacityOptional")})</span>
                     </label>
                     <RichTextEditor
                         onChange={setDescription}
@@ -531,24 +595,24 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
             )}
 
             {!!clubId && (
-                <div className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2.5">
-                    <div className="space-y-0.5">
-                        <Label htmlFor="is-private" className="cursor-pointer text-sm font-medium text-foreground">
+                <div className="mb-7.5 flex items-center justify-between gap-4 rounded-[14px] border-[1.5px] border-border p-4.5">
+                    <div className="space-y-1">
+                        <Label htmlFor="is-private" className="cursor-pointer text-[14.5px] font-bold text-foreground">
                             {t("form.isPrivate")}
                         </Label>
-                        <p className="text-xs text-muted-foreground">{t("form.isPrivateDescription")}</p>
+                        <p className="text-[12.5px] leading-snug text-muted-foreground">{t("form.isPrivateDescription")}</p>
                     </div>
                     <Switch
                         id="is-private"
                         checked={isPrivate}
                         onCheckedChange={setIsPrivate}
-                        className="cursor-pointer data-[state=checked]:bg-[#8CC63F]"
+                        className="cursor-pointer data-checked:bg-[#8CC63F]"
                     />
                 </div>
             )}
 
             {!!clubId && isPrivate && type === "Game" && (
-                <div className="space-y-2 rounded-md border border-border px-3 py-3">
+                <div className="mb-7.5 space-y-2 rounded-[14px] border-[1.5px] border-border p-4.5">
                     <div>
                         <label className="text-xs font-medium text-muted-foreground">{t("form.selectPlayers")}</label>
                         <p className="text-xs text-muted-foreground/70">{t("form.selectPlayersDescription")}</p>
@@ -604,21 +668,26 @@ export function CreateBookingForm({ onClose }: { onClose: () => void }) {
                 guestLabel={t("form.guest")}
             />
 
-            <div className="flex justify-end gap-2">
-                <Button type="button" variant="ghost" size="sm" onClick={onClose} disabled={mutation.isPending}>
+            <div className="mt-2 flex items-center justify-end gap-3.5">
+                <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={onClose}
+                    disabled={mutation.isPending}
+                    className="text-[14.5px] font-bold text-muted-foreground"
+                >
                     <X className="h-3.5 w-3.5" />
                     {t("form.cancel")}
                 </Button>
                 <Button
                     type="submit"
-                    size="sm"
                     disabled={
                         mutation.isPending ||
                         !selectionRange ||
                         !meetsMinDuration ||
                         (isPrivate && type === "Game" && !hasRealPlayer)
                     }
-                    className="bg-[#8CC63F] text-[#0D1B2A] hover:bg-[#7AB534]"
+                    className="rounded-full bg-[#8CC63F] px-6 text-[14.5px] font-extrabold text-[#0D1B2A] hover:bg-[#7AB534]"
                 >
                     <Check className="h-3.5 w-3.5" />
                     {mutation.isPending ? t("form.creating") : t("form.create")}
