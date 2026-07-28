@@ -9,7 +9,7 @@ import { startOfDay } from "date-fns";
 import { Plus, SlidersHorizontal } from "lucide-react";
 import { BookingsSection } from "@/components/bookings/bookings-section";
 import { BookingsFiltersColumn, EMPTY_FILTER_DRAFT, type FilterDraft } from "@/components/bookings/bookings-filters-column";
-import { CreateBookingDialog } from "@/components/bookings/create-booking-dialog";
+import { CreateBookingSheet } from "@/components/bookings/create-booking-sheet";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { createApiClient } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -35,8 +35,8 @@ export function BookingsClient({ title }: { title: string }) {
     const t = useTranslations("bookings");
     const [joiningId, setJoiningId] = useState<string | null>(null);
     const [leavingId, setLeavingId] = useState<string | null>(null);
-    const [showCreate, setShowCreate] = useState(false);
     const [showFilters, setShowFilters] = useState(false);
+    const [showCreate, setShowCreate] = useState(false);
 
     // Each section (Meus Jogos / Descobrir Jogos) keeps its own independently applied filter,
     // plus its own in-progress draft — so switching tabs never resets what you were configuring.
@@ -174,7 +174,7 @@ export function BookingsClient({ title }: { title: string }) {
                         </Button>
                     </div>
 
-                    <CreateBookingDialog open={showCreate} onOpenChange={setShowCreate} />
+                    <CreateBookingSheet open={showCreate} onOpenChange={setShowCreate} />
 
                     <Dialog open={showFilters} onOpenChange={setShowFilters}>
                         <DialogContent className="max-h-[85vh] w-full max-w-sm overflow-y-auto p-0 lg:hidden" showCloseButton>

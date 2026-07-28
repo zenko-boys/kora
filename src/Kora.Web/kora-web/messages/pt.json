@@ -45,6 +45,7 @@
         },
         "filter": {
             "sectionTitle": "Filtro",
+            "reset": "Resetar",
             "type": "Tipo",
             "allTypes": "Todos",
             "game": "Game",
@@ -63,7 +64,6 @@
             "clubSearchPlaceholder": "Buscar clube pelo nome",
             "clearClub": "Limpar clube",
             "apply": "Filtrar",
-            "selectClubFirst": "Selecione um clube",
             "selectDayFirst": "Selecione um dia",
             "selectPeriodFirst": "Selecione um horário",
             "mobileOpen": "Abrir filtros",
@@ -100,6 +100,7 @@
         },
         "form": {
             "title": "Nova Reserva",
+            "pageTitle": "Criar Jogo",
             "club": "Clube",
             "searchClubs": "Buscar clubes…",
             "loadingClubs": "Carregando clubes…",
@@ -119,6 +120,7 @@
             "timeSlots": "Horários",
             "loadingSlots": "Carregando horários…",
             "noSlotsAvailable": "Nenhum horário disponível para esta data.",
+            "noSlotsForPeriod": "Nenhum horário disponível neste período.",
             "minimumDuration": "(mínimo {min} min)",
             "cancel": "Cancelar",
             "create": "Criar Reserva",

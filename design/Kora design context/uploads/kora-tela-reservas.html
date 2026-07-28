@@ -9,7 +9,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    color-scheme: light;
     --deep-green:  #0FA35A;
     --lime-green:  #A7F15B;
     --neon-yellow: #F7E83B;
@@ -50,16 +49,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
     padding: 24px 0 28px;
-    overflow-y: auto;
   }
 
   .logo-mark {
-    margin-bottom: 20px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
+    margin-bottom: 8px;
   }
 
   .sidebar-icons {
@@ -68,8 +63,6 @@
     gap: 12px;
     align-items: center;
   }
-
-  .avatar-user { margin-top: auto; }
 
   .icon-btn {
     width: 46px;
@@ -102,7 +95,6 @@
     background: var(--card-bg);
     border-right: 1px solid var(--line-soft);
     padding: 30px 24px;
-    overflow-y: auto;
   }
 
   .filters-col h1 {
@@ -171,17 +163,12 @@
   }
   .switch.on .switch-knob { left: 21px; }
 
-  .day-row-wrap {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 26px;
-  }
   .day-row {
     display: flex;
     gap: 8px;
     overflow-x: auto;
     padding-bottom: 4px;
+    margin-bottom: 26px;
     scrollbar-width: none;
   }
   .day-row::-webkit-scrollbar { display: none; }
@@ -267,7 +254,6 @@
     color: var(--text-muted);
   }
   .search-wrap input {
-    background: #fff;
     width: 100%;
     padding: 12px 14px 12px 38px;
     border: 1.5px solid var(--line-soft);
@@ -307,49 +293,10 @@
   .period-card.selected svg,
   .period-card.selected span { color: var(--deep-green); }
 
-  .slots-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-top: 16px;
-  }
-  .slot-btn {
-    border: 1.5px solid var(--line-soft);
-    border-radius: 10px;
-    padding: 9px 4px;
-    text-align: center;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-primary);
-    cursor: pointer;
-    transition: border-color .15s ease, background .15s ease, color .15s ease;
-  }
-  .slot-btn:hover { border-color: var(--deep-green); }
-  .slot-btn.selected { background: var(--deep-green); border-color: var(--deep-green); color: #fff; }
-  .slot-btn.unavailable {
-    background: #FBE4E4; border-color: #FBE4E4; color: var(--red);
-    cursor: not-allowed;
-  }
-
-  .btn-filtrar {
-    margin-top: 24px;
-    background: var(--deep-green);
-    color: #fff;
-    font-size: 14px;
-    font-weight: 800;
-    text-align: center;
-    padding: 13px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: filter .15s ease;
-  }
-  .btn-filtrar:hover { filter: brightness(1.06); }
-
   /* ============ MAIN ============ */
   .main {
     padding: 32px 40px;
     overflow-y: auto;
-    background: var(--bg-app);
   }
 
   .main-header {
@@ -360,17 +307,6 @@
   }
   .main-header h2 { font-size: 22px; margin: 0; font-weight: 800; }
   .main-header span { font-size: 13px; color: var(--text-muted); }
-  .btn-nova-reserva {
-    display: flex; align-items: center; gap: 8px;
-    background: var(--deep-green); color: #fff;
-    font-size: 14px; font-weight: 800;
-    padding: 11px 18px; border-radius: 10px;
-    text-decoration: none; cursor: pointer;
-    transition: filter .15s ease;
-    flex-shrink: 0;
-  }
-  .btn-nova-reserva:hover { filter: brightness(1.06); }
-  .btn-nova-reserva svg { width: 16px; height: 16px; }
 
   .cards-grid {
     display: grid;
@@ -577,60 +513,35 @@
     border-radius: 8px;
     cursor: pointer;
   }
-
-  html, body { background: #e9e9e9; }
-  .mac-frame {
-    max-width: 1400px;
-    margin: 24px auto;
-    height: calc(100vh - 48px);
-    display: flex;
-    flex-direction: column;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 40px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.08);
-    background: #f6f6f6;
-  }
-  .mac-titlebar {
-    height: 34px;
-    flex-shrink: 0;
-    background: linear-gradient(180deg, #f3f3f3, #e6e6e6);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 14px;
-    border-bottom: 1px solid rgba(0,0,0,0.08);
-  }
-  .mac-dot { width: 12px; height: 12px; border-radius: 50%; }
-  .mac-dot.red { background: #FF5F57; }
-  .mac-dot.yellow { background: #FEBC2E; }
-  .mac-dot.green { background: #28C840; }
-  .mac-frame .app { flex: 1; min-height: 0; }
-
 </style>
 </head>
 <body>
 
-<div class="mac-frame">
-<div class="mac-titlebar">
-  <span class="mac-dot red"></span><span class="mac-dot yellow"></span><span class="mac-dot green"></span>
-</div>
 <div class="app">
 
   <!-- ============ SIDEBAR ============ -->
   <div class="sidebar">
     <div class="logo-mark">
-      <img src="assets/kora-icon.jpeg" alt="Kora" width="36" height="36" style="border-radius: 9px; display:block;">
+      <svg width="26" height="24" viewBox="0 0 20 24" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="koraGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#A7F15B"/>
+            <stop offset="1" stop-color="#0FA35A"/>
+          </linearGradient>
+        </defs>
+        <path d="M0 0 L11 0 L3 12 L13 24 L2 24 L-6 12 Z" fill="url(#koraGrad)"/>
+      </svg>
     </div>
 
     <div class="sidebar-icons">
-      <a class="icon-btn active" title="Reservas" href="kora-tela-reservas.html">
+      <div class="icon-btn active" title="Reservas">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="4" width="18" height="17" rx="3"/>
           <path d="M3 9h18"/>
           <path d="M8 3v3M16 3v3"/>
         </svg>
-      </a>
-      <div class="icon-btn" title="Gerenciar" onclick="alert('Gerenciar — em construção')">
+      </div>
+      <div class="icon-btn" title="Gerenciar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"/>
           <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 9 19.37a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.64 15a1.7 1.7 0 0 0-1.56-1.04H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.63 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.64a1.7 1.7 0 0 0 1.04-1.56V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15 4.63a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.36 9a1.7 1.7 0 0 0 1.56 1.04H21a2 2 0 1 1 0 4h-.09A1.7 1.7 0 0 0 19.4 15z"/>
@@ -671,22 +582,14 @@
     </div>
 
     <span class="field-label">Dia</span>
-    <div class="day-row-wrap">
-      <div class="carousel-arrow arrow-left">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      </div>
-      <div class="day-row">
-        <div class="day-chip"><span class="dow">Seg</span><span class="num">13</span></div>
-        <div class="day-chip"><span class="dow">Ter</span><span class="num">14</span></div>
-        <div class="day-chip selected"><span class="dow">Qua</span><span class="num">15</span></div>
-        <div class="day-chip"><span class="dow">Qui</span><span class="num">16</span></div>
-        <div class="day-chip"><span class="dow">Sex</span><span class="num">17</span></div>
-        <div class="day-chip"><span class="dow">Sáb</span><span class="num">18</span></div>
-        <div class="day-chip"><span class="dow">Dom</span><span class="num">19</span></div>
-      </div>
-      <div class="carousel-arrow arrow-right">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-      </div>
+    <div class="day-row">
+      <div class="day-chip"><span class="dow">Seg</span><span class="num">13</span></div>
+      <div class="day-chip"><span class="dow">Ter</span><span class="num">14</span></div>
+      <div class="day-chip selected"><span class="dow">Qua</span><span class="num">15</span></div>
+      <div class="day-chip"><span class="dow">Qui</span><span class="num">16</span></div>
+      <div class="day-chip"><span class="dow">Sex</span><span class="num">17</span></div>
+      <div class="day-chip"><span class="dow">Sáb</span><span class="num">18</span></div>
+      <div class="day-chip"><span class="dow">Dom</span><span class="num">19</span></div>
     </div>
 
     <span class="field-label">Horário</span>
@@ -711,23 +614,13 @@
         <span>Noite</span>
       </div>
     </div>
-
-    <div class="slots-grid" id="slots-grid"></div>
-
-    <div class="btn-filtrar">Filtrar</div>
   </div>
 
   <!-- ============ MAIN ============ -->
   <div class="main">
     <div class="main-header">
-      <div>
-        <h2>Jogos disponíveis</h2>
-        <span>3 resultados · Padel Pinheiros</span>
-      </div>
-      <a href="kora-criar-jogo.html" class="btn-nova-reserva">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-        Nova reserva
-      </a>
+      <h2>Jogos disponíveis</h2>
+      <span>3 resultados · Padel Pinheiros</span>
     </div>
 
     <div class="cards-grid">
@@ -945,58 +838,6 @@
 </div>
 
 <script>
-  var PERIODS = {
-    manha: { start: 6 * 60,  end: 12 * 60 },
-    tarde: { start: 12 * 60, end: 18 * 60 },
-    noite: { start: 18 * 60, end: 22 * 60 }
-  };
-  function toLabel(mins){
-    var h = Math.floor(mins / 60), m = mins % 60;
-    return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
-  }
-  function renderSlots(periodKey){
-    var p = PERIODS[periodKey];
-    var grid = document.getElementById('slots-grid');
-    grid.innerHTML = '';
-    for (var t = p.start; t < p.end; t += 30){
-      var startL = toLabel(t), endL = toLabel(t + 30);
-      var isUnavailable = (t === p.start || t === p.start + 30);
-      var btn = document.createElement('div');
-      btn.className = 'slot-btn' + (isUnavailable ? ' unavailable' : '');
-      btn.textContent = startL + ' – ' + endL;
-      if (!isUnavailable){
-        btn.addEventListener('click', function(){
-          document.querySelectorAll('.slot-btn.selected').forEach(s => s.classList.remove('selected'));
-          this.classList.add('selected');
-        });
-      }
-      grid.appendChild(btn);
-    }
-  }
-  var periodKeys = ['manha', 'tarde', 'noite'];
-  document.querySelectorAll('.filters-col .day-row .day-chip').forEach(function(chip){
-    chip.addEventListener('click', function(){
-      document.querySelectorAll('.filters-col .day-row .day-chip').forEach(c => c.classList.remove('selected'));
-      chip.classList.add('selected');
-    });
-  });
-  document.querySelectorAll('.day-row-wrap').forEach(function(wrap){
-    var track = wrap.querySelector('.day-row');
-    var left = wrap.querySelector('.arrow-left');
-    var right = wrap.querySelector('.arrow-right');
-    if (left) left.addEventListener('click', function(){ track.scrollBy({ left: -120, behavior: 'smooth' }); });
-    if (right) right.addEventListener('click', function(){ track.scrollBy({ left: 120, behavior: 'smooth' }); });
-  });
-
-  document.querySelectorAll('.filters-col .period-card').forEach(function(card, i){
-    card.addEventListener('click', function(){
-      document.querySelectorAll('.filters-col .period-card').forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-      renderSlots(periodKeys[i]);
-    });
-  });
-  renderSlots('tarde');
-
   document.querySelectorAll('.tags-carousel-wrap').forEach(function(wrap){
     var track = wrap.querySelector('.tags-carousel');
     var left = wrap.querySelector('.arrow-left');
@@ -1006,6 +847,5 @@
   });
 </script>
 
-</div>
 </body>
 </html>
